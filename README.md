@@ -8,7 +8,7 @@ This is a drop in replacement for Fedora in the context of most of Islandora.
 
 This module requires the following:
 
-* [python3]()
+* [Python 3.4.3+](https://www.python.org/)
 * [falcon](http://falconframework.org/)
 * [PostgreSQL](http://www.postgresql.org/)
 
@@ -28,7 +28,7 @@ Current maintainers:
 
 ## Development
 
-The packages is well documented internally, a quick way to deploy docs is to run
+The package is well documented internally, a quick way to deploy docs is to run
 the command `pydoc3 -p 1234` and visit  `http://HOST:1234/dgi_repo`.
 
 One can run the entire test suit from the project directory with
