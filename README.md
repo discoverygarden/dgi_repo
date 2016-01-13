@@ -14,7 +14,7 @@ This module requires the following:
 
 ## Installation
 
-`sudo apt-get -y install python3 build-essential python3-pip && sudo pip3 install -e ./`
+On Ubuntu 14.04.3: `sudo apt-get -y install python3 build-essential python3-pip && sudo pip3 install -e ./`
 
 ## Troubleshooting/Issues
 
