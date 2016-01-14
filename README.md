@@ -18,6 +18,8 @@ On Ubuntu 14.04.3: `sudo apt-get -y install python3 build-essential python3-pip 
 
 ## Troubleshooting/Issues
 
+Please check out our [wiki](http://code.discoverygarden.ca/dgi_repo/dgi_repo/wikis/home).
+
 Having problems or solved a problem? Contact [discoverygarden](http://support.discoverygarden.ca).
 
 ## Maintainers/Sponsors
