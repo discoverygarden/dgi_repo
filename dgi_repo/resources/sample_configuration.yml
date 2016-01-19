@@ -4,6 +4,8 @@ logging:
 
 data_directory: /var/lib/dgi_repo
 
+default_namespace: islandora
+
 drupal_sites:
     www.example.org:
         database:
