@@ -18,5 +18,14 @@ setup(name='dgi_repo',
     package_dir={'dgi_repo':'dgi_repo'},
     package_data={'dgi_repo': ['resources/*.*']},
     long_description=read('README.md'),
-    install_requires=['falcon', 'pyyaml']
+    install_requires=[
+        'falcon',
+        'talons',
+        'falcon-multipart',
+        'lxml',
+        'pyyaml'
+    ],
+    dependency_links=[
+        'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc96dc64b01404f455d3f957f9b98dc0b1ae#egg=falcon-multipart'
+    ]
 )
