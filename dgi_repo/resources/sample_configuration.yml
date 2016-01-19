@@ -2,10 +2,13 @@
 logging:
     log_level: DEBUG
 
-drupals:
-  - site:               www.example.org
-    database_host:      www.example.org
-    database_port:      3306
-    database_name:      drupal_db
-    database_username:  example_username
-    database_password:  example_password
+data_directory: /var/lib/dgi_repo
+
+drupal_sites:
+    www.example.org:
+        database:
+            host:      www.example.org
+            port:      3306
+            name:      drupal_db
+            username:  example_username
+            password:  example_password
