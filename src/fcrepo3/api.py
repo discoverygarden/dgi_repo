@@ -30,7 +30,7 @@ class FakeSoapResource(ABC):
         '''
         Parse SOAP message and respond accordingly.
         '''
-        soap_xml_out = SpooledTemporaryFile(max_size=4096)
+        soap_xml_out = getTempFile()
         with etree.xmlfile(soap_xml_out) as xf:
             with xf.element('{http://schemas.xmlsoap.org/soap/envelope/}Envelope'):
                 with xf.element('{http://schemas.xmlsoap.org/soap/envelope/}Body'):
@@ -110,7 +110,7 @@ class PidResource(ABC):
         req.get_param_as_int('numPids', min=1, store=params)
         req.get_param('namespace', store=params)
 
-        xml_out = SpooledTemporaryFile(max_size=4096)
+        xml_out = getTempFile()
         with etree.xml_file(xml_out) as xf:
             with xf.element('{{0}}pidList'.format(FEDORA_ACCESS_URI)):
                 for pid in self._get_pids(**params):
@@ -173,7 +173,7 @@ class DatastreamListResource(ABC):
         req.get_param('pid', store=params)
         parseDateTime(req, field, 'asOfDateTime', params)
 
-        xml_out = SpooledTemporaryFile(max_size=4096)
+        xml_out = getTempFile()
         with etree.xml_file(xml_out) as xf:
             with xf.element('{{0}}objectDatastreams'.format(FEDORA_ACCESS_URI)):
                 for datastream in self._get_datastreams(**params):
@@ -223,7 +223,7 @@ class DatastreamResource(ABC):
         '''
         Get datastream info.
         '''
-        xml_out = SpooledTemporaryFile(max_size=4096)
+        xml_out = getTempFile()
         with etree.xml_file(xml_out) as xf:
             for datastream in self._get_datastream_versions(**req.params):
                 writeDatastreamProfile(xf, datastream)
@@ -243,6 +243,7 @@ class DatastreamResource(ABC):
         '''
         pass
 
+
 class DatastreamDisseminationResource(ABC):
     def on_get(self, req, resp):
         '''
@@ -250,12 +251,13 @@ class DatastreamDisseminationResource(ABC):
         '''
         pass
 
+
 class DatastreamHistoryResource(ABC):
     def on_get(self, req, resp):
         '''
         Dump the datastream history.
         '''
-        xml_out = SpooledTemporaryFile(max_size=4096)
+        xml_out = getTempFile()
         with etree.xml_file(xml_out) as xf:
             with xf.element('{{0}}datastreamHistory'.format(FEDORA_MANAGEMENT_URI)):
                 for datastream in self._get_datastream_versions(**req.params):
@@ -271,9 +273,20 @@ class DatastreamHistoryResource(ABC):
         '''
         pass
 
+
 def writeDatastreamProfile(xf, datastream_info):
     with xf.element('{{0}}datastreamProfile'.format(FEDORA_MANAGEMENT_URI)):
         # TODO: Probably some mapping require here.
         for key, value in datastream_info.iteritems():
             with xf.element('{{0}}{1}'.format(FEDORA_MANAGEMENT_URI, key)):
                 xf.write(value)
+
+def getTempFile():
+    '''
+    Helper for temp file acquisition.
+
+    Returns:
+        A file object which should be automatically deleted when it is closed.
+    '''
+    # TODO: Expose "max_size" as configuration, for tuning.
+    return SpooledTemporaryFile(max_size=4096)
