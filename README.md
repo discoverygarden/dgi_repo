@@ -11,10 +11,11 @@ This module requires the following:
 * [Python 3.4.3+](https://www.python.org/)
 * [falcon](http://falconframework.org/)
 * [PostgreSQL](http://www.postgresql.org/)
+* [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation
 
-On Ubuntu 14.04.3: `sudo apt-get -y install python3 build-essential python3-pip && sudo pip3 install -e ./`
+On Ubuntu 14.04.3: `sudo apt-get -y install python3 build-essential python3-pip python3-yaml && sudo pip3 install -e ./`
 
 ## Troubleshooting/Issues
 

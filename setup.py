@@ -15,8 +15,8 @@ setup(name='dgi_repo',
     author_email='dev@discoverygarden.ca',
     license='TBD',
     packages=find_packages(),
-    package_dir={'dgi_repo':'src'},
-    package_data={'dgi_repo':'resources/*.*'},
+    package_dir={'dgi_repo':'dgi_repo'},
+    package_data={'dgi_repo': ['resources/*.*']},
     long_description=read('README.md'),
-    install_requires=['falcon']
+    install_requires=['falcon', 'pyyaml']
 )

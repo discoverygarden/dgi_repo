@@ -1,0 +1,11 @@
+# dgi_repo sample configuration.
+logging:
+    log_level: DEBUG
+
+drupals:
+  - site:               www.example.org
+    database_host:      www.example.org
+    database_port:      3306
+    database_name:      drupal_db
+    database_username:  example_username
+    database_password:  example_password
