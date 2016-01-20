@@ -9,9 +9,9 @@ route_map = {
 }
 
 def route(*routes):
-    '''
+    """
     Helper pull all our routes together.
-    '''
+    """
     def add(cls):
         for route in routes:
             route_map[route] = cls
@@ -31,13 +31,13 @@ class SoapAccessResource(api.FakeSoapResource):
                     # TODO: Make condition: only if datastream is managed or
                     # externally referenced.
                     with xf.element('stream'):
-                        datastream = io.BytesIO(b'''<?xml version="1.0" encoding="UTF-8"?>
+                        datastream = io.BytesIO(b"""<?xml version="1.0" encoding="UTF-8"?>
 <mods xmlns="http://www.loc.gov/mods/v3">
     <titleInfo>
         <title>lol title</title>
     </titleInfo>
 </mods>
-''')
+""")
                         # TODO: Replace "datastream" with correct file-like
                         # object.
                         base64.encode(datastream, xf)
@@ -54,7 +54,7 @@ class SoapManagementResource(api.FakeSoapResource):
         if method == '{{{0}}}export'.format(api.FEDORA_TYPES_URI):
             with xf.element('{{{0}}}exportResponse'.format(api.FEDORA_TYPES_URI)):
                 with xf.element('objectXML'):
-                    foxml = io.BytesIO(b'''<?xml version="1.0" encoding="UTF-8"?>
+                    foxml = io.BytesIO(b"""<?xml version="1.0" encoding="UTF-8"?>
 <foxml:digitalObject VERSION="1.1" PID="islandora:root" FEDORA_URI="info:fedora/islandora:root"
 xmlns:foxml="info:fedora/fedora-system:def/foxml#"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -119,7 +119,7 @@ xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/
 </foxml:xmlContent>
 </foxml:datastreamVersion>
 </foxml:datastream>
-</foxml:digitalObject>''')
+</foxml:digitalObject>""")
                     # TODO: Replace "foxml" with correct file-like
                     # object.
                     base64.encode(foxml, xf)

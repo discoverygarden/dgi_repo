@@ -26,12 +26,12 @@ for route, resource_class in configuration['fcrepo-implementation'].route_map.it
     app.add_route('/fedora{0}'.format(route), resource_class())
 
 def main():
-    '''
+    """
     Permit running with wsgiref.simple_server.
 
     Note: Appears to have issue dealing with streams, so SOAP and file uploads
     likely will not work correctly.
-    '''
+    """
     from wsgiref import simple_server
     httpd = simple_server.make_server('', 8000, app)
     httpd.serve_forever()

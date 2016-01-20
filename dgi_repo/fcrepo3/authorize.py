@@ -1,9 +1,9 @@
-'''
+"""
 Authorize actions.
-'''
+"""
 
 def authorize(identity, action):
-    '''
+    """
     An external authorizor, as for talons.auth.external.Authorizer.
 
     Args:
@@ -15,6 +15,6 @@ def authorize(identity, action):
 
     Returns:
         A boolean indicating if the action should be allowed by the given agent.
-    '''
+    """
     # TODO: Apply "global" and object-level policies.
     return True
