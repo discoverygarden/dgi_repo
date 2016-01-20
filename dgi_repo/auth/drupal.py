@@ -1,14 +1,14 @@
-#!/usr/bin/env python
 '''
 Authentication helpers.
 
 Will need some means of configuring Drupal endpoints, likely as a dictionary of
-dictionaries, mapping our site-identifying keys to maps of DB creds and some key
-identifying the DB driver to use... And possibly the query (could we have a
-default?)... Or materialization directly out of YAML (http://pyyaml.org/wiki/PyYAMLDocumentation#YAMLtagsandPythontypes)?
+dictionaries, mapping our site-identifying keys to maps of DB creds and some
+key identifying the DB driver to use... And possibly the query (could we have a
+default?)... Or materialization directly out of YAML
+(http://pyyaml.org/wiki/PyYAMLDocumentation#YAMLtagsandPythontypes)?
 '''
-
 import talons.auth.basicauth
+
 
 def authenticate(identity):
     '''

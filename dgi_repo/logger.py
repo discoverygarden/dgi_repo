@@ -2,6 +2,7 @@
 Sets up the root logger for our application.
 """
 
+
 def configure_logging():
     """
     Configure logging for the application.

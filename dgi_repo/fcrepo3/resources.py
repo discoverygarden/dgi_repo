@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+"""
+Falcon Resource implementations.
+"""
 
 from . import api
 import base64
@@ -7,6 +9,7 @@ import io
 route_map = {
     '/describe': api.DescribeResource
 }
+
 
 def route(*routes):
     """
@@ -26,6 +29,7 @@ class SoapAccessResource(api.FakeSoapResource):
         if method == '{{{0}}}getDatastreamDissemination'.format(api.FEDORA_TYPES_URI):
             with xf.element('{{{0}}}getDatastreamDisseminationResponse'.format(api.FEDORA_TYPES_URI)):
                 with xf.element('MIMEType'):
+                    # TODO: Write the "real" MIME-type.
                     xf.write('application/octet-stream')
                 if True:
                     # TODO: Make condition: only if datastream is managed or
@@ -128,7 +132,7 @@ xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/
 @route('/upload')
 class UploadResource(api.UploadResource):
     def _store(self, uploaded_file):
-        # TODO: Copy the file somewhere semi-persistent, and return a URI to it.
+        # TODO: Copy the file somewhere semi-persistent and return a URI to it.
         pass
 
 
@@ -161,6 +165,7 @@ class ObjectResource(api.ObjectResource):
         super().on_delete(req, resp, pid)
         # TODO: Purge the object.
         pass
+
 
 @route('/objects/{pid}/export', '/objects/{pid}/objectXML')
 class ObjectResourceExport(api.ObjectResourceExport):

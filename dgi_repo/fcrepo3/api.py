@@ -10,6 +10,7 @@ FEDORA_ACCESS_URI = 'http://www.fedora.info/definitions/1/0/access/'
 FEDORA_MANAGEMENT_URI = 'http://www.fedora.info/definitions/1/0/management/'
 FEDORA_TYPES_URI = 'http://www.fedora.info/definitions/1/0/types/'
 
+
 def _parse_xml_body(req, resp, resource, params):
     """
     Helper to parse SOAP XML messages.
@@ -68,7 +69,8 @@ class FakeSoapResource(ABC):
         """
         for method_el in req._params['envelope'].xpath('/s:Envelope/s:Body/t:*', namespaces={
             's': self.__class__.SOAP_NS,
-            't': FEDORA_TYPES_URI}):
+            't': FEDORA_TYPES_URI
+        }):
             yield (method_el.tag, {child.tag: child.text for child in method_el.getchildren()})
 
 
@@ -107,6 +109,7 @@ class DescribeResource(object):
   <repositoryVersion>{1}</repositoryVersion>
 </fedoraRepository>
 """.format(FEDORA_ACCESS_URI, '3.py')
+
 
 class PidResource(ABC):
     """
