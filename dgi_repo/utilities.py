@@ -1,5 +1,5 @@
 """
-Utility funcitons.
+Utility functions.
 """
 
 def bootstrap():
