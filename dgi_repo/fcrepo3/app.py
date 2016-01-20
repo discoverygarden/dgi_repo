@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 import falcon
+from dgi_repo.utilities import bootstrap
 from dgi_repo.configuration import configuration
 from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier, authenticate
 from dgi_repo.fcrepo3.authorize import authorize
 from talons.auth import middleware
 from talons.auth.external import Authenticator, Authorizer
 from falcon_multipart.middleware import MultipartMiddleware
+
+bootstrap()
 
 auth_middleware = middleware.create_middleware(
     identify_with=[Identifier],
