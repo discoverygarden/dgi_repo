@@ -26,7 +26,7 @@ def authenticate(identity):
     # TODO: Get a DB cursor for the selected site.
     # TODO: Check the credentials against the selected site (using provided
     # query or a default).
-    pass
+    return True
 
 
 class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
