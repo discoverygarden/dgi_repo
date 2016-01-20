@@ -37,11 +37,12 @@ the command `pydoc3 -p 1234` and visit  `http://HOST:1234/dgi_repo`.
 One can run the entire test suit from the project directory with
 `python3 -m unittest discover -v`.
 
-For quick dev setups to get the endpoint running, `gunicorn` works quite well (and is easily installed via `pip`). Something like:
+For quick dev setups to get the endpoint running, `gunicorn` works quite well
+(and is easily installed via `pip`). Something like:
+`gunicorn -b localhost:8000 --reload --log-level DEBUG dgi_repo.fcrepo3.app:app`
+should get you quickly on your feet (feel free to replace `localhost` with
+`0.0.0.0` if you need to hit it from another machine.
 
-    ```gunicorn -b localhost:8000 --reload --log-level DEBUG dgi_repo.fcrepo3.app:app```
-
-should get you quickly on your feet.
 
 If you would like to contribute to this module, please check out our helpful
 [Documentation for Developers](https://github.com/Islandora/islandora/wiki#wiki-documentation-for-developers)
