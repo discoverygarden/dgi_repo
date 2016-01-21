@@ -15,7 +15,12 @@ This module requires the following:
 
 ## Installation
 
-On Ubuntu 14.04.3: `sudo apt-get -y install python3 build-essential python3-pip python3-yaml && sudo pip3 install -e ./`
+On Ubuntu 14.04.3:
+
+```
+sudo apt-get -y install python3 build-essential python3-pip libxml2-dev libxslt1-dev libyaml-dev zlib1g-dev
+sudo pip3 install -e ./
+```
 
 ## Troubleshooting/Issues
 
