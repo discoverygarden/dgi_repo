@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import falcon
 from falcon_multipart.middleware import MultipartMiddleware
 from talons.auth import middleware
@@ -31,19 +29,3 @@ app = falcon.API(
 for route, resource_class in resources.route_map.items():
     # XXX: Injecting the "fedora" path component...
     app.add_route('/fedora{0}'.format(route), resource_class())
-
-
-def main():
-    """
-    Permit running with wsgiref.simple_server.
-
-    Note: Appears to have issue dealing with streams, so SOAP and file uploads
-    likely will not work correctly.
-    """
-    from wsgiref import simple_server
-    httpd = simple_server.make_server('', 8000, app)
-    httpd.serve_forever()
-
-
-if __name__ == '__main__':
-    main()
