@@ -15,7 +15,12 @@ This module requires the following:
 
 ## Installation
 
-On Ubuntu 14.04.3: `sudo apt-get -y install python3 build-essential python3-pip python3-yaml && sudo pip3 install -e ./`
+On Ubuntu 14.04.3:
+
+```
+sudo apt-get -y install python3 build-essential python3-pip libxml2-dev libxslt1-dev libyaml-dev zlib1g-dev
+sudo pip3 install -e ./
+```
 
 ## Troubleshooting/Issues
 
@@ -36,6 +41,13 @@ the command `pydoc3 -p 1234` and visit  `http://HOST:1234/dgi_repo`.
 
 One can run the entire test suit from the project directory with
 `python3 -m unittest discover -v`.
+
+For quick dev setups to get the endpoint running, `gunicorn` works quite well
+(and is easily installed via `pip`). Something like:
+`gunicorn -b localhost:8000 --reload --log-level DEBUG dgi_repo.fcrepo3.app:app`
+should get you quickly on your feet (feel free to replace `localhost` with
+`0.0.0.0` if you need to hit it from another machine.
+
 
 If you would like to contribute to this module, please check out our helpful
 [Documentation for Developers](https://github.com/Islandora/islandora/wiki#wiki-documentation-for-developers)

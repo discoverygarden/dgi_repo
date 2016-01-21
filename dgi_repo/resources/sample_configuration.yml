@@ -11,6 +11,7 @@ drupal_sites:
             name:      drupal_db
             username:  example_username
             password:  example_password
+
 logging:
     # Refer to https://docs.python.org/2/library/logging.config.html#logging.config.dictConfig
     version:                    1
