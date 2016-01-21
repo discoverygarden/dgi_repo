@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import falcon
 from falcon_multipart.middleware import MultipartMiddleware
@@ -7,7 +7,8 @@ from talons.auth.external import Authenticator, Authorizer
 from dgi_repo.utilities import bootstrap
 from dgi_repo.configuration import configuration
 from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier, authenticate
-from dgi_repo.fcrepo3.authorize import authorize
+from .authorize import authorize
+from . import resources
 
 bootstrap()
 
@@ -27,7 +28,7 @@ app = falcon.API(
     ]
 )
 
-for route, resource_class in configuration['fcrepo-implementation'].route_map.items():
+for route, resource_class in resources.route_map.items():
     # XXX: Injecting the "fedora" path component...
     app.add_route('/fedora{0}'.format(route), resource_class())
 
