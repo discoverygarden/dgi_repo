@@ -4,13 +4,26 @@ data_directory: /var/lib/dgi_repo
 default_namespace: islandora
 
 drupal_sites:
-    www.example.org:
+    alpha:
         database:
-            host:      www.example.org
-            port:      3306
-            name:      drupal_db
-            username:  example_username
-            password:  example_password
+            connection:
+                callable:   !!python/name:pymysql.connect
+                kwargs:
+                    host:   www.example.org
+                    port:   3306
+                    db:     drupal_db
+                    user:   example_username
+                    passwd: example_password
+    bravo:
+        database:
+            connection:
+                callable:     !!python/name:psycopg2.connect
+                kwargs:
+                    host:     www.example.com
+                    port:     5432
+                    dbname:   drupal_db
+                    user:     example_username
+                    password: example_password
 
 logging:
     # Refer to https://docs.python.org/2/library/logging.config.html#logging.config.dictConfig
