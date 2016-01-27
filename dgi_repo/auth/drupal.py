@@ -31,55 +31,54 @@ def authenticate(identity):
 
     if identity.login == 'anonymous' and identity.key == 'anonymous':
         # Quick anonymous check...
-        user_id = 0
+        identity.drupal_user_id = 0
         identity.roles.add('anonymous user')
         logger.debug('Anonymous user logged in from %s.', identity.site)
         return True
 
     # Grab the config for the selected site.
-    config = {
-        'args': [],
-        'kwargs': {},
-        'uid_query': '''SELECT uid
-FROM users
-WHERE name=%s AND pass=%s''',
-        'role_query': '''SELECT r.name
-FROM
-    users_roles AS ur
-        INNER JOIN
-    role AS r
-        ON ur.rid = r.rid
-WHERE
-    ur.uid = %s'''
-    }
-
-    config.update(configuration['drupal_sites'][identity.site]['database']['connection'])
+    db_info = configuration['drupal_sites'][identity.site]['database']
+    query = db_info.pop('query', '''SELECT DISTINCT u.uid, r.name
+FROM (
+  users u
+    LEFT JOIN
+  users_roles ON u.uid=users_roles.uid
+  )
+    LEFT JOIN role r ON r.rid=users_roles.rid
+WHERE u.name=%s AND u.pass=%s''')
 
     try:
-        # Get a DB cursor for the selected site.
-        conn = config['callable'](*args, **kwargs)
+        # Get a DB connection and cursor for the selected site.
+        conn = get_connection(identity.site)
         cursor = conn.cursor()
 
         # Check the credentials against the selected site (using provided
         # query or a default).
-        cursor.execute(uid_query, (identity.login, identity.key))
-        try:
-            user_id, = cursor.fetchone()
-        except:
-            logger.info('Invalid credentials for %s:%s.', identity.site, identity.login)
-            return False
+        cursor.execute(query, (identity.login, identity.key))
 
-        cursor.execute(role_query, user_id)
-        identity.roles.add('authenticated user')
-        for role, in cursor:
-            identity.roles.add(role)
-        logger.info('Authenticated %s:%s with roles: %s', identity.site, identity.login, identity.roles)
-        return True
+        if cursor.rowcount > 0:
+            identity.drupal_user_id = None
+            for uid, role in cursor:
+                if identity.drupal_user_id is None:
+                    identity.drupal_user_id = uid
+                identity.roles.add(role)
+            identity.roles.add('authenticated user')
+            logger.info('Authenticated %s:%s with roles: %s', identity.site, identity.login, identity.roles)
+            return True
+        else:
+            logger.info('Failed to authenticate %s:%s.', identity.site, identity.login)
+            return False
     except:
         logger.exception('Error while authenticating using Drupal credentials.')
     finally:
-        cursor.close()
-        conn.close()
+        try:
+            cursor.close()
+        except UnboundLocalError:
+            logger.debug('Failed before allocating DB cursor.')
+        try:
+            conn.close()
+        except UnboundLocalError:
+            logger.debug('Failed before creating DB connection.')
     return False
 
 
@@ -101,3 +100,43 @@ class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
                 identity.site = site if us == 'Tuque' else None
 
         return result
+
+_connectors = dict()
+def get_connection(site):
+    config = configuration['drupal_sites'][site]['database']
+    return _connectors[config['type']](config['connection'])
+
+
+try:
+    import pymysql
+    def _get_mysql_connection(config):
+        return pymysql.connect(
+            host=config.pop('host'),
+            db=config.pop('name'),
+            user=config.pop('username'),
+            password=config.pop('password', ''),
+            port=config.pop('port')
+        )
+    _connectors['mysql'] = _get_mysql_connection
+except:
+    logger.debug('MySQL driver not found.')
+
+try:
+    import psycopg2
+    def _get_postgresql_driver(config):
+        return psycopg2.connect(
+            database=config.pop('name'),
+            user=config.pop('username'),
+            password=config.pop('password'),
+            host=config.pop('host'),
+            port=config.pop('port')
+        )
+    _connectors['postgres'] = _get_postgresql_driver
+except:
+    logger.debug('PostgreSQL driver not found.')
+
+def _get_ioc_driver(config):
+    args = config.pop('args', [])
+    kwargs = config.pop('kwargs', {})
+    return config['callable'](*args, **kwargs)
+_connectors['ioc'] = _get_ioc_driver
