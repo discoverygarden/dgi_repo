@@ -9,7 +9,19 @@ default?)... Or materialization directly out of YAML
 """
 import logging
 import talons.auth.basicauth
-from dgi_repo.configuration import configuration
+
+"""
+A mapping of tokens to callables.
+
+Callables should return DB-API 2 connections when given the "connection" info
+dict.
+"""
+_CONNECTORS = {
+    'ioc': lambda config: config['callable'](
+        *config.pop('args', []),
+        **config.pop('kwargs', {})
+    )
+}
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +37,9 @@ def authenticate(identity):
     Returns:
         A boolean indicating if the given identity authenticates.
     """
+
+    from dgi_repo.configuration import configuration
+
     if not hasattr(identity, 'site'):
         logger.warn('Got request without site token.')
         return False
@@ -101,42 +116,39 @@ class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
 
         return result
 
-_connectors = dict()
+
 def get_connection(site):
+    """
+    Get a connection for the given site.
+    """
+
+    from dgi_repo.configuration import configuration
+
     config = configuration['drupal_sites'][site]['database']
-    return _connectors[config['type']](config['connection'])
+    return _CONNECTORS[config['type']](config['connection'])
 
 
 try:
     import pymysql
-    def _get_mysql_connection(config):
-        return pymysql.connect(
-            host=config.pop('host'),
-            db=config.pop('name'),
-            user=config.pop('username'),
-            password=config.pop('password', ''),
-            port=config.pop('port')
-        )
-    _connectors['mysql'] = _get_mysql_connection
-except:
+    _CONNECTORS['mysql'] = lambda config: pymysql.connect(
+        host=config.pop('host'),
+        db=config.pop('name'),
+        user=config.pop('username'),
+        password=config.pop('password', ''),
+        port=config.pop('port')
+    )
+except ImportError:
     logger.debug('MySQL driver not found.')
+
 
 try:
     import psycopg2
-    def _get_postgresql_driver(config):
-        return psycopg2.connect(
-            database=config.pop('name'),
-            user=config.pop('username'),
-            password=config.pop('password'),
-            host=config.pop('host'),
-            port=config.pop('port')
-        )
-    _connectors['postgres'] = _get_postgresql_driver
-except:
+    _CONNECTORS['postgres'] = lambda config: psycopg2.connect(
+        database=config.pop('name'),
+        user=config.pop('username'),
+        password=config.pop('password'),
+        host=config.pop('host'),
+        port=config.pop('port')
+    )
+except ImportError:
     logger.debug('PostgreSQL driver not found.')
-
-def _get_ioc_driver(config):
-    args = config.pop('args', [])
-    kwargs = config.pop('kwargs', {})
-    return config['callable'](*args, **kwargs)
-_connectors['ioc'] = _get_ioc_driver
