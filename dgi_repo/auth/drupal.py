@@ -25,6 +25,7 @@ _CONNECTORS = {
 
 logger = logging.getLogger(__name__)
 
+
 def authenticate(identity):
     """
     Check if the given identity is valid, and set the relevant roles.
