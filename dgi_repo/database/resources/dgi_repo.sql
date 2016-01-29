@@ -9,27 +9,6 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
---
--- Name: dgi_repo; Type: COMMENT; Schema: -; Owner: postgres
---
-
-COMMENT ON DATABASE dgi_repo IS 'A digital repository schema meant to be minimally compatible with Fedora. ';
-
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
 SET search_path = public, pg_catalog;
 
 --
@@ -4604,7 +4583,7 @@ COMMENT ON CONSTRAINT object_namespace_link ON objects IS 'Objects belong to nam
 --
 
 ALTER TABLE ONLY object_relationships
-    ADD CONSTRAINT object_relationships_object_link FOREIGN KEY (object_id_object) REFERENCES objects(id);
+    ADD CONSTRAINT object_relationships_object_link FOREIGN KEY (object_id_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4634,7 +4613,7 @@ COMMENT ON CONSTRAINT object_relationships_predicate_link ON object_relationship
 --
 
 ALTER TABLE ONLY object_relationships
-    ADD CONSTRAINT object_relationships_subject_link FOREIGN KEY (subject) REFERENCES objects(id);
+    ADD CONSTRAINT object_relationships_subject_link FOREIGN KEY (subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
