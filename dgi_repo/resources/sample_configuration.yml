@@ -4,14 +4,49 @@ data_directory: /var/lib/dgi_repo
 default_namespace: islandora
 
 drupal_sites:
-    www.example.org:
+    # Site ID. User-Agent in inbound requests should match 'Tuque/{name}',
+    # like 'Tuque/alpha' for this one
+    alpha:
         database:
-            host:      www.example.org
-            port:      3306
-            name:      drupal_db
-            username:  example_username
-            password:  example_password
-
+            type:      mysql # or 'postgres', depending on pymyql or psycopg2, respectively.
+            connection:
+                host:      www.example.org
+                port:      3306
+                name:      drupal_db
+                username:  example_username
+                password:  example_password
+            # Optionally, specify the query to use (in case something like
+            # Drupal's table name prefixing is being used). This query is passed
+            # the username and password hash, in that order.
+            query: 'SELECT DISTINCT u.uid, r.name
+FROM (
+  users u
+    LEFT JOIN
+  users_roles ON u.uid=users_roles.uid
+  )
+    LEFT JOIN role r ON r.rid=users_roles.rid
+WHERE u.name=%s AND u.pass=%s'
+    bravo:
+        database:
+            # Example "IoC" configuration (can similarly pass the query,
+            # if necessary (due to different replacement tokens being used or
+            # whatever reason)).
+            type: ioc
+            connection:
+                # Identifying the callable to use to get a DB-API 2 connection.
+                callable :    !!python/name:psycopg2.connect
+                # Optional list of positional args to pass to the above
+                # callable.
+                args:
+                    - one
+                    - two
+                    - three
+                # Optional mapping of keyword arguments to pass to the above
+                # callable.
+                kwargs:
+                    z: zulu
+                    y: yankee
+                    x: xray
 logging:
     # Refer to https://docs.python.org/2/library/logging.config.html#logging.config.dictConfig
     version:                    1
