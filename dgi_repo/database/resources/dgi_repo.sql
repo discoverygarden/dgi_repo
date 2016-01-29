@@ -13,7 +13,7 @@ SET client_min_messages = warning;
 -- Name: dgi_repo; Type: COMMENT; Schema: -; Owner: postgres
 --
 
-COMMENT ON DATABASE dgi_repo IS 'A digital repository schema meant to be minimaly compatible with Fedora. ';
+COMMENT ON DATABASE dgi_repo IS 'A digital repository schema meant to be minimally compatible with Fedora. ';
 
 
 --
