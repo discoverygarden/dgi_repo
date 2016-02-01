@@ -28,6 +28,6 @@ setup(
         'pyyaml'
     ],
     dependency_links=[
-        'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc96dc64b01404f455d3f957f9b98dc0b1ae#egg=falcon-multipart'
+        'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc96dc64b01404f455d3f957f9b98dc0b1ae#egg=falcon_multipart-0.1.0'
     ]
 )
