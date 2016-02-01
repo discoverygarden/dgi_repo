@@ -4121,7 +4121,7 @@ COMMENT ON CONSTRAINT datastream_log_link ON datastreams IS 'Datastream versions
 --
 
 ALTER TABLE ONLY datastream_relationships
-    ADD CONSTRAINT datastream_relationships_datastream_link FOREIGN KEY (subject) REFERENCES datastreams(id);
+    ADD CONSTRAINT datastream_relationships_datastream_link FOREIGN KEY (subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4151,7 +4151,7 @@ COMMENT ON CONSTRAINT datastream_relationships_predicate_link ON datastream_rela
 --
 
 ALTER TABLE ONLY date_issued
-    ADD CONSTRAINT date_issued_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT date_issued_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4166,7 +4166,7 @@ COMMENT ON CONSTRAINT date_issued_subject_link ON date_issued IS 'Each relation 
 --
 
 ALTER TABLE ONLY dublin_core
-    ADD CONSTRAINT dc_object_link FOREIGN KEY (object_id) REFERENCES objects(id);
+    ADD CONSTRAINT dc_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4174,7 +4174,7 @@ ALTER TABLE ONLY dublin_core
 --
 
 ALTER TABLE ONLY generate_ocr
-    ADD CONSTRAINT generate_ocr_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT generate_ocr_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4189,7 +4189,7 @@ COMMENT ON CONSTRAINT generate_ocr_subject_link ON generate_ocr IS 'Each relatio
 --
 
 ALTER TABLE ONLY has_language
-    ADD CONSTRAINT has_language_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT has_language_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4204,7 +4204,7 @@ COMMENT ON CONSTRAINT has_language_subject_link ON has_language IS 'Each relatio
 --
 
 ALTER TABLE ONLY has_model
-    ADD CONSTRAINT has_model_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id);
+    ADD CONSTRAINT has_model_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4219,7 +4219,7 @@ COMMENT ON CONSTRAINT has_model_object_key ON has_model IS 'Each relation object
 --
 
 ALTER TABLE ONLY has_model
-    ADD CONSTRAINT has_model_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT has_model_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4234,7 +4234,7 @@ COMMENT ON CONSTRAINT has_model_subject_link ON has_model IS 'Each relation subj
 --
 
 ALTER TABLE ONLY image_height
-    ADD CONSTRAINT image_height_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id);
+    ADD CONSTRAINT image_height_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4249,7 +4249,7 @@ COMMENT ON CONSTRAINT image_height_datastream_link ON image_height IS 'Images ha
 --
 
 ALTER TABLE ONLY image_width
-    ADD CONSTRAINT image_width_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id);
+    ADD CONSTRAINT image_width_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4264,7 +4264,7 @@ COMMENT ON CONSTRAINT image_width_datastream_link ON image_width IS 'Images have
 --
 
 ALTER TABLE ONLY is_constituent_of
-    ADD CONSTRAINT is_constituent_of_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id);
+    ADD CONSTRAINT is_constituent_of_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4279,7 +4279,7 @@ COMMENT ON CONSTRAINT is_constituent_of_object_key ON is_constituent_of IS 'Each
 --
 
 ALTER TABLE ONLY is_constituent_of
-    ADD CONSTRAINT is_constituent_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_constituent_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4294,7 +4294,7 @@ COMMENT ON CONSTRAINT is_constituent_of_subject_link ON is_constituent_of IS 'Ea
 --
 
 ALTER TABLE ONLY is_member_of_collection
-    ADD CONSTRAINT is_member_of_collection_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id);
+    ADD CONSTRAINT is_member_of_collection_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4309,7 +4309,7 @@ COMMENT ON CONSTRAINT is_member_of_collection_object_key ON is_member_of_collect
 --
 
 ALTER TABLE ONLY is_member_of_collection
-    ADD CONSTRAINT is_member_of_collection_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_member_of_collection_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4324,7 +4324,7 @@ COMMENT ON CONSTRAINT is_member_of_collection_subject_link ON is_member_of_colle
 --
 
 ALTER TABLE ONLY is_member_of
-    ADD CONSTRAINT is_member_of_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id);
+    ADD CONSTRAINT is_member_of_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4339,7 +4339,7 @@ COMMENT ON CONSTRAINT is_member_of_object_key ON is_member_of IS 'Each relations
 --
 
 ALTER TABLE ONLY is_member_of
-    ADD CONSTRAINT is_member_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_member_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4354,7 +4354,7 @@ COMMENT ON CONSTRAINT is_member_of_subject_link ON is_member_of IS 'Each subject
 --
 
 ALTER TABLE ONLY is_page_number
-    ADD CONSTRAINT is_page_number_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_page_number_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4369,7 +4369,7 @@ COMMENT ON CONSTRAINT is_page_number_subject_link ON is_page_number IS 'Each rel
 --
 
 ALTER TABLE ONLY is_page_of
-    ADD CONSTRAINT is_page_of_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id);
+    ADD CONSTRAINT is_page_of_object_key FOREIGN KEY (rdf_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4384,7 +4384,7 @@ COMMENT ON CONSTRAINT is_page_of_object_key ON is_page_of IS 'Each relation obje
 --
 
 ALTER TABLE ONLY is_page_of
-    ADD CONSTRAINT is_page_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_page_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4399,7 +4399,7 @@ COMMENT ON CONSTRAINT is_page_of_subject_link ON is_page_of IS 'Each relation su
 --
 
 ALTER TABLE ONLY is_section
-    ADD CONSTRAINT is_section_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_section_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4414,7 +4414,7 @@ COMMENT ON CONSTRAINT is_section_subject_link ON is_section IS 'Each relation su
 --
 
 ALTER TABLE ONLY is_sequence_number_of
-    ADD CONSTRAINT is_sequence_number_of_object_link FOREIGN KEY (rdf_object) REFERENCES objects(id);
+    ADD CONSTRAINT is_sequence_number_of_object_link FOREIGN KEY (rdf_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4429,7 +4429,7 @@ COMMENT ON CONSTRAINT is_sequence_number_of_object_link ON is_sequence_number_of
 --
 
 ALTER TABLE ONLY is_sequence_number_of
-    ADD CONSTRAINT is_sequence_number_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_sequence_number_of_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4444,7 +4444,7 @@ COMMENT ON CONSTRAINT is_sequence_number_of_subject_link ON is_sequence_number_o
 --
 
 ALTER TABLE ONLY is_sequence_number
-    ADD CONSTRAINT is_sequence_number_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id);
+    ADD CONSTRAINT is_sequence_number_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4459,7 +4459,7 @@ COMMENT ON CONSTRAINT is_sequence_number_subject_link ON is_sequence_number IS '
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
-    ADD CONSTRAINT manageable_by_role_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id);
+    ADD CONSTRAINT manageable_by_role_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4467,7 +4467,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
-    ADD CONSTRAINT manageable_by_role_object_link FOREIGN KEY (object_id) REFERENCES objects(id);
+    ADD CONSTRAINT manageable_by_role_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4475,7 +4475,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
-    ADD CONSTRAINT manageable_by_user_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id);
+    ADD CONSTRAINT manageable_by_user_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4483,7 +4483,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
-    ADD CONSTRAINT manageable_by_user_object_link FOREIGN KEY (object_id) REFERENCES objects(id);
+    ADD CONSTRAINT manageable_by_user_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4506,7 +4506,7 @@ COMMENT ON CONSTRAINT mime_uri_link ON resources IS 'URIs have mimes.';
 --
 
 ALTER TABLE ONLY datastreams
-    ADD CONSTRAINT object_id_link FOREIGN KEY (object_id) REFERENCES objects(id);
+    ADD CONSTRAINT object_id_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4643,7 +4643,7 @@ COMMENT ON CONSTRAINT object_user_link ON objects IS 'Objects can be owned by a 
 --
 
 ALTER TABLE ONLY old_datastreams
-    ADD CONSTRAINT old_datastream_datastream_link FOREIGN KEY (current_datastream) REFERENCES datastreams(id);
+    ADD CONSTRAINT old_datastream_datastream_link FOREIGN KEY (current_datastream) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4703,7 +4703,7 @@ COMMENT ON CONSTRAINT old_objects_log_link ON old_objects IS 'Old object info ca
 --
 
 ALTER TABLE ONLY old_objects
-    ADD CONSTRAINT old_objects_object_link FOREIGN KEY (current_object) REFERENCES objects(id);
+    ADD CONSTRAINT old_objects_object_link FOREIGN KEY (current_object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4801,7 +4801,7 @@ COMMENT ON CONSTRAINT user_source_link ON users IS 'Users can belong to sources.
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
-    ADD CONSTRAINT viewable_by_role_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id);
+    ADD CONSTRAINT viewable_by_role_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4809,7 +4809,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
-    ADD CONSTRAINT viewable_by_role_object_link FOREIGN KEY (object_id) REFERENCES objects(id);
+    ADD CONSTRAINT viewable_by_role_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4817,7 +4817,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
-    ADD CONSTRAINT viewable_by_user_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id);
+    ADD CONSTRAINT viewable_by_user_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4825,7 +4825,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
-    ADD CONSTRAINT viewable_by_user_object_link FOREIGN KEY (object_id) REFERENCES objects(id);
+    ADD CONSTRAINT viewable_by_user_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
