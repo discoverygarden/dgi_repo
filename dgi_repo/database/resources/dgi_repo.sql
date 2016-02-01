@@ -12,7 +12,7 @@ SET client_min_messages = warning;
 SET search_path = public, pg_catalog;
 
 --
--- Name: checksum_algorithims; Type: TYPE; Schema: public; Owner: postgres
+-- Name: checksum_algorithims; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE checksum_algorithims AS ENUM (
@@ -23,17 +23,15 @@ CREATE TYPE checksum_algorithims AS ENUM (
 );
 
 
-ALTER TYPE public.checksum_algorithims OWNER TO postgres;
-
 --
--- Name: TYPE checksum_algorithims; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TYPE checksum_algorithims; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TYPE checksum_algorithims IS 'Types of checksums.';
 
 
 --
--- Name: datastream_control_group; Type: TYPE; Schema: public; Owner: postgres
+-- Name: datastream_control_group; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE datastream_control_group AS ENUM (
@@ -44,17 +42,15 @@ CREATE TYPE datastream_control_group AS ENUM (
 );
 
 
-ALTER TYPE public.datastream_control_group OWNER TO postgres;
-
 --
--- Name: TYPE datastream_control_group; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TYPE datastream_control_group; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TYPE datastream_control_group IS 'Control group for datastreams. Legacy from Fedora.';
 
 
 --
--- Name: state; Type: TYPE; Schema: public; Owner: postgres
+-- Name: state; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE state AS ENUM (
@@ -64,10 +60,8 @@ CREATE TYPE state AS ENUM (
 );
 
 
-ALTER TYPE public.state OWNER TO postgres;
-
 --
--- Name: TYPE state; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TYPE state; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TYPE state IS 'State of the object or datastream.  This is legacy from Fedora.';
@@ -78,7 +72,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: checksums; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: checksums; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE checksums (
@@ -89,45 +83,43 @@ CREATE TABLE checksums (
 );
 
 
-ALTER TABLE public.checksums OWNER TO postgres;
-
 --
--- Name: TABLE checksums; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE checksums; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE checksums IS 'All checksums stored by the system.';
 
 
 --
--- Name: COLUMN checksums.checksum; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN checksums.checksum; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN checksums.checksum IS 'The stored checksum.';
 
 
 --
--- Name: COLUMN checksums.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN checksums.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN checksums.id IS 'The database ID for the checksum';
 
 
 --
--- Name: COLUMN checksums.uri; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN checksums.uri; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN checksums.uri IS 'The database id of the URI that the checksum belongs to.';
 
 
 --
--- Name: COLUMN checksums.type; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN checksums.type; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN checksums.type IS 'The type of checksum.';
 
 
 --
--- Name: checksums_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: checksums_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE checksums_id_seq
@@ -138,17 +130,15 @@ CREATE SEQUENCE checksums_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.checksums_id_seq OWNER TO postgres;
-
 --
--- Name: checksums_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: checksums_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE checksums_id_seq OWNED BY checksums.id;
 
 
 --
--- Name: datastream_is_manageable_by_role; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE datastream_is_manageable_by_role (
@@ -158,38 +148,36 @@ CREATE TABLE datastream_is_manageable_by_role (
 );
 
 
-ALTER TABLE public.datastream_is_manageable_by_role OWNER TO postgres;
-
 --
--- Name: TABLE datastream_is_manageable_by_role; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE datastream_is_manageable_by_role; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE datastream_is_manageable_by_role IS 'Maps what roles can manage a datastream.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_role.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_manageable_by_role.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_manageable_by_role.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_role.datastream_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_manageable_by_role.datastream_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_manageable_by_role.datastream_id IS 'Database ID of the datastream.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_role.role_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_manageable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_manageable_by_role.role_id IS 'Role that can manage the datastream.';
 
 
 --
--- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE datastream_is_manageable_by_role_id_seq
@@ -200,17 +188,15 @@ CREATE SEQUENCE datastream_is_manageable_by_role_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.datastream_is_manageable_by_role_id_seq OWNER TO postgres;
-
 --
--- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE datastream_is_manageable_by_role_id_seq OWNED BY datastream_is_manageable_by_role.id;
 
 
 --
--- Name: datastream_is_manageable_by_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE datastream_is_manageable_by_user (
@@ -220,38 +206,36 @@ CREATE TABLE datastream_is_manageable_by_user (
 );
 
 
-ALTER TABLE public.datastream_is_manageable_by_user OWNER TO postgres;
-
 --
--- Name: TABLE datastream_is_manageable_by_user; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE datastream_is_manageable_by_user; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE datastream_is_manageable_by_user IS 'Maps what users can manage a datastream.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_user.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_manageable_by_user.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_manageable_by_user.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_user.datastream_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_manageable_by_user.datastream_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_manageable_by_user.datastream_id IS 'Database ID of the datastream.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_user.user_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_manageable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_manageable_by_user.user_id IS 'User that can manage the datastream.';
 
 
 --
--- Name: datastream_is_manageable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: datastream_is_manageable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE datastream_is_manageable_by_user_id_seq
@@ -262,17 +246,15 @@ CREATE SEQUENCE datastream_is_manageable_by_user_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.datastream_is_manageable_by_user_id_seq OWNER TO postgres;
-
 --
--- Name: datastream_is_manageable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: datastream_is_manageable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE datastream_is_manageable_by_user_id_seq OWNED BY datastream_is_manageable_by_user.id;
 
 
 --
--- Name: datastream_is_viewable_by_role; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE datastream_is_viewable_by_role (
@@ -282,38 +264,36 @@ CREATE TABLE datastream_is_viewable_by_role (
 );
 
 
-ALTER TABLE public.datastream_is_viewable_by_role OWNER TO postgres;
-
 --
--- Name: TABLE datastream_is_viewable_by_role; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE datastream_is_viewable_by_role; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE datastream_is_viewable_by_role IS 'Maps what roles can view a datastream.';
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_role.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_viewable_by_role.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_viewable_by_role.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_role.datastream_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_viewable_by_role.datastream_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_viewable_by_role.datastream_id IS 'Database ID of the datastream.';
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_role.role_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_viewable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_viewable_by_role.role_id IS 'Role that can view the datastream.';
 
 
 --
--- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE datastream_is_viewable_by_role_id_seq
@@ -324,17 +304,15 @@ CREATE SEQUENCE datastream_is_viewable_by_role_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.datastream_is_viewable_by_role_id_seq OWNER TO postgres;
-
 --
--- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE datastream_is_viewable_by_role_id_seq OWNED BY datastream_is_viewable_by_role.id;
 
 
 --
--- Name: datastream_is_viewable_by_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE datastream_is_viewable_by_user (
@@ -344,38 +322,36 @@ CREATE TABLE datastream_is_viewable_by_user (
 );
 
 
-ALTER TABLE public.datastream_is_viewable_by_user OWNER TO postgres;
-
 --
--- Name: TABLE datastream_is_viewable_by_user; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE datastream_is_viewable_by_user; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE datastream_is_viewable_by_user IS 'Maps what users can view a datastream.';
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_user.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_viewable_by_user.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_viewable_by_user.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_user.datastream_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_viewable_by_user.datastream_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_viewable_by_user.datastream_id IS 'Database ID of the datastream.';
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_user.user_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_is_viewable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_is_viewable_by_user.user_id IS 'User that can view the datastream.';
 
 
 --
--- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE datastream_is_viewable_by_user_id_seq
@@ -386,17 +362,15 @@ CREATE SEQUENCE datastream_is_viewable_by_user_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.datastream_is_viewable_by_user_id_seq OWNER TO postgres;
-
 --
--- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE datastream_is_viewable_by_user_id_seq OWNED BY datastream_is_viewable_by_user.id;
 
 
 --
--- Name: datastream_relationships; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE datastream_relationships (
@@ -407,45 +381,43 @@ CREATE TABLE datastream_relationships (
 );
 
 
-ALTER TABLE public.datastream_relationships OWNER TO postgres;
-
 --
--- Name: TABLE datastream_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE datastream_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE datastream_relationships IS 'Datastream relations not captured in other tables.';
 
 
 --
--- Name: COLUMN datastream_relationships.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_relationships.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_relationships.id IS 'Database ID of the datastream relationship.';
 
 
 --
--- Name: COLUMN datastream_relationships.subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_relationships.subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_relationships.subject IS 'The subject of the relationship.';
 
 
 --
--- Name: COLUMN datastream_relationships.predicate_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_relationships.predicate_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_relationships.predicate_id IS 'The predicate of the relationship.';
 
 
 --
--- Name: COLUMN datastream_relationships.text_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastream_relationships.text_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastream_relationships.text_object IS 'The object of the relationship can be text.';
 
 
 --
--- Name: datastream_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: datastream_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE datastream_relationships_id_seq
@@ -456,17 +428,15 @@ CREATE SEQUENCE datastream_relationships_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.datastream_relationships_id_seq OWNER TO postgres;
-
 --
--- Name: datastream_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: datastream_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE datastream_relationships_id_seq OWNED BY datastream_relationships.id;
 
 
 --
--- Name: datastreams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastreams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE datastreams (
@@ -485,101 +455,99 @@ CREATE TABLE datastreams (
 );
 
 
-ALTER TABLE public.datastreams OWNER TO postgres;
-
 --
--- Name: TABLE datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE datastreams IS 'File containers.';
 
 
 --
--- Name: COLUMN datastreams.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.id IS 'Database id for datastreams.';
 
 
 --
--- Name: COLUMN datastreams.object_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.object_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.object_id IS 'The database ID of the object that the datastream belongs to.';
 
 
 --
--- Name: COLUMN datastreams.label; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.label; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.label IS 'Human readable label for the datastream.';
 
 
 --
--- Name: COLUMN datastreams.dsid; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.dsid; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.dsid IS 'Machine name for the datastream.';
 
 
 --
--- Name: COLUMN datastreams.resource_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.resource_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.resource_id IS 'The URI to the datastream content.';
 
 
 --
--- Name: COLUMN datastreams.versioned; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.versioned; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.versioned IS 'Whether or not the datstream should be versioned.';
 
 
 --
--- Name: COLUMN datastreams.archival; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.archival; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.archival IS 'Whether or not a datastream is necessary for archival purposes.';
 
 
 --
--- Name: COLUMN datastreams.control_group; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.control_group; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.control_group IS 'Control goup of the datastream.';
 
 
 --
--- Name: COLUMN datastreams.state; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.state; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.state IS 'State of the datastream.';
 
 
 --
--- Name: COLUMN datastreams.log; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.log; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.log IS 'Current log entry.';
 
 
 --
--- Name: COLUMN datastreams.modified; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.modified; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.modified IS 'Time the datastream was last modified.';
 
 
 --
--- Name: COLUMN datastreams.created; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN datastreams.created; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN datastreams.created IS 'Time the datastream was created.';
 
 
 --
--- Name: datastreams_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: datastreams_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE datastreams_id_seq
@@ -590,17 +558,15 @@ CREATE SEQUENCE datastreams_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.datastreams_id_seq OWNER TO postgres;
-
 --
--- Name: datastreams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: datastreams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE datastreams_id_seq OWNED BY datastreams.id;
 
 
 --
--- Name: date_issued; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: date_issued; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE date_issued (
@@ -610,38 +576,36 @@ CREATE TABLE date_issued (
 );
 
 
-ALTER TABLE public.date_issued OWNER TO postgres;
-
 --
--- Name: TABLE date_issued; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE date_issued; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE date_issued IS 'Table to represent date issued relations.';
 
 
 --
--- Name: COLUMN date_issued.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN date_issued.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN date_issued.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN date_issued.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN date_issued.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN date_issued.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN date_issued.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN date_issued.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN date_issued.rdf_object IS 'The date the item was issued.';
 
 
 --
--- Name: date_issued_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: date_issued_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE date_issued_id_seq
@@ -652,17 +616,15 @@ CREATE SEQUENCE date_issued_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.date_issued_id_seq OWNER TO postgres;
-
 --
--- Name: date_issued_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: date_issued_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE date_issued_id_seq OWNED BY date_issued.id;
 
 
 --
--- Name: dublin_core; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: dublin_core; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE dublin_core (
@@ -685,24 +647,22 @@ CREATE TABLE dublin_core (
 );
 
 
-ALTER TABLE public.dublin_core OWNER TO postgres;
-
 --
--- Name: TABLE dublin_core; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE dublin_core; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE dublin_core IS 'This is a hold over from Fedora, it held some metadata above others. Try to avoid using selecting from this so it can be removed some day.';
 
 
 --
--- Name: COLUMN dublin_core.object_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN dublin_core.object_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN dublin_core.object_id IS 'DC data belongs to an object.';
 
 
 --
--- Name: generate_ocr; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: generate_ocr; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE generate_ocr (
@@ -712,38 +672,36 @@ CREATE TABLE generate_ocr (
 );
 
 
-ALTER TABLE public.generate_ocr OWNER TO postgres;
-
 --
--- Name: TABLE generate_ocr; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE generate_ocr; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE generate_ocr IS 'Table to represent generate OCR relations.';
 
 
 --
--- Name: COLUMN generate_ocr.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN generate_ocr.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN generate_ocr.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN generate_ocr.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN generate_ocr.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN generate_ocr.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN generate_ocr.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN generate_ocr.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN generate_ocr.rdf_object IS 'Whether or not the item should compute OCR.';
 
 
 --
--- Name: generate_ocr_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: generate_ocr_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE generate_ocr_id_seq
@@ -754,17 +712,15 @@ CREATE SEQUENCE generate_ocr_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.generate_ocr_id_seq OWNER TO postgres;
-
 --
--- Name: generate_ocr_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: generate_ocr_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE generate_ocr_id_seq OWNED BY generate_ocr.id;
 
 
 --
--- Name: has_language; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: has_language; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE has_language (
@@ -774,38 +730,36 @@ CREATE TABLE has_language (
 );
 
 
-ALTER TABLE public.has_language OWNER TO postgres;
-
 --
--- Name: TABLE has_language; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE has_language; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE has_language IS 'Table to represent has language relations.';
 
 
 --
--- Name: COLUMN has_language.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN has_language.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN has_language.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN has_language.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN has_language.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN has_language.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN has_language.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN has_language.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN has_language.rdf_object IS 'The subject of the relation.';
 
 
 --
--- Name: has_language_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: has_language_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE has_language_id_seq
@@ -816,17 +770,15 @@ CREATE SEQUENCE has_language_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.has_language_id_seq OWNER TO postgres;
-
 --
--- Name: has_language_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: has_language_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE has_language_id_seq OWNED BY has_language.id;
 
 
 --
--- Name: has_model; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: has_model; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE has_model (
@@ -836,38 +788,36 @@ CREATE TABLE has_model (
 );
 
 
-ALTER TABLE public.has_model OWNER TO postgres;
-
 --
--- Name: TABLE has_model; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE has_model; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE has_model IS 'Table to represent has model relations.';
 
 
 --
--- Name: COLUMN has_model.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN has_model.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN has_model.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN has_model.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN has_model.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN has_model.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN has_model.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN has_model.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN has_model.rdf_object IS 'Object of the relation.';
 
 
 --
--- Name: has_model_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: has_model_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE has_model_id_seq
@@ -878,17 +828,15 @@ CREATE SEQUENCE has_model_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.has_model_id_seq OWNER TO postgres;
-
 --
--- Name: has_model_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: has_model_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE has_model_id_seq OWNED BY has_model.id;
 
 
 --
--- Name: image_height; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: image_height; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE image_height (
@@ -898,38 +846,36 @@ CREATE TABLE image_height (
 );
 
 
-ALTER TABLE public.image_height OWNER TO postgres;
-
 --
--- Name: TABLE image_height; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE image_height; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE image_height IS 'Table to represent height relations.';
 
 
 --
--- Name: COLUMN image_height.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN image_height.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN image_height.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN image_height.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN image_height.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN image_height.rdf_subject IS 'The subject of the relation.';
 
 
 --
--- Name: COLUMN image_height.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN image_height.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN image_height.rdf_object IS 'The height of the image.';
 
 
 --
--- Name: image_height_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: image_height_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE image_height_id_seq
@@ -940,17 +886,15 @@ CREATE SEQUENCE image_height_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.image_height_id_seq OWNER TO postgres;
-
 --
--- Name: image_height_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: image_height_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE image_height_id_seq OWNED BY image_height.id;
 
 
 --
--- Name: image_width; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: image_width; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE image_width (
@@ -960,38 +904,36 @@ CREATE TABLE image_width (
 );
 
 
-ALTER TABLE public.image_width OWNER TO postgres;
-
 --
--- Name: TABLE image_width; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE image_width; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE image_width IS 'Table to represent width relations.';
 
 
 --
--- Name: COLUMN image_width.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN image_width.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN image_width.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN image_width.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN image_width.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN image_width.rdf_subject IS 'The subject of the relation.';
 
 
 --
--- Name: COLUMN image_width.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN image_width.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN image_width.rdf_object IS 'The width of the image.';
 
 
 --
--- Name: image_width_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: image_width_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE image_width_id_seq
@@ -1002,17 +944,15 @@ CREATE SEQUENCE image_width_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.image_width_id_seq OWNER TO postgres;
-
 --
--- Name: image_width_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: image_width_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE image_width_id_seq OWNED BY image_width.id;
 
 
 --
--- Name: is_constituent_of; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_constituent_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_constituent_of (
@@ -1022,38 +962,36 @@ CREATE TABLE is_constituent_of (
 );
 
 
-ALTER TABLE public.is_constituent_of OWNER TO postgres;
-
 --
--- Name: TABLE is_constituent_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_constituent_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_constituent_of IS 'Table to represent is constituent of relations.';
 
 
 --
--- Name: COLUMN is_constituent_of.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_constituent_of.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_constituent_of.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_constituent_of.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_constituent_of.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_constituent_of.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_constituent_of.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_constituent_of.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_constituent_of.rdf_object IS 'Object of the relation.';
 
 
 --
--- Name: is_constituent_of_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_constituent_of_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_constituent_of_id_seq
@@ -1064,17 +1002,15 @@ CREATE SEQUENCE is_constituent_of_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_constituent_of_id_seq OWNER TO postgres;
-
 --
--- Name: is_constituent_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_constituent_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_constituent_of_id_seq OWNED BY is_constituent_of.id;
 
 
 --
--- Name: is_member_of; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_member_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_member_of (
@@ -1084,38 +1020,36 @@ CREATE TABLE is_member_of (
 );
 
 
-ALTER TABLE public.is_member_of OWNER TO postgres;
-
 --
--- Name: TABLE is_member_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_member_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_member_of IS 'Table to represent is member of relations.';
 
 
 --
--- Name: COLUMN is_member_of.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_member_of.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_member_of.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_member_of.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_member_of.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_member_of.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_member_of.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_member_of.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_member_of.rdf_object IS 'Object of the relation.';
 
 
 --
--- Name: is_member_of_collection; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_member_of_collection; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_member_of_collection (
@@ -1125,38 +1059,36 @@ CREATE TABLE is_member_of_collection (
 );
 
 
-ALTER TABLE public.is_member_of_collection OWNER TO postgres;
-
 --
--- Name: TABLE is_member_of_collection; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_member_of_collection; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_member_of_collection IS 'Table to represent is member of collection relations.';
 
 
 --
--- Name: COLUMN is_member_of_collection.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_member_of_collection.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_member_of_collection.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_member_of_collection.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_member_of_collection.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_member_of_collection.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_member_of_collection.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_member_of_collection.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_member_of_collection.rdf_object IS 'Object of the relation.';
 
 
 --
--- Name: is_member_of_collection_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_member_of_collection_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_member_of_collection_id_seq
@@ -1167,17 +1099,15 @@ CREATE SEQUENCE is_member_of_collection_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_member_of_collection_id_seq OWNER TO postgres;
-
 --
--- Name: is_member_of_collection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_member_of_collection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_member_of_collection_id_seq OWNED BY is_member_of_collection.id;
 
 
 --
--- Name: is_member_of_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_member_of_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_member_of_id_seq
@@ -1188,17 +1118,15 @@ CREATE SEQUENCE is_member_of_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_member_of_id_seq OWNER TO postgres;
-
 --
--- Name: is_member_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_member_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_member_of_id_seq OWNED BY is_member_of.id;
 
 
 --
--- Name: is_page_number; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_page_number; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_page_number (
@@ -1208,38 +1136,36 @@ CREATE TABLE is_page_number (
 );
 
 
-ALTER TABLE public.is_page_number OWNER TO postgres;
-
 --
--- Name: TABLE is_page_number; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_page_number; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_page_number IS 'Table to represent is page number relations.';
 
 
 --
--- Name: COLUMN is_page_number.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_page_number.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_page_number.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_page_number.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_page_number.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_page_number.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_page_number.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_page_number.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_page_number.rdf_object IS 'The object of the relation.';
 
 
 --
--- Name: is_page_number_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_page_number_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_page_number_id_seq
@@ -1250,17 +1176,15 @@ CREATE SEQUENCE is_page_number_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_page_number_id_seq OWNER TO postgres;
-
 --
--- Name: is_page_number_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_page_number_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_page_number_id_seq OWNED BY is_page_number.id;
 
 
 --
--- Name: is_page_of; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_page_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_page_of (
@@ -1270,38 +1194,36 @@ CREATE TABLE is_page_of (
 );
 
 
-ALTER TABLE public.is_page_of OWNER TO postgres;
-
 --
--- Name: TABLE is_page_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_page_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_page_of IS 'Table to represent is page of relations.';
 
 
 --
--- Name: COLUMN is_page_of.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_page_of.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_page_of.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_page_of.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_page_of.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_page_of.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_page_of.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_page_of.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_page_of.rdf_object IS 'Object of the relation.';
 
 
 --
--- Name: is_page_of_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_page_of_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_page_of_id_seq
@@ -1312,17 +1234,15 @@ CREATE SEQUENCE is_page_of_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_page_of_id_seq OWNER TO postgres;
-
 --
--- Name: is_page_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_page_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_page_of_id_seq OWNED BY is_page_of.id;
 
 
 --
--- Name: is_section; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_section; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_section (
@@ -1332,38 +1252,36 @@ CREATE TABLE is_section (
 );
 
 
-ALTER TABLE public.is_section OWNER TO postgres;
-
 --
--- Name: TABLE is_section; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_section; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_section IS 'Table to represent is section relations.';
 
 
 --
--- Name: COLUMN is_section.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_section.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_section.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_section.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_section.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_section.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_section.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_section.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_section.rdf_object IS 'The object of the relation.';
 
 
 --
--- Name: is_section_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_section_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_section_id_seq
@@ -1374,17 +1292,15 @@ CREATE SEQUENCE is_section_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_section_id_seq OWNER TO postgres;
-
 --
--- Name: is_section_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_section_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_section_id_seq OWNED BY is_section.id;
 
 
 --
--- Name: is_sequence_number; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_sequence_number; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_sequence_number (
@@ -1394,38 +1310,36 @@ CREATE TABLE is_sequence_number (
 );
 
 
-ALTER TABLE public.is_sequence_number OWNER TO postgres;
-
 --
--- Name: TABLE is_sequence_number; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_sequence_number; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_sequence_number IS 'Table to represent sequence number relations. Do not confuse with is_squence_number_of.';
 
 
 --
--- Name: COLUMN is_sequence_number.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_sequence_number.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number.rdf_subject IS 'Subject of the relation.';
 
 
 --
--- Name: COLUMN is_sequence_number.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number.rdf_object IS 'The object of the relation.';
 
 
 --
--- Name: is_sequence_number_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_sequence_number_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_sequence_number_id_seq
@@ -1436,17 +1350,15 @@ CREATE SEQUENCE is_sequence_number_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_sequence_number_id_seq OWNER TO postgres;
-
 --
--- Name: is_sequence_number_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_sequence_number_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_sequence_number_id_seq OWNED BY is_sequence_number.id;
 
 
 --
--- Name: is_sequence_number_of; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_sequence_number_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE is_sequence_number_of (
@@ -1457,45 +1369,43 @@ CREATE TABLE is_sequence_number_of (
 );
 
 
-ALTER TABLE public.is_sequence_number_of OWNER TO postgres;
-
 --
--- Name: TABLE is_sequence_number_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE is_sequence_number_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE is_sequence_number_of IS 'Tabel to map the isSequenceNumberOf relation. This is a strange relation in Islandora. Do not confuse with is_sequence_number.';
 
 
 --
--- Name: COLUMN is_sequence_number_of.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number_of.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number_of.id IS 'Database ID of the relation.';
 
 
 --
--- Name: COLUMN is_sequence_number_of.rdf_subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number_of.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number_of.rdf_subject IS 'The subject of the relation.';
 
 
 --
--- Name: COLUMN is_sequence_number_of.rdf_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number_of.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number_of.rdf_object IS 'The object of the relationship.';
 
 
 --
--- Name: COLUMN is_sequence_number_of.sequence_number; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN is_sequence_number_of.sequence_number; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN is_sequence_number_of.sequence_number IS 'The sequence number of the subject in the object.';
 
 
 --
--- Name: is_sequence_number_of_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: is_sequence_number_of_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE is_sequence_number_of_id_seq
@@ -1506,17 +1416,15 @@ CREATE SEQUENCE is_sequence_number_of_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.is_sequence_number_of_id_seq OWNER TO postgres;
-
 --
--- Name: is_sequence_number_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: is_sequence_number_of_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE is_sequence_number_of_id_seq OWNED BY is_sequence_number_of.id;
 
 
 --
--- Name: log; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: log; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE log (
@@ -1525,31 +1433,29 @@ CREATE TABLE log (
 );
 
 
-ALTER TABLE public.log OWNER TO postgres;
-
 --
--- Name: TABLE log; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE log; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE log IS 'Log entries for chages to the repository.';
 
 
 --
--- Name: COLUMN log.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN log.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN log.id IS 'Database ID of the log entry.';
 
 
 --
--- Name: COLUMN log.log_entry; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN log.log_entry; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN log.log_entry IS 'Text of the log entry.';
 
 
 --
--- Name: log_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: log_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE log_id_seq
@@ -1560,17 +1466,15 @@ CREATE SEQUENCE log_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.log_id_seq OWNER TO postgres;
-
 --
--- Name: log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE log_id_seq OWNED BY log.id;
 
 
 --
--- Name: mimes; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: mimes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE mimes (
@@ -1579,31 +1483,29 @@ CREATE TABLE mimes (
 );
 
 
-ALTER TABLE public.mimes OWNER TO postgres;
-
 --
--- Name: TABLE mimes; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE mimes; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE mimes IS 'Mimes of URIs in the repository.';
 
 
 --
--- Name: COLUMN mimes.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN mimes.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN mimes.id IS 'Database ID for mime.';
 
 
 --
--- Name: COLUMN mimes.mime; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN mimes.mime; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN mimes.mime IS 'Mimetype string.';
 
 
 --
--- Name: mimes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: mimes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE mimes_id_seq
@@ -1614,17 +1516,15 @@ CREATE SEQUENCE mimes_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.mimes_id_seq OWNER TO postgres;
-
 --
--- Name: mimes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: mimes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE mimes_id_seq OWNED BY mimes.id;
 
 
 --
--- Name: pid_namespaces; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pid_namespaces; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE pid_namespaces (
@@ -1634,38 +1534,36 @@ CREATE TABLE pid_namespaces (
 );
 
 
-ALTER TABLE public.pid_namespaces OWNER TO postgres;
-
 --
--- Name: TABLE pid_namespaces; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE pid_namespaces; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE pid_namespaces IS 'A table used to track the highest used PID.';
 
 
 --
--- Name: COLUMN pid_namespaces.namespace; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN pid_namespaces.namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN pid_namespaces.namespace IS 'The PID namespace being tracked.';
 
 
 --
--- Name: COLUMN pid_namespaces.highest_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN pid_namespaces.highest_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN pid_namespaces.highest_id IS 'The highest used integer for an object in the given Namespace.';
 
 
 --
--- Name: COLUMN pid_namespaces.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN pid_namespaces.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN pid_namespaces.id IS 'Database ID of the namespace.';
 
 
 --
--- Name: namespaces_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: namespaces_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE namespaces_id_seq
@@ -1676,17 +1574,15 @@ CREATE SEQUENCE namespaces_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.namespaces_id_seq OWNER TO postgres;
-
 --
--- Name: namespaces_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: namespaces_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE namespaces_id_seq OWNED BY pid_namespaces.id;
 
 
 --
--- Name: object_is_manageable_by_role; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE object_is_manageable_by_role (
@@ -1696,38 +1592,36 @@ CREATE TABLE object_is_manageable_by_role (
 );
 
 
-ALTER TABLE public.object_is_manageable_by_role OWNER TO postgres;
-
 --
--- Name: TABLE object_is_manageable_by_role; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE object_is_manageable_by_role; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE object_is_manageable_by_role IS 'Maps what roles can manage a object.';
 
 
 --
--- Name: COLUMN object_is_manageable_by_role.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_manageable_by_role.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_manageable_by_role.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN object_is_manageable_by_role.object_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_manageable_by_role.object_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_manageable_by_role.object_id IS 'Database ID of the object.';
 
 
 --
--- Name: COLUMN object_is_manageable_by_role.role_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_manageable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_manageable_by_role.role_id IS 'Role that can manage the object.';
 
 
 --
--- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE object_is_manageable_by_role_id_seq
@@ -1738,17 +1632,15 @@ CREATE SEQUENCE object_is_manageable_by_role_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.object_is_manageable_by_role_id_seq OWNER TO postgres;
-
 --
--- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE object_is_manageable_by_role_id_seq OWNED BY object_is_manageable_by_role.id;
 
 
 --
--- Name: object_is_manageable_by_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE object_is_manageable_by_user (
@@ -1758,38 +1650,36 @@ CREATE TABLE object_is_manageable_by_user (
 );
 
 
-ALTER TABLE public.object_is_manageable_by_user OWNER TO postgres;
-
 --
--- Name: TABLE object_is_manageable_by_user; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE object_is_manageable_by_user; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE object_is_manageable_by_user IS 'Maps what users can manage a object.';
 
 
 --
--- Name: COLUMN object_is_manageable_by_user.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_manageable_by_user.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_manageable_by_user.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN object_is_manageable_by_user.object_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_manageable_by_user.object_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_manageable_by_user.object_id IS 'Database ID of the object.';
 
 
 --
--- Name: COLUMN object_is_manageable_by_user.user_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_manageable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_manageable_by_user.user_id IS 'User that can manage the object.';
 
 
 --
--- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE object_is_manageable_by_user_id_seq
@@ -1800,17 +1690,15 @@ CREATE SEQUENCE object_is_manageable_by_user_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.object_is_manageable_by_user_id_seq OWNER TO postgres;
-
 --
--- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE object_is_manageable_by_user_id_seq OWNED BY object_is_manageable_by_user.id;
 
 
 --
--- Name: object_is_viewable_by_role; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE object_is_viewable_by_role (
@@ -1820,38 +1708,36 @@ CREATE TABLE object_is_viewable_by_role (
 );
 
 
-ALTER TABLE public.object_is_viewable_by_role OWNER TO postgres;
-
 --
--- Name: TABLE object_is_viewable_by_role; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE object_is_viewable_by_role; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE object_is_viewable_by_role IS 'Maps what roles can view a object.';
 
 
 --
--- Name: COLUMN object_is_viewable_by_role.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_viewable_by_role.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_viewable_by_role.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN object_is_viewable_by_role.object_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_viewable_by_role.object_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_viewable_by_role.object_id IS 'Database ID of the object.';
 
 
 --
--- Name: COLUMN object_is_viewable_by_role.role_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_viewable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_viewable_by_role.role_id IS 'Role that can view the object.';
 
 
 --
--- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE object_is_viewable_by_role_id_seq
@@ -1862,17 +1748,15 @@ CREATE SEQUENCE object_is_viewable_by_role_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.object_is_viewable_by_role_id_seq OWNER TO postgres;
-
 --
--- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE object_is_viewable_by_role_id_seq OWNED BY object_is_viewable_by_role.id;
 
 
 --
--- Name: object_is_viewable_by_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE object_is_viewable_by_user (
@@ -1882,38 +1766,36 @@ CREATE TABLE object_is_viewable_by_user (
 );
 
 
-ALTER TABLE public.object_is_viewable_by_user OWNER TO postgres;
-
 --
--- Name: TABLE object_is_viewable_by_user; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE object_is_viewable_by_user; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE object_is_viewable_by_user IS 'Maps what users can view a object.';
 
 
 --
--- Name: COLUMN object_is_viewable_by_user.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_viewable_by_user.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_viewable_by_user.id IS 'The database ID of the security rule.';
 
 
 --
--- Name: COLUMN object_is_viewable_by_user.object_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_viewable_by_user.object_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_viewable_by_user.object_id IS 'Database ID of the object.';
 
 
 --
--- Name: COLUMN object_is_viewable_by_user.user_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_is_viewable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_is_viewable_by_user.user_id IS 'User that can view the object.';
 
 
 --
--- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE object_is_viewable_by_user_id_seq
@@ -1924,17 +1806,15 @@ CREATE SEQUENCE object_is_viewable_by_user_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.object_is_viewable_by_user_id_seq OWNER TO postgres;
-
 --
--- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE object_is_viewable_by_user_id_seq OWNED BY object_is_viewable_by_user.id;
 
 
 --
--- Name: object_relationships; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE object_relationships (
@@ -1946,52 +1826,50 @@ CREATE TABLE object_relationships (
 );
 
 
-ALTER TABLE public.object_relationships OWNER TO postgres;
-
 --
--- Name: TABLE object_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE object_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE object_relationships IS 'Object relations not in other tables.';
 
 
 --
--- Name: COLUMN object_relationships.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_relationships.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_relationships.id IS 'Database ID of the object relationship.';
 
 
 --
--- Name: COLUMN object_relationships.subject; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_relationships.subject; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_relationships.subject IS 'The subject of the relationship.';
 
 
 --
--- Name: COLUMN object_relationships.predicate_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_relationships.predicate_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_relationships.predicate_id IS 'Predicate of the relationship.';
 
 
 --
--- Name: COLUMN object_relationships.object_id_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_relationships.object_id_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_relationships.object_id_object IS 'The relationship object can refer to a repository object.';
 
 
 --
--- Name: COLUMN object_relationships.text_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN object_relationships.text_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN object_relationships.text_object IS 'The object can refer to a string.';
 
 
 --
--- Name: object_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: object_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE object_relationships_id_seq
@@ -2002,17 +1880,15 @@ CREATE SEQUENCE object_relationships_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.object_relationships_id_seq OWNER TO postgres;
-
 --
--- Name: object_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: object_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE object_relationships_id_seq OWNED BY object_relationships.id;
 
 
 --
--- Name: objects; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: objects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE objects (
@@ -2029,87 +1905,85 @@ CREATE TABLE objects (
 );
 
 
-ALTER TABLE public.objects OWNER TO postgres;
-
 --
--- Name: TABLE objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE objects IS 'All objects in the repository.';
 
 
 --
--- Name: COLUMN objects.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.id IS 'Database ID of the object.';
 
 
 --
--- Name: COLUMN objects.pid_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.pid_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.pid_id IS 'ID part of the PID of the object.';
 
 
 --
--- Name: COLUMN objects.namespace; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.namespace IS 'Database ID of namespace.';
 
 
 --
--- Name: COLUMN objects.state; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.state; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.state IS 'State of the object.';
 
 
 --
--- Name: COLUMN objects.owner; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.owner; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.owner IS 'The owner of the object.';
 
 
 --
--- Name: COLUMN objects.label; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.label; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.label IS 'The human readable label of the object.';
 
 
 --
--- Name: COLUMN objects.log; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.log; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.log IS 'Current log entry.';
 
 
 --
--- Name: COLUMN objects.versioned; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.versioned; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.versioned IS 'Whether or not the object should be versioned.';
 
 
 --
--- Name: COLUMN objects.created; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.created; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.created IS 'Time the object was created.';
 
 
 --
--- Name: COLUMN objects.modified; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN objects.modified; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN objects.modified IS 'Time the object was modified.';
 
 
 --
--- Name: objects_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: objects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE objects_id_seq
@@ -2120,17 +1994,15 @@ CREATE SEQUENCE objects_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.objects_id_seq OWNER TO postgres;
-
 --
--- Name: objects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: objects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE objects_id_seq OWNED BY objects.id;
 
 
 --
--- Name: objects_owner_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: objects_owner_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE objects_owner_seq
@@ -2141,17 +2013,15 @@ CREATE SEQUENCE objects_owner_seq
     CACHE 1;
 
 
-ALTER TABLE public.objects_owner_seq OWNER TO postgres;
-
 --
--- Name: objects_owner_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: objects_owner_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE objects_owner_seq OWNED BY objects.owner;
 
 
 --
--- Name: old_datastreams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: old_datastreams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE old_datastreams (
@@ -2165,66 +2035,64 @@ CREATE TABLE old_datastreams (
 );
 
 
-ALTER TABLE public.old_datastreams OWNER TO postgres;
-
 --
--- Name: TABLE old_datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE old_datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE old_datastreams IS 'Old versions of datastreams.';
 
 
 --
--- Name: COLUMN old_datastreams.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.id IS 'Database ID of the old datastream version.';
 
 
 --
--- Name: COLUMN old_datastreams.current_datastream; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.current_datastream; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.current_datastream IS 'Current version of the datastream.';
 
 
 --
--- Name: COLUMN old_datastreams.log; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.log; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.log IS 'Log entry for the datastream version.';
 
 
 --
--- Name: COLUMN old_datastreams.state; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.state; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.state IS 'State of the datastream at the version.';
 
 
 --
--- Name: COLUMN old_datastreams.label; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.label; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.label IS 'Label of the datastream at the version.';
 
 
 --
--- Name: COLUMN old_datastreams.uri_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.uri_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.uri_id IS 'URI to the resource at the version.';
 
 
 --
--- Name: COLUMN old_datastreams.committed; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_datastreams.committed; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_datastreams.committed IS 'The point in time that this datastream version became the current version.';
 
 
 --
--- Name: old_datastreams_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: old_datastreams_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE old_datastreams_id_seq
@@ -2235,17 +2103,15 @@ CREATE SEQUENCE old_datastreams_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.old_datastreams_id_seq OWNER TO postgres;
-
 --
--- Name: old_datastreams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: old_datastreams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE old_datastreams_id_seq OWNED BY old_datastreams.id;
 
 
 --
--- Name: old_objects; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: old_objects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE old_objects (
@@ -2259,66 +2125,64 @@ CREATE TABLE old_objects (
 );
 
 
-ALTER TABLE public.old_objects OWNER TO postgres;
-
 --
--- Name: TABLE old_objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE old_objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE old_objects IS 'Old versions of objects.';
 
 
 --
--- Name: COLUMN old_objects.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.id IS 'Database ID for the old object version.';
 
 
 --
--- Name: COLUMN old_objects.current_object; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.current_object; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.current_object IS 'Current version of the object.';
 
 
 --
--- Name: COLUMN old_objects.log; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.log; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.log IS 'Log entry for the old object information.';
 
 
 --
--- Name: COLUMN old_objects.state; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.state; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.state IS 'Sate of the object at the version.';
 
 
 --
--- Name: COLUMN old_objects.owner; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.owner; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.owner IS 'Owner of the object at the version.';
 
 
 --
--- Name: COLUMN old_objects.label; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.label; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.label IS 'Label of the object at the version.';
 
 
 --
--- Name: COLUMN old_objects.commited; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN old_objects.commited; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN old_objects.commited IS 'The point in time that this object version became the current object.';
 
 
 --
--- Name: old_objects_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: old_objects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE old_objects_id_seq
@@ -2329,17 +2193,15 @@ CREATE SEQUENCE old_objects_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.old_objects_id_seq OWNER TO postgres;
-
 --
--- Name: old_objects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: old_objects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE old_objects_id_seq OWNED BY old_objects.id;
 
 
 --
--- Name: old_objects_object_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: old_objects_object_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE old_objects_object_seq
@@ -2350,17 +2212,15 @@ CREATE SEQUENCE old_objects_object_seq
     CACHE 1;
 
 
-ALTER TABLE public.old_objects_object_seq OWNER TO postgres;
-
 --
--- Name: old_objects_object_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: old_objects_object_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE old_objects_object_seq OWNED BY old_objects.current_object;
 
 
 --
--- Name: predicates; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: predicates; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE predicates (
@@ -2370,38 +2230,36 @@ CREATE TABLE predicates (
 );
 
 
-ALTER TABLE public.predicates OWNER TO postgres;
-
 --
--- Name: TABLE predicates; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE predicates; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE predicates IS 'RDF predicates used by the repository.';
 
 
 --
--- Name: COLUMN predicates.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN predicates.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN predicates.id IS 'Database ID of the predicate.';
 
 
 --
--- Name: COLUMN predicates.rdf_namespace_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN predicates.rdf_namespace_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN predicates.rdf_namespace_id IS 'Namespace the predicate belongs to.';
 
 
 --
--- Name: COLUMN predicates.predicate; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN predicates.predicate; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN predicates.predicate IS 'RDF predicate.';
 
 
 --
--- Name: predicates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: predicates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE predicates_id_seq
@@ -2412,17 +2270,15 @@ CREATE SEQUENCE predicates_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.predicates_id_seq OWNER TO postgres;
-
 --
--- Name: predicates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: predicates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE predicates_id_seq OWNED BY predicates.id;
 
 
 --
--- Name: rdf_namespace; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: rdf_namespace; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE rdf_namespace (
@@ -2431,31 +2287,29 @@ CREATE TABLE rdf_namespace (
 );
 
 
-ALTER TABLE public.rdf_namespace OWNER TO postgres;
-
 --
--- Name: TABLE rdf_namespace; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE rdf_namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE rdf_namespace IS 'RDF namespaces used in the repository.';
 
 
 --
--- Name: COLUMN rdf_namespace.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN rdf_namespace.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN rdf_namespace.id IS 'Database ID of the RDF namespace.';
 
 
 --
--- Name: COLUMN rdf_namespace.rdf_namespace; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN rdf_namespace.rdf_namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN rdf_namespace.rdf_namespace IS 'The RDF namespace.';
 
 
 --
--- Name: rdf_namespace_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: rdf_namespace_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE rdf_namespace_id_seq
@@ -2466,17 +2320,15 @@ CREATE SEQUENCE rdf_namespace_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.rdf_namespace_id_seq OWNER TO postgres;
-
 --
--- Name: rdf_namespace_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: rdf_namespace_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE rdf_namespace_id_seq OWNED BY rdf_namespace.id;
 
 
 --
--- Name: resources; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: resources; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE resources (
@@ -2486,38 +2338,36 @@ CREATE TABLE resources (
 );
 
 
-ALTER TABLE public.resources OWNER TO postgres;
-
 --
--- Name: TABLE resources; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE resources; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE resources IS 'A list of all resources (URIs to file like things) managed by the repository.';
 
 
 --
--- Name: COLUMN resources.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN resources.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN resources.id IS 'ID of the URI';
 
 
 --
--- Name: COLUMN resources.uri; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN resources.uri; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN resources.uri IS 'URI to the resource.';
 
 
 --
--- Name: COLUMN resources.mime; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN resources.mime; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN resources.mime IS 'Mime of the URI.';
 
 
 --
--- Name: sources; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: sources; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE sources (
@@ -2526,31 +2376,29 @@ CREATE TABLE sources (
 );
 
 
-ALTER TABLE public.sources OWNER TO postgres;
-
 --
--- Name: TABLE sources; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE sources; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE sources IS 'Sources of data, such as a Drupal site.';
 
 
 --
--- Name: COLUMN sources.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN sources.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN sources.id IS 'Database ID of the data source.';
 
 
 --
--- Name: COLUMN sources.source; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN sources.source; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN sources.source IS 'The identifier of the source.';
 
 
 --
--- Name: sources_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: sources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE sources_id_seq
@@ -2561,17 +2409,15 @@ CREATE SEQUENCE sources_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.sources_id_seq OWNER TO postgres;
-
 --
--- Name: sources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: sources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE sources_id_seq OWNED BY sources.id;
 
 
 --
--- Name: uris_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: uris_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE uris_id_seq
@@ -2582,17 +2428,15 @@ CREATE SEQUENCE uris_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.uris_id_seq OWNER TO postgres;
-
 --
--- Name: uris_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: uris_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE uris_id_seq OWNED BY resources.id;
 
 
 --
--- Name: user_roles; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: user_roles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE user_roles (
@@ -2602,31 +2446,29 @@ CREATE TABLE user_roles (
 );
 
 
-ALTER TABLE public.user_roles OWNER TO postgres;
-
 --
--- Name: COLUMN user_roles.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN user_roles.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN user_roles.id IS 'The database ID of the user role.';
 
 
 --
--- Name: COLUMN user_roles.role; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN user_roles.role; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN user_roles.role IS 'The role string.';
 
 
 --
--- Name: COLUMN user_roles.source_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN user_roles.source_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN user_roles.source_id IS 'The database ID of the source of the role.';
 
 
 --
--- Name: user_roles_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: user_roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE user_roles_id_seq
@@ -2637,17 +2479,15 @@ CREATE SEQUENCE user_roles_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.user_roles_id_seq OWNER TO postgres;
-
 --
--- Name: user_roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: user_roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE user_roles_id_seq OWNED BY user_roles.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE users (
@@ -2657,38 +2497,36 @@ CREATE TABLE users (
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
-
 --
--- Name: TABLE users; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE users; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON TABLE users IS 'Users of the repository.';
 
 
 --
--- Name: COLUMN users.id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN users.id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN users.id IS 'Database ID of the user.';
 
 
 --
--- Name: COLUMN users.username; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN users.username; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN users.username IS 'Identifier of the user.';
 
 
 --
--- Name: COLUMN users.source_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN users.source_id; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN users.source_id IS 'Source of the user.';
 
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE users_id_seq
@@ -2699,17 +2537,15 @@ CREATE SEQUENCE users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO postgres;
-
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: users_source_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: users_source_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE users_source_seq
@@ -2720,304 +2556,302 @@ CREATE SEQUENCE users_source_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_source_seq OWNER TO postgres;
-
 --
--- Name: users_source_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: users_source_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE users_source_seq OWNED BY users.source_id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY checksums ALTER COLUMN id SET DEFAULT nextval('checksums_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role ALTER COLUMN id SET DEFAULT nextval('datastream_is_manageable_by_role_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user ALTER COLUMN id SET DEFAULT nextval('datastream_is_manageable_by_user_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role ALTER COLUMN id SET DEFAULT nextval('datastream_is_viewable_by_role_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user ALTER COLUMN id SET DEFAULT nextval('datastream_is_viewable_by_user_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_relationships ALTER COLUMN id SET DEFAULT nextval('datastream_relationships_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastreams ALTER COLUMN id SET DEFAULT nextval('datastreams_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY date_issued ALTER COLUMN id SET DEFAULT nextval('date_issued_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY generate_ocr ALTER COLUMN id SET DEFAULT nextval('generate_ocr_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY has_language ALTER COLUMN id SET DEFAULT nextval('has_language_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY has_model ALTER COLUMN id SET DEFAULT nextval('has_model_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_height ALTER COLUMN id SET DEFAULT nextval('image_height_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_width ALTER COLUMN id SET DEFAULT nextval('image_width_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_constituent_of ALTER COLUMN id SET DEFAULT nextval('is_constituent_of_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_member_of ALTER COLUMN id SET DEFAULT nextval('is_member_of_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_member_of_collection ALTER COLUMN id SET DEFAULT nextval('is_member_of_collection_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_page_number ALTER COLUMN id SET DEFAULT nextval('is_page_number_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_page_of ALTER COLUMN id SET DEFAULT nextval('is_page_of_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_section ALTER COLUMN id SET DEFAULT nextval('is_section_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_sequence_number ALTER COLUMN id SET DEFAULT nextval('is_sequence_number_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_sequence_number_of ALTER COLUMN id SET DEFAULT nextval('is_sequence_number_of_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY log ALTER COLUMN id SET DEFAULT nextval('log_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mimes ALTER COLUMN id SET DEFAULT nextval('mimes_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role ALTER COLUMN id SET DEFAULT nextval('object_is_manageable_by_role_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user ALTER COLUMN id SET DEFAULT nextval('object_is_manageable_by_user_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role ALTER COLUMN id SET DEFAULT nextval('object_is_viewable_by_role_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user ALTER COLUMN id SET DEFAULT nextval('object_is_viewable_by_user_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_relationships ALTER COLUMN id SET DEFAULT nextval('object_relationships_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY objects ALTER COLUMN id SET DEFAULT nextval('objects_id_seq'::regclass);
 
 
 --
--- Name: owner; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: owner; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY objects ALTER COLUMN owner SET DEFAULT nextval('objects_owner_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_datastreams ALTER COLUMN id SET DEFAULT nextval('old_datastreams_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_objects ALTER COLUMN id SET DEFAULT nextval('old_objects_id_seq'::regclass);
 
 
 --
--- Name: current_object; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: current_object; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_objects ALTER COLUMN current_object SET DEFAULT nextval('old_objects_object_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY pid_namespaces ALTER COLUMN id SET DEFAULT nextval('namespaces_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY predicates ALTER COLUMN id SET DEFAULT nextval('predicates_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY rdf_namespace ALTER COLUMN id SET DEFAULT nextval('rdf_namespace_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY resources ALTER COLUMN id SET DEFAULT nextval('uris_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sources ALTER COLUMN id SET DEFAULT nextval('sources_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY user_roles ALTER COLUMN id SET DEFAULT nextval('user_roles_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: source_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: source_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN source_id SET DEFAULT nextval('users_source_seq'::regclass);
 
 
 --
--- Name: checksums_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: checksums_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY checksums
@@ -3025,7 +2859,7 @@ ALTER TABLE ONLY checksums
 
 
 --
--- Name: datastream_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
@@ -3033,7 +2867,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 
 
 --
--- Name: datastream_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
@@ -3041,7 +2875,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 
 
 --
--- Name: datastream_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
@@ -3049,7 +2883,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 
 
 --
--- Name: datastream_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
@@ -3057,7 +2891,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 
 
 --
--- Name: datastream_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastream_relationships
@@ -3065,7 +2899,7 @@ ALTER TABLE ONLY datastream_relationships
 
 
 --
--- Name: datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastreams
@@ -3073,7 +2907,7 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: date_issued_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: date_issued_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY date_issued
@@ -3081,7 +2915,7 @@ ALTER TABLE ONLY date_issued
 
 
 --
--- Name: dc_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: dc_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY dublin_core
@@ -3089,7 +2923,7 @@ ALTER TABLE ONLY dublin_core
 
 
 --
--- Name: generate_ocr_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: generate_ocr_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY generate_ocr
@@ -3097,7 +2931,7 @@ ALTER TABLE ONLY generate_ocr
 
 
 --
--- Name: has_language_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: has_language_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY has_language
@@ -3105,7 +2939,7 @@ ALTER TABLE ONLY has_language
 
 
 --
--- Name: has_model_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: has_model_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY has_model
@@ -3113,7 +2947,7 @@ ALTER TABLE ONLY has_model
 
 
 --
--- Name: identifier; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: identifier; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY sources
@@ -3121,14 +2955,14 @@ ALTER TABLE ONLY sources
 
 
 --
--- Name: CONSTRAINT identifier ON sources; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT identifier ON sources; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT identifier ON sources IS 'Only one entry per source.';
 
 
 --
--- Name: image_height_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: image_height_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY image_height
@@ -3136,7 +2970,7 @@ ALTER TABLE ONLY image_height
 
 
 --
--- Name: image_width_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: image_width_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY image_width
@@ -3144,7 +2978,7 @@ ALTER TABLE ONLY image_width
 
 
 --
--- Name: is_constituent_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_constituent_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_constituent_of
@@ -3152,7 +2986,7 @@ ALTER TABLE ONLY is_constituent_of
 
 
 --
--- Name: is_member_of_collection_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_member_of_collection_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_member_of_collection
@@ -3160,7 +2994,7 @@ ALTER TABLE ONLY is_member_of_collection
 
 
 --
--- Name: is_member_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_member_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_member_of
@@ -3168,7 +3002,7 @@ ALTER TABLE ONLY is_member_of
 
 
 --
--- Name: is_page_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_page_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_page_number
@@ -3176,7 +3010,7 @@ ALTER TABLE ONLY is_page_number
 
 
 --
--- Name: is_page_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_page_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_page_of
@@ -3184,7 +3018,7 @@ ALTER TABLE ONLY is_page_of
 
 
 --
--- Name: is_section_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_section_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_section
@@ -3192,7 +3026,7 @@ ALTER TABLE ONLY is_section
 
 
 --
--- Name: is_sequence_number_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_sequence_number_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_sequence_number_of
@@ -3200,7 +3034,7 @@ ALTER TABLE ONLY is_sequence_number_of
 
 
 --
--- Name: is_sequence_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_sequence_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_sequence_number
@@ -3208,7 +3042,7 @@ ALTER TABLE ONLY is_sequence_number
 
 
 --
--- Name: log_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: log_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY log
@@ -3216,7 +3050,7 @@ ALTER TABLE ONLY log
 
 
 --
--- Name: mime_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: mime_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY mimes
@@ -3224,7 +3058,7 @@ ALTER TABLE ONLY mimes
 
 
 --
--- Name: namespaces_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: namespaces_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY pid_namespaces
@@ -3232,7 +3066,7 @@ ALTER TABLE ONLY pid_namespaces
 
 
 --
--- Name: object_dsid; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_dsid; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY datastreams
@@ -3240,7 +3074,7 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: object_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
@@ -3248,7 +3082,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 
 
 --
--- Name: object_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
@@ -3256,7 +3090,7 @@ ALTER TABLE ONLY object_is_manageable_by_user
 
 
 --
--- Name: object_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
@@ -3264,7 +3098,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 
 
 --
--- Name: object_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
@@ -3272,7 +3106,7 @@ ALTER TABLE ONLY object_is_viewable_by_user
 
 
 --
--- Name: object_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY object_relationships
@@ -3280,7 +3114,7 @@ ALTER TABLE ONLY object_relationships
 
 
 --
--- Name: objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY objects
@@ -3288,7 +3122,7 @@ ALTER TABLE ONLY objects
 
 
 --
--- Name: old_datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: old_datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY old_datastreams
@@ -3296,7 +3130,7 @@ ALTER TABLE ONLY old_datastreams
 
 
 --
--- Name: old_objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: old_objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY old_objects
@@ -3304,7 +3138,7 @@ ALTER TABLE ONLY old_objects
 
 
 --
--- Name: predicates_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: predicates_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY predicates
@@ -3312,7 +3146,7 @@ ALTER TABLE ONLY predicates
 
 
 --
--- Name: rdf_namespace_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: rdf_namespace_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY rdf_namespace
@@ -3320,7 +3154,7 @@ ALTER TABLE ONLY rdf_namespace
 
 
 --
--- Name: sources_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: sources_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY sources
@@ -3328,7 +3162,7 @@ ALTER TABLE ONLY sources
 
 
 --
--- Name: unique_checksums; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_checksums; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY checksums
@@ -3336,7 +3170,7 @@ ALTER TABLE ONLY checksums
 
 
 --
--- Name: unique_heights; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_heights; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY image_height
@@ -3344,14 +3178,14 @@ ALTER TABLE ONLY image_height
 
 
 --
--- Name: CONSTRAINT unique_heights ON image_height; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_heights ON image_height; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_heights ON image_height IS 'Images only have one height.';
 
 
 --
--- Name: unique_ids_in_namespaces; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_ids_in_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY objects
@@ -3359,14 +3193,14 @@ ALTER TABLE ONLY objects
 
 
 --
--- Name: CONSTRAINT unique_ids_in_namespaces ON objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_ids_in_namespaces ON objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_ids_in_namespaces ON objects IS 'Namespaces only have on instance of a given id.';
 
 
 --
--- Name: unique_log_entries; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_log_entries; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY log
@@ -3374,14 +3208,14 @@ ALTER TABLE ONLY log
 
 
 --
--- Name: CONSTRAINT unique_log_entries ON log; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_log_entries ON log; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_log_entries ON log IS 'Log entries should be unique.';
 
 
 --
--- Name: unique_mimes; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_mimes; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY mimes
@@ -3389,7 +3223,7 @@ ALTER TABLE ONLY mimes
 
 
 --
--- Name: unique_namespaces; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY pid_namespaces
@@ -3397,14 +3231,14 @@ ALTER TABLE ONLY pid_namespaces
 
 
 --
--- Name: CONSTRAINT unique_namespaces ON pid_namespaces; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_namespaces ON pid_namespaces; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_namespaces ON pid_namespaces IS 'Only one entry per namespace.';
 
 
 --
--- Name: unique_rdf_namespaces; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_rdf_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY rdf_namespace
@@ -3412,14 +3246,14 @@ ALTER TABLE ONLY rdf_namespace
 
 
 --
--- Name: CONSTRAINT unique_rdf_namespaces ON rdf_namespace; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_rdf_namespaces ON rdf_namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_rdf_namespaces ON rdf_namespace IS 'Namespaces should only be in the database once.';
 
 
 --
--- Name: unique_sequence_numbers; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_sequence_numbers; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY is_sequence_number_of
@@ -3427,14 +3261,14 @@ ALTER TABLE ONLY is_sequence_number_of
 
 
 --
--- Name: CONSTRAINT unique_sequence_numbers ON is_sequence_number_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_sequence_numbers ON is_sequence_number_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_sequence_numbers ON is_sequence_number_of IS 'Each subject has a unique sequece number for each object.';
 
 
 --
--- Name: unique_source_user; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_source_user; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY users
@@ -3442,14 +3276,14 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: CONSTRAINT unique_source_user ON users; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_source_user ON users; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_source_user ON users IS 'Each source shold only identify a user once.';
 
 
 --
--- Name: unique_uris; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_uris; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY resources
@@ -3457,7 +3291,7 @@ ALTER TABLE ONLY resources
 
 
 --
--- Name: unique_widths; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: unique_widths; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY image_width
@@ -3465,14 +3299,14 @@ ALTER TABLE ONLY image_width
 
 
 --
--- Name: CONSTRAINT unique_widths ON image_width; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT unique_widths ON image_width; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT unique_widths ON image_width IS 'Images only have one width.';
 
 
 --
--- Name: uri_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: uri_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY resources
@@ -3480,7 +3314,7 @@ ALTER TABLE ONLY resources
 
 
 --
--- Name: user_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: user_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY user_roles
@@ -3488,7 +3322,7 @@ ALTER TABLE ONLY user_roles
 
 
 --
--- Name: users_primary_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: users_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY users
@@ -3496,581 +3330,581 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: datastream_is_manageable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_manageable_by_role_datastream_index ON datastream_is_manageable_by_role USING btree (datastream_id);
 
 
 --
--- Name: INDEX datastream_is_manageable_by_role_datastream_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_manageable_by_role_datastream_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_manageable_by_role_datastream_index IS 'There will be many lookups by datastream.';
 
 
 --
--- Name: datastream_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_manageable_by_role_role_index ON datastream_is_manageable_by_role USING btree (role_id);
 
 
 --
--- Name: INDEX datastream_is_manageable_by_role_role_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_manageable_by_role_role_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_manageable_by_role_role_index IS 'Random lookups by role will be common.';
 
 
 --
--- Name: datastream_is_manageable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_manageable_by_user_datastream_index ON datastream_is_manageable_by_user USING btree (datastream_id);
 
 
 --
--- Name: INDEX datastream_is_manageable_by_user_datastream_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_manageable_by_user_datastream_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_manageable_by_user_datastream_index IS 'There will be many lookups by datastream.';
 
 
 --
--- Name: datastream_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_manageable_by_user_user_index ON datastream_is_manageable_by_user USING btree (user_id);
 
 
 --
--- Name: INDEX datastream_is_manageable_by_user_user_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_manageable_by_user_user_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_manageable_by_user_user_index IS 'Random lookups by user will be common.';
 
 
 --
--- Name: datastream_is_viewable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_viewable_by_role_datastream_index ON datastream_is_viewable_by_role USING btree (datastream_id);
 
 
 --
--- Name: INDEX datastream_is_viewable_by_role_datastream_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_viewable_by_role_datastream_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_viewable_by_role_datastream_index IS 'There will be many lookups by datastream.';
 
 
 --
--- Name: datastream_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_viewable_by_role_role_index ON datastream_is_viewable_by_role USING btree (role_id);
 
 
 --
--- Name: INDEX datastream_is_viewable_by_role_role_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_viewable_by_role_role_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_viewable_by_role_role_index IS 'Random lookups by role will be common.';
 
 
 --
--- Name: datastream_is_viewable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_viewable_by_user_datastream_index ON datastream_is_viewable_by_user USING btree (datastream_id);
 
 
 --
--- Name: INDEX datastream_is_viewable_by_user_datastream_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_viewable_by_user_datastream_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_viewable_by_user_datastream_index IS 'There will be many lookups by datastream.';
 
 
 --
--- Name: datastream_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: datastream_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX datastream_is_viewable_by_user_user_index ON datastream_is_viewable_by_user USING btree (user_id);
 
 
 --
--- Name: INDEX datastream_is_viewable_by_user_user_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX datastream_is_viewable_by_user_user_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX datastream_is_viewable_by_user_user_index IS 'Random lookups by user will be common.';
 
 
 --
--- Name: date_issued_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: date_issued_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX date_issued_index ON date_issued USING btree (rdf_object);
 
 
 --
--- Name: INDEX date_issued_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX date_issued_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX date_issued_index IS 'Ordering by date issued should be common.';
 
 
 --
--- Name: fki_datastream_log_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_datastream_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_datastream_log_link ON datastreams USING btree (log);
 
 
 --
--- Name: fki_datastream_relationships_datastream_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_datastream_relationships_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_datastream_relationships_datastream_link ON datastream_relationships USING btree (subject);
 
 
 --
--- Name: fki_datastream_relationships_predicate_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_datastream_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_datastream_relationships_predicate_link ON datastream_relationships USING btree (predicate_id);
 
 
 --
--- Name: fki_date_issued_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_date_issued_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_date_issued_subject_link ON date_issued USING btree (rdf_subject);
 
 
 --
--- Name: fki_generate_ocr_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_generate_ocr_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_generate_ocr_subject_link ON generate_ocr USING btree (rdf_subject);
 
 
 --
--- Name: fki_has_language_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_has_language_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_has_language_subject_link ON has_language USING btree (rdf_subject);
 
 
 --
--- Name: fki_has_model_object_key; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_has_model_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_has_model_object_key ON has_model USING btree (rdf_object);
 
 
 --
--- Name: fki_has_model_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_has_model_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_has_model_subject_link ON has_model USING btree (rdf_subject);
 
 
 --
--- Name: fki_image_height_datastream_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_image_height_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_image_height_datastream_link ON image_height USING btree (rdf_subject);
 
 
 --
--- Name: fki_image_width_datastream_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_image_width_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_image_width_datastream_link ON image_width USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_constituent_of_object_key; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_constituent_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_constituent_of_object_key ON is_constituent_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_constituent_of_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_constituent_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_constituent_of_subject_link ON is_constituent_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_member_of_collection_object_key; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_member_of_collection_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_member_of_collection_object_key ON is_member_of_collection USING btree (rdf_object);
 
 
 --
--- Name: fki_is_member_of_collection_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_member_of_collection_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_member_of_collection_subject_link ON is_member_of_collection USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_member_of_object_key; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_member_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_member_of_object_key ON is_member_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_member_of_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_member_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_member_of_subject_link ON is_member_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_page_number_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_page_number_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_page_number_subject_link ON is_page_number USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_page_of_object_key; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_page_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_page_of_object_key ON is_page_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_page_of_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_page_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_page_of_subject_link ON is_page_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_section_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_section_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_section_subject_link ON is_section USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_sequence_number_of_object_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_sequence_number_of_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_sequence_number_of_object_link ON is_sequence_number_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_sequence_number_of_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_sequence_number_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_sequence_number_of_subject_link ON is_sequence_number_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_sequence_number_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_is_sequence_number_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_is_sequence_number_subject_link ON is_sequence_number USING btree (rdf_subject);
 
 
 --
--- Name: fki_object_log_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_object_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_object_log_link ON objects USING btree (log);
 
 
 --
--- Name: fki_object_namespace_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_object_namespace_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_object_namespace_link ON objects USING btree (namespace);
 
 
 --
--- Name: fki_object_relationships_object_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_object_relationships_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_object_relationships_object_link ON object_relationships USING btree (object_id_object);
 
 
 --
--- Name: fki_object_relationships_predicate_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_object_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_object_relationships_predicate_link ON object_relationships USING btree (predicate_id);
 
 
 --
--- Name: fki_object_relationships_subject_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_object_relationships_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_object_relationships_subject_link ON object_relationships USING btree (subject);
 
 
 --
--- Name: fki_object_user_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_object_user_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_object_user_link ON objects USING btree (owner);
 
 
 --
--- Name: fki_old_datastream_datastream_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_old_datastream_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_old_datastream_datastream_link ON old_datastreams USING btree (current_datastream);
 
 
 --
--- Name: fki_old_datastream_log_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_old_datastream_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_old_datastream_log_link ON old_datastreams USING btree (log);
 
 
 --
--- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (uri_id);
 
 
 --
--- Name: fki_old_object_object_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_old_object_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_old_object_object_link ON old_objects USING btree (current_object);
 
 
 --
--- Name: fki_old_objects_log_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_old_objects_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_old_objects_log_link ON old_objects USING btree (log);
 
 
 --
--- Name: fki_old_objects_owner_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_old_objects_owner_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_old_objects_owner_link ON old_objects USING btree (owner);
 
 
 --
--- Name: fki_predicate_rdf_namespace_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_predicate_rdf_namespace_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_predicate_rdf_namespace_link ON predicates USING btree (rdf_namespace_id);
 
 
 --
--- Name: fki_uri_checksum_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_uri_checksum_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_uri_checksum_link ON checksums USING btree (uri);
 
 
 --
--- Name: fki_uri_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_uri_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_uri_link ON datastreams USING btree (resource_id);
 
 
 --
--- Name: fki_uri_mime_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_uri_mime_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_uri_mime_link ON resources USING btree (mime);
 
 
 --
--- Name: fki_user_source_link; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fki_user_source_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX fki_user_source_link ON users USING btree (source_id);
 
 
 --
--- Name: is_sequence_number_of_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: is_sequence_number_of_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX is_sequence_number_of_index ON is_sequence_number_of USING btree (rdf_subject, rdf_object, sequence_number);
 
 
 --
--- Name: INDEX is_sequence_number_of_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX is_sequence_number_of_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX is_sequence_number_of_index IS 'Everything in an index.';
 
 
 --
--- Name: object_dsid_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_dsid_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_dsid_index ON datastreams USING btree (object_id, dsid);
 
 
 --
--- Name: INDEX object_dsid_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_dsid_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_dsid_index IS 'Object & DSID is a common query.';
 
 
 --
--- Name: object_is_manageable_by_role_object_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_role_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_manageable_by_role_object_index ON object_is_manageable_by_role USING btree (object_id);
 
 
 --
--- Name: INDEX object_is_manageable_by_role_object_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_manageable_by_role_object_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_manageable_by_role_object_index IS 'There will be many lookups by object.';
 
 
 --
--- Name: object_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_manageable_by_role_role_index ON object_is_manageable_by_role USING btree (role_id);
 
 
 --
--- Name: INDEX object_is_manageable_by_role_role_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_manageable_by_role_role_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_manageable_by_role_role_index IS 'Random lookups by role will be common.';
 
 
 --
--- Name: object_is_manageable_by_user_object_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_user_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_manageable_by_user_object_index ON object_is_manageable_by_user USING btree (object_id);
 
 
 --
--- Name: INDEX object_is_manageable_by_user_object_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_manageable_by_user_object_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_manageable_by_user_object_index IS 'There will be many lookups by object.';
 
 
 --
--- Name: object_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_manageable_by_user_user_index ON object_is_manageable_by_user USING btree (user_id);
 
 
 --
--- Name: INDEX object_is_manageable_by_user_user_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_manageable_by_user_user_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_manageable_by_user_user_index IS 'Random lookups by user will be common.';
 
 
 --
--- Name: object_is_viewable_by_role_object_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_role_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_viewable_by_role_object_index ON object_is_viewable_by_role USING btree (object_id);
 
 
 --
--- Name: INDEX object_is_viewable_by_role_object_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_viewable_by_role_object_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_viewable_by_role_object_index IS 'There will be many lookups by object.';
 
 
 --
--- Name: object_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_viewable_by_role_role_index ON object_is_viewable_by_role USING btree (role_id);
 
 
 --
--- Name: INDEX object_is_viewable_by_role_role_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_viewable_by_role_role_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_viewable_by_role_role_index IS 'Random lookups by role will be common.';
 
 
 --
--- Name: object_is_viewable_by_user_object_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_user_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_viewable_by_user_object_index ON object_is_viewable_by_user USING btree (object_id);
 
 
 --
--- Name: INDEX object_is_viewable_by_user_object_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_viewable_by_user_object_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_viewable_by_user_object_index IS 'There will be many lookups by object.';
 
 
 --
--- Name: object_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_is_viewable_by_user_user_index ON object_is_viewable_by_user USING btree (user_id);
 
 
 --
--- Name: INDEX object_is_viewable_by_user_user_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_is_viewable_by_user_user_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_is_viewable_by_user_user_index IS 'Random lookups by user will be common.';
 
 
 --
--- Name: object_label_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: object_label_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX object_label_index ON objects USING btree (label);
 
 
 --
--- Name: INDEX object_label_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX object_label_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX object_label_index IS 'Objects are often queried/ordered by label.';
 
 
 --
--- Name: pid_index; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pid_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX pid_index ON objects USING btree (pid_id);
 
 
 --
--- Name: INDEX pid_index; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: INDEX pid_index; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON INDEX pid_index IS 'There will be much random access on PIDs.';
 
 
 --
--- Name: datastream_is_manageable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_is_manageable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
@@ -4078,7 +3912,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 
 
 --
--- Name: datastream_is_manageable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_is_manageable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
@@ -4086,7 +3920,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 
 
 --
--- Name: datastream_is_viewable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_is_viewable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
@@ -4094,7 +3928,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 
 
 --
--- Name: datastream_is_viewable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_is_viewable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
@@ -4102,7 +3936,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 
 
 --
--- Name: datastream_log_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_log_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastreams
@@ -4110,14 +3944,14 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: CONSTRAINT datastream_log_link ON datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT datastream_log_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT datastream_log_link ON datastreams IS 'Datastream versions can have log entries.';
 
 
 --
--- Name: datastream_relationships_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_relationships_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_relationships
@@ -4125,14 +3959,14 @@ ALTER TABLE ONLY datastream_relationships
 
 
 --
--- Name: CONSTRAINT datastream_relationships_datastream_link ON datastream_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT datastream_relationships_datastream_link ON datastream_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT datastream_relationships_datastream_link ON datastream_relationships IS 'Datastream relationship subjects are datastreams.';
 
 
 --
--- Name: datastream_relationships_predicate_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: datastream_relationships_predicate_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_relationships
@@ -4140,14 +3974,14 @@ ALTER TABLE ONLY datastream_relationships
 
 
 --
--- Name: CONSTRAINT datastream_relationships_predicate_link ON datastream_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT datastream_relationships_predicate_link ON datastream_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT datastream_relationships_predicate_link ON datastream_relationships IS 'Each predicate should be well formed.';
 
 
 --
--- Name: date_issued_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: date_issued_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY date_issued
@@ -4155,14 +3989,14 @@ ALTER TABLE ONLY date_issued
 
 
 --
--- Name: CONSTRAINT date_issued_subject_link ON date_issued; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT date_issued_subject_link ON date_issued; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT date_issued_subject_link ON date_issued IS 'Each relation subject is an object.';
 
 
 --
--- Name: dc_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: dc_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY dublin_core
@@ -4170,7 +4004,7 @@ ALTER TABLE ONLY dublin_core
 
 
 --
--- Name: generate_ocr_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: generate_ocr_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY generate_ocr
@@ -4178,14 +4012,14 @@ ALTER TABLE ONLY generate_ocr
 
 
 --
--- Name: CONSTRAINT generate_ocr_subject_link ON generate_ocr; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT generate_ocr_subject_link ON generate_ocr; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT generate_ocr_subject_link ON generate_ocr IS 'Each relation subject is an object.';
 
 
 --
--- Name: has_language_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: has_language_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY has_language
@@ -4193,14 +4027,14 @@ ALTER TABLE ONLY has_language
 
 
 --
--- Name: CONSTRAINT has_language_subject_link ON has_language; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT has_language_subject_link ON has_language; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT has_language_subject_link ON has_language IS 'Each relation subject is an object.';
 
 
 --
--- Name: has_model_object_key; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: has_model_object_key; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY has_model
@@ -4208,14 +4042,14 @@ ALTER TABLE ONLY has_model
 
 
 --
--- Name: CONSTRAINT has_model_object_key ON has_model; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT has_model_object_key ON has_model; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT has_model_object_key ON has_model IS 'Each relation object is a repository object.';
 
 
 --
--- Name: has_model_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: has_model_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY has_model
@@ -4223,14 +4057,14 @@ ALTER TABLE ONLY has_model
 
 
 --
--- Name: CONSTRAINT has_model_subject_link ON has_model; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT has_model_subject_link ON has_model; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT has_model_subject_link ON has_model IS 'Each relation subject is an object.';
 
 
 --
--- Name: image_height_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: image_height_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_height
@@ -4238,14 +4072,14 @@ ALTER TABLE ONLY image_height
 
 
 --
--- Name: CONSTRAINT image_height_datastream_link ON image_height; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT image_height_datastream_link ON image_height; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT image_height_datastream_link ON image_height IS 'Images have heights.';
 
 
 --
--- Name: image_width_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: image_width_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_width
@@ -4253,14 +4087,14 @@ ALTER TABLE ONLY image_width
 
 
 --
--- Name: CONSTRAINT image_width_datastream_link ON image_width; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT image_width_datastream_link ON image_width; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT image_width_datastream_link ON image_width IS 'Images have widths.';
 
 
 --
--- Name: is_constituent_of_object_key; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_constituent_of_object_key; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_constituent_of
@@ -4268,14 +4102,14 @@ ALTER TABLE ONLY is_constituent_of
 
 
 --
--- Name: CONSTRAINT is_constituent_of_object_key ON is_constituent_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_constituent_of_object_key ON is_constituent_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_constituent_of_object_key ON is_constituent_of IS 'Each relation object is a repository object.';
 
 
 --
--- Name: is_constituent_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_constituent_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_constituent_of
@@ -4283,14 +4117,14 @@ ALTER TABLE ONLY is_constituent_of
 
 
 --
--- Name: CONSTRAINT is_constituent_of_subject_link ON is_constituent_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_constituent_of_subject_link ON is_constituent_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_constituent_of_subject_link ON is_constituent_of IS 'Each relation subject is an object.';
 
 
 --
--- Name: is_member_of_collection_object_key; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_member_of_collection_object_key; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_member_of_collection
@@ -4298,14 +4132,14 @@ ALTER TABLE ONLY is_member_of_collection
 
 
 --
--- Name: CONSTRAINT is_member_of_collection_object_key ON is_member_of_collection; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_member_of_collection_object_key ON is_member_of_collection; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_member_of_collection_object_key ON is_member_of_collection IS 'Each relation object is a repository object.';
 
 
 --
--- Name: is_member_of_collection_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_member_of_collection_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_member_of_collection
@@ -4313,14 +4147,14 @@ ALTER TABLE ONLY is_member_of_collection
 
 
 --
--- Name: CONSTRAINT is_member_of_collection_subject_link ON is_member_of_collection; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_member_of_collection_subject_link ON is_member_of_collection; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_member_of_collection_subject_link ON is_member_of_collection IS 'Each relation subject is an object.';
 
 
 --
--- Name: is_member_of_object_key; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_member_of_object_key; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_member_of
@@ -4328,14 +4162,14 @@ ALTER TABLE ONLY is_member_of
 
 
 --
--- Name: CONSTRAINT is_member_of_object_key ON is_member_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_member_of_object_key ON is_member_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_member_of_object_key ON is_member_of IS 'Each relationship object is a repository object.';
 
 
 --
--- Name: is_member_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_member_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_member_of
@@ -4343,14 +4177,14 @@ ALTER TABLE ONLY is_member_of
 
 
 --
--- Name: CONSTRAINT is_member_of_subject_link ON is_member_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_member_of_subject_link ON is_member_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_member_of_subject_link ON is_member_of IS 'Each subject is an object.';
 
 
 --
--- Name: is_page_number_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_page_number_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_page_number
@@ -4358,14 +4192,14 @@ ALTER TABLE ONLY is_page_number
 
 
 --
--- Name: CONSTRAINT is_page_number_subject_link ON is_page_number; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_page_number_subject_link ON is_page_number; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_page_number_subject_link ON is_page_number IS 'Each relation subject is an object.';
 
 
 --
--- Name: is_page_of_object_key; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_page_of_object_key; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_page_of
@@ -4373,14 +4207,14 @@ ALTER TABLE ONLY is_page_of
 
 
 --
--- Name: CONSTRAINT is_page_of_object_key ON is_page_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_page_of_object_key ON is_page_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_page_of_object_key ON is_page_of IS 'Each relation object is a repository object.';
 
 
 --
--- Name: is_page_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_page_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_page_of
@@ -4388,14 +4222,14 @@ ALTER TABLE ONLY is_page_of
 
 
 --
--- Name: CONSTRAINT is_page_of_subject_link ON is_page_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_page_of_subject_link ON is_page_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_page_of_subject_link ON is_page_of IS 'Each relation subject is an object.';
 
 
 --
--- Name: is_section_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_section_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_section
@@ -4403,14 +4237,14 @@ ALTER TABLE ONLY is_section
 
 
 --
--- Name: CONSTRAINT is_section_subject_link ON is_section; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_section_subject_link ON is_section; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_section_subject_link ON is_section IS 'Each relation subject is an object.';
 
 
 --
--- Name: is_sequence_number_of_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_sequence_number_of_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_sequence_number_of
@@ -4418,14 +4252,14 @@ ALTER TABLE ONLY is_sequence_number_of
 
 
 --
--- Name: CONSTRAINT is_sequence_number_of_object_link ON is_sequence_number_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_sequence_number_of_object_link ON is_sequence_number_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_sequence_number_of_object_link ON is_sequence_number_of IS 'Each realtion object is a repository object.';
 
 
 --
--- Name: is_sequence_number_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_sequence_number_of_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_sequence_number_of
@@ -4433,14 +4267,14 @@ ALTER TABLE ONLY is_sequence_number_of
 
 
 --
--- Name: CONSTRAINT is_sequence_number_of_subject_link ON is_sequence_number_of; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_sequence_number_of_subject_link ON is_sequence_number_of; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_sequence_number_of_subject_link ON is_sequence_number_of IS 'Each subject is an object.';
 
 
 --
--- Name: is_sequence_number_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: is_sequence_number_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY is_sequence_number
@@ -4448,14 +4282,14 @@ ALTER TABLE ONLY is_sequence_number
 
 
 --
--- Name: CONSTRAINT is_sequence_number_subject_link ON is_sequence_number; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT is_sequence_number_subject_link ON is_sequence_number; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT is_sequence_number_subject_link ON is_sequence_number IS 'Each relation subject is an object.';
 
 
 --
--- Name: manageable_by_role_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: manageable_by_role_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
@@ -4463,7 +4297,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 
 
 --
--- Name: manageable_by_role_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: manageable_by_role_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
@@ -4471,7 +4305,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 
 
 --
--- Name: manageable_by_user_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: manageable_by_user_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
@@ -4479,7 +4313,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 
 
 --
--- Name: manageable_by_user_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: manageable_by_user_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
@@ -4487,7 +4321,7 @@ ALTER TABLE ONLY object_is_manageable_by_user
 
 
 --
--- Name: mime_uri_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: mime_uri_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY resources
@@ -4495,14 +4329,14 @@ ALTER TABLE ONLY resources
 
 
 --
--- Name: CONSTRAINT mime_uri_link ON resources; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT mime_uri_link ON resources; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT mime_uri_link ON resources IS 'URIs have mimes.';
 
 
 --
--- Name: object_id_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_id_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastreams
@@ -4510,14 +4344,14 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: CONSTRAINT object_id_link ON datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_id_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_id_link ON datastreams IS 'Datastreams belong to objects.';
 
 
 --
--- Name: object_is_manageable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_is_manageable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
@@ -4525,7 +4359,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 
 
 --
--- Name: object_is_manageable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_is_manageable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
@@ -4533,7 +4367,7 @@ ALTER TABLE ONLY object_is_manageable_by_user
 
 
 --
--- Name: object_is_viewable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_is_viewable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
@@ -4541,7 +4375,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 
 
 --
--- Name: object_is_viewable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_is_viewable_user_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
@@ -4549,7 +4383,7 @@ ALTER TABLE ONLY object_is_viewable_by_user
 
 
 --
--- Name: object_log_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_log_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY objects
@@ -4557,14 +4391,14 @@ ALTER TABLE ONLY objects
 
 
 --
--- Name: CONSTRAINT object_log_link ON objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_log_link ON objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_log_link ON objects IS 'Object versions have logs associated with them.';
 
 
 --
--- Name: object_namespace_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_namespace_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY objects
@@ -4572,14 +4406,14 @@ ALTER TABLE ONLY objects
 
 
 --
--- Name: CONSTRAINT object_namespace_link ON objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_namespace_link ON objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_namespace_link ON objects IS 'Objects belong to namespaces.';
 
 
 --
--- Name: object_relationships_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_relationships_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_relationships
@@ -4587,14 +4421,14 @@ ALTER TABLE ONLY object_relationships
 
 
 --
--- Name: CONSTRAINT object_relationships_object_link ON object_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_relationships_object_link ON object_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_relationships_object_link ON object_relationships IS 'Relationship objects can be objects.';
 
 
 --
--- Name: object_relationships_predicate_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_relationships_predicate_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_relationships
@@ -4602,14 +4436,14 @@ ALTER TABLE ONLY object_relationships
 
 
 --
--- Name: CONSTRAINT object_relationships_predicate_link ON object_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_relationships_predicate_link ON object_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_relationships_predicate_link ON object_relationships IS 'The relationship has a well defined predicate.';
 
 
 --
--- Name: object_relationships_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_relationships_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_relationships
@@ -4617,14 +4451,14 @@ ALTER TABLE ONLY object_relationships
 
 
 --
--- Name: CONSTRAINT object_relationships_subject_link ON object_relationships; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_relationships_subject_link ON object_relationships; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_relationships_subject_link ON object_relationships IS 'Each object relationship subject is an object.';
 
 
 --
--- Name: object_user_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: object_user_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY objects
@@ -4632,14 +4466,14 @@ ALTER TABLE ONLY objects
 
 
 --
--- Name: CONSTRAINT object_user_link ON objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT object_user_link ON objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT object_user_link ON objects IS 'Objects can be owned by a user.';
 
 
 --
--- Name: old_datastream_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: old_datastream_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_datastreams
@@ -4647,14 +4481,14 @@ ALTER TABLE ONLY old_datastreams
 
 
 --
--- Name: CONSTRAINT old_datastream_datastream_link ON old_datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT old_datastream_datastream_link ON old_datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT old_datastream_datastream_link ON old_datastreams IS 'Old datastreams can be older versions of existing datastreams.';
 
 
 --
--- Name: old_datastream_log_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: old_datastream_log_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_datastreams
@@ -4662,14 +4496,14 @@ ALTER TABLE ONLY old_datastreams
 
 
 --
--- Name: CONSTRAINT old_datastream_log_link ON old_datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT old_datastream_log_link ON old_datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT old_datastream_log_link ON old_datastreams IS 'Old datastream versions can have log entries.';
 
 
 --
--- Name: old_datastreams_uri_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: old_datastreams_uri_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_datastreams
@@ -4677,14 +4511,14 @@ ALTER TABLE ONLY old_datastreams
 
 
 --
--- Name: CONSTRAINT old_datastreams_uri_link ON old_datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT old_datastreams_uri_link ON old_datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT old_datastreams_uri_link ON old_datastreams IS 'Old datastreams could have had resources.';
 
 
 --
--- Name: old_objects_log_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: old_objects_log_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_objects
@@ -4692,14 +4526,14 @@ ALTER TABLE ONLY old_objects
 
 
 --
--- Name: CONSTRAINT old_objects_log_link ON old_objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT old_objects_log_link ON old_objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT old_objects_log_link ON old_objects IS 'Old object info can have log entries.';
 
 
 --
--- Name: old_objects_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: old_objects_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_objects
@@ -4707,14 +4541,14 @@ ALTER TABLE ONLY old_objects
 
 
 --
--- Name: CONSTRAINT old_objects_object_link ON old_objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT old_objects_object_link ON old_objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT old_objects_object_link ON old_objects IS 'Old objects are older versions of existing objects.';
 
 
 --
--- Name: old_objects_owner_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: old_objects_owner_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY old_objects
@@ -4722,14 +4556,14 @@ ALTER TABLE ONLY old_objects
 
 
 --
--- Name: CONSTRAINT old_objects_owner_link ON old_objects; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT old_objects_owner_link ON old_objects; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT old_objects_owner_link ON old_objects IS 'Old versions of objects could have belonged to users.';
 
 
 --
--- Name: predicate_rdf_namespace_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: predicate_rdf_namespace_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY predicates
@@ -4737,14 +4571,14 @@ ALTER TABLE ONLY predicates
 
 
 --
--- Name: CONSTRAINT predicate_rdf_namespace_link ON predicates; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT predicate_rdf_namespace_link ON predicates; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT predicate_rdf_namespace_link ON predicates IS 'Predicates belong to RDF namespaces.';
 
 
 --
--- Name: role_source_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: role_source_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY user_roles
@@ -4752,7 +4586,7 @@ ALTER TABLE ONLY user_roles
 
 
 --
--- Name: uri_checksum_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: uri_checksum_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY checksums
@@ -4760,14 +4594,14 @@ ALTER TABLE ONLY checksums
 
 
 --
--- Name: CONSTRAINT uri_checksum_link ON checksums; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT uri_checksum_link ON checksums; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT uri_checksum_link ON checksums IS 'Checksums belong to URIs.';
 
 
 --
--- Name: uri_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: uri_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastreams
@@ -4775,14 +4609,14 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: CONSTRAINT uri_datastream_link ON datastreams; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT uri_datastream_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT uri_datastream_link ON datastreams IS 'Many datastreams or versions may point to the same URI.';
 
 
 --
--- Name: user_source_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: user_source_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -4790,14 +4624,14 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: CONSTRAINT user_source_link ON users; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: CONSTRAINT user_source_link ON users; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON CONSTRAINT user_source_link ON users IS 'Users can belong to sources.';
 
 
 --
--- Name: viewable_by_role_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: viewable_by_role_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
@@ -4805,7 +4639,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 
 
 --
--- Name: viewable_by_role_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: viewable_by_role_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
@@ -4813,7 +4647,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 
 
 --
--- Name: viewable_by_user_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: viewable_by_user_datastream_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
@@ -4821,7 +4655,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 
 
 --
--- Name: viewable_by_user_object_link; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: viewable_by_user_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
@@ -4829,7 +4663,7 @@ ALTER TABLE ONLY object_is_viewable_by_user
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: postgres
+-- Name: public; Type: ACL; Schema: -; Owner: -
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
