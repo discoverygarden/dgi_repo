@@ -25,6 +25,7 @@ setup(
         'talons',
         'falcon-multipart',
         'lxml',
+        'psycopg2',
         'pyyaml'
     ],
     dependency_links=[

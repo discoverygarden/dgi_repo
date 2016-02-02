@@ -3,6 +3,12 @@ data_directory: /var/lib/dgi_repo
 
 default_namespace: islandora
 
+database:
+    name:       dgi_repo
+    host:       localhost
+    username:   not_a_user
+    password:   not_a_pass
+
 drupal_sites:
     # Site ID. User-Agent in inbound requests should match 'Tuque/{name}',
     # like 'Tuque/alpha' for this one
