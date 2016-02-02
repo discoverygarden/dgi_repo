@@ -27,5 +27,4 @@ app = falcon.API(
 )
 
 for route, resource_class in resources.route_map.items():
-    # XXX: Injecting the "fedora" path component...
-    app.add_route('/fedora{0}'.format(route), resource_class())
+    app.add_route(route, resource_class())
