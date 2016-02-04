@@ -14,7 +14,8 @@ class ProxyResource(object):
         if req.content_type is not 'application/json':
             raise falcon.HTTPUnsupportedMediaType('Only "application/json" is supported on this endpoint.')
         info = json.load(req.stream)
-        with _get_connection() as conn:
+        connection = self._get_conenction()
+        with connection as conn:
             with conn.cursor(name=__name__) as cursor:
                 try:
                     cursor.execute(info['query'], info['replacements'])
@@ -22,14 +23,17 @@ class ProxyResource(object):
                 except KeyError:
                     raise falcon.HTTPBadRequest('Missing value in JSON POST.', 'The POSTed JSON object must contain "query" and "replacements".')
 
-def _get_connection():
-    """
-    Helper to get a connection with reduced permissions.
-    """
-    from dgi_repo.configuration import configuration as config
-    return connect(
-        host=config['database']['host'],
-        database=config['database']['name'],
-        user=config['db_proxy']['username'],
-        password=config['db_proxy']['password'],
-    )
+        connection.close()
+
+
+    def _get_connection(self):
+        """
+        Helper to get a connection with reduced permissions.
+        """
+        from dgi_repo.configuration import configuration as config
+        return connect(
+            host=config['database']['host'],
+            database=config['database']['name'],
+            user=config['db_proxy']['username'],
+            password=config['db_proxy']['password'],
+        )
