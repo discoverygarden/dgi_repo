@@ -18,8 +18,8 @@ dict.
 """
 _CONNECTORS = {
     'ioc': lambda config: config['callable'](
-        *config.pop('args', []),
-        **config.pop('kwargs', {})
+        *(config['args'] if 'args' in config else []),
+        **(config['kwargs'] if 'kwargs' in config else {})
     )
 }
 
@@ -54,14 +54,14 @@ def authenticate(identity):
 
     # Grab the config for the selected site.
     db_info = configuration['drupal_sites'][identity.site]['database']
-    query = db_info.pop('query', '''SELECT DISTINCT u.uid, r.name
+    query = db_info['query'] if 'query' in db_info else '''SELECT DISTINCT u.uid, r.name
 FROM (
   users u
     LEFT JOIN
   users_roles ON u.uid=users_roles.uid
   )
     LEFT JOIN role r ON r.rid=users_roles.rid
-WHERE u.name=%s AND u.pass=%s''')
+WHERE u.name=%s AND u.pass=%s'''
 
     try:
         # Get a DB connection and cursor for the selected site.
@@ -132,11 +132,11 @@ def get_connection(site):
 try:
     import pymysql
     _CONNECTORS['mysql'] = lambda config: pymysql.connect(
-        host=config.pop('host'),
-        db=config.pop('name'),
-        user=config.pop('username'),
-        password=config.pop('password', ''),
-        port=config.pop('port')
+        host=config['host'],
+        db=config['name'],
+        user=config['username'],
+        password=config['password'],
+        port=config['port']
     )
 except ImportError:
     logger.debug('MySQL driver not found.')
@@ -145,11 +145,11 @@ except ImportError:
 try:
     import psycopg2
     _CONNECTORS['postgres'] = lambda config: psycopg2.connect(
-        database=config.pop('name'),
-        user=config.pop('username'),
-        password=config.pop('password'),
-        host=config.pop('host'),
-        port=config.pop('port')
+        database=config['name'],
+        user=config['username'],
+        password=config['password'],
+        host=config['host'],
+        port=config['port']
     )
 except ImportError:
     logger.debug('PostgreSQL driver not found.')
