@@ -23,7 +23,7 @@ auth_middleware = middleware.create_middleware(
 app = falcon.API(
     before=[auth_middleware],
     middleware=[
-         MultipartMiddleware()
+        MultipartMiddleware()
     ]
 )
 

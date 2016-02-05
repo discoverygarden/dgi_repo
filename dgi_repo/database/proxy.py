@@ -7,6 +7,7 @@ import simplejson as json
 from tempfile import SpooledTemporaryFile
 from psycopg2 import connect, DatabaseError, ProgrammingError
 
+
 class ProxyResource(object):
     """
     Falcon resource for our DB proxy endpoint.
@@ -37,9 +38,7 @@ class ProxyResource(object):
             else:
                 json.dump(cursor, resp.stream, iterable_as_array=True)
 
-
         connection.close()
-
 
     def _get_connection(self):
         """

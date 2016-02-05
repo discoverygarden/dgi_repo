@@ -21,6 +21,7 @@ def get_connection():
 
     return connect(connection_string)
 
+
 def install_schema():
     """
     Install the application schema to the database.
