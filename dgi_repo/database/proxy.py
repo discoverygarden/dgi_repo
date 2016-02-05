@@ -2,9 +2,11 @@
 DB proxy.
 """
 
+from contextlib import closing
+from tempfile import SpooledTemporaryFile
+
 import falcon
 import simplejson as json
-from tempfile import SpooledTemporaryFile
 from psycopg2 import connect, DatabaseError, ProgrammingError
 
 
@@ -18,10 +20,12 @@ class ProxyResource(object):
         info = json.load(req.stream)
         if 'query' not in info:
             raise falcon.HTTPMissingParam('query')
-        connection = self._get_connection()
+
+        # XXX: "mode" cannot be binary, since json.dump explicitly writes "str".
         resp.stream = SpooledTemporaryFile(max_size=4096, mode='w')
-        with connection as conn:
-            # XXX: Named cursor must _not_ be explicitly closed... so no "with".
+
+        with closing(self._get_connection()) as conn:
+            # XXX: Named cursor must _not_ be closed... so no "with".
             cursor = conn.cursor(name=__name__)
             try:
                 if 'replacements' in info:
@@ -37,8 +41,6 @@ class ProxyResource(object):
                 raise falcon.HTTPInternalServerError('Query failed', de.diag.message_primary)
             else:
                 json.dump(cursor, resp.stream, iterable_as_array=True)
-
-        connection.close()
 
     def _get_connection(self):
         """
