@@ -15,6 +15,22 @@ class ProxyResource(object):
     Falcon resource for our DB proxy endpoint.
     """
     def on_post(self, req, resp):
+        """
+        Respond to a particular POST'd JSON with JSON (or error).
+
+        POST'd JSON is expected to have the "application/json" Content-Type
+        header set, and to be an object containing up to two properties:
+        - "query": A required string containing the query to perform, and
+        - "replacements": Depending on the replacement tokens used, either a
+            list or an object to combine into the query.
+
+        "query" and "replacements" correspond to the two parameters of
+        cursor.execute(). For particulars, see:
+        http://initd.org/psycopg/docs/usage.html#query-parameters
+
+        On success, the response body will be a list of lists, representing
+        the rows returned from the query.
+        """
         if req.content_type != 'application/json':
             raise falcon.HTTPUnsupportedMediaType('Only "application/json" is supported on this endpoint.')
         info = json.load(req.stream)
