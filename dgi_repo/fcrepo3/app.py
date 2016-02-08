@@ -7,6 +7,7 @@ from dgi_repo.configuration import configuration
 from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier, authenticate
 from .authorize import authorize
 from . import resources
+from dgi_repo.database.proxy import ProxyResource
 
 bootstrap()
 
@@ -22,9 +23,10 @@ auth_middleware = middleware.create_middleware(
 app = falcon.API(
     before=[auth_middleware],
     middleware=[
-         MultipartMiddleware()
+        MultipartMiddleware()
     ]
 )
 
 for route, resource_class in resources.route_map.items():
     app.add_route(route, resource_class())
+app.add_route('/query_proxy', ProxyResource())

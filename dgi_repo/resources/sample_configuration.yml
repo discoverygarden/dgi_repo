@@ -9,6 +9,11 @@ database:
     username:   not_a_user
     password:   not_a_pass
 
+db_proxy:
+    # Should be a user with only SELECT permissions on a limited set of tables.
+    username: reduced_permissions_user
+    password: that_pass
+
 drupal_sites:
     # Site ID. User-Agent in inbound requests should match 'Tuque/{name}',
     # like 'Tuque/alpha' for this one

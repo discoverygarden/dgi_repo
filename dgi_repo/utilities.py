@@ -12,6 +12,7 @@ def bootstrap():
 
     dgi_repo.logger.configure_logging()
 
+
 def install():
     """
     Run code to finish installing the application.
