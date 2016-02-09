@@ -12,6 +12,10 @@ This module requires the following:
 * [PostgreSQL](http://www.postgresql.org/)
 * [psycopg](https://pypi.python.org/pypi/psycopg2)
 * [falcon](http://falconframework.org/)
+* [talons](https://pypi.python.org/pypi/talons/)
+* [falcon-multipart](https://github.com/yohanboniface/falcon-multipart)
+* [lxml](https://pypi.python.org/pypi/lxml)
+* [simplejson](https://pypi.python.org/pypi/simplejson/)
 * [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation
@@ -21,7 +25,7 @@ On Ubuntu 14.04.3:
 ```
 sudo apt-get -y install python3 build-essential python3-pip libxml2-dev libxslt1-dev libyaml-dev zlib1g-dev libpq-dev
 sudo pip3 install --process-dependency-links -e ./
-# Copy and modify the sample configuration file and deploy it do `/etc/dgi_repo/dgi_repo.yml`.
+# Copy and modify the sample configuration file and deploy it to `/etc/dgi_repo/dgi_repo.yml`.
 python3 -c "from dgi_repo import utilities; utilities.install();"
 ```
 
