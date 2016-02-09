@@ -72,7 +72,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: checksums; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: checksums; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE checksums (
@@ -138,7 +138,7 @@ ALTER SEQUENCE checksums_id_seq OWNED BY checksums.id;
 
 
 --
--- Name: datastream_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE datastream_is_manageable_by_role (
@@ -196,7 +196,7 @@ ALTER SEQUENCE datastream_is_manageable_by_role_id_seq OWNED BY datastream_is_ma
 
 
 --
--- Name: datastream_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE datastream_is_manageable_by_user (
@@ -254,7 +254,7 @@ ALTER SEQUENCE datastream_is_manageable_by_user_id_seq OWNED BY datastream_is_ma
 
 
 --
--- Name: datastream_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE datastream_is_viewable_by_role (
@@ -312,7 +312,7 @@ ALTER SEQUENCE datastream_is_viewable_by_role_id_seq OWNED BY datastream_is_view
 
 
 --
--- Name: datastream_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE datastream_is_viewable_by_user (
@@ -370,7 +370,7 @@ ALTER SEQUENCE datastream_is_viewable_by_user_id_seq OWNED BY datastream_is_view
 
 
 --
--- Name: datastream_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE datastream_relationships (
@@ -436,7 +436,7 @@ ALTER SEQUENCE datastream_relationships_id_seq OWNED BY datastream_relationships
 
 
 --
--- Name: datastreams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: datastreams; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE datastreams (
@@ -566,7 +566,7 @@ ALTER SEQUENCE datastreams_id_seq OWNED BY datastreams.id;
 
 
 --
--- Name: date_issued; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: date_issued; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE date_issued (
@@ -624,45 +624,7 @@ ALTER SEQUENCE date_issued_id_seq OWNED BY date_issued.id;
 
 
 --
--- Name: dublin_core; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE dublin_core (
-    object_id bigint NOT NULL,
-    dc_contributor text,
-    dc_title text,
-    dc_creator text,
-    dc_subject text,
-    dc_description text,
-    dc_publisher text,
-    dc_date text,
-    dc_type text,
-    dc_format text,
-    dc_identifier text,
-    dc_source text,
-    dc_language text,
-    dc_relation text,
-    dc_coverage text,
-    dc_rights text
-);
-
-
---
--- Name: TABLE dublin_core; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE dublin_core IS 'This is a hold over from Fedora, it held some metadata above others. Try to avoid using selecting from this so it can be removed some day.';
-
-
---
--- Name: COLUMN dublin_core.object_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN dublin_core.object_id IS 'DC data belongs to an object.';
-
-
---
--- Name: generate_ocr; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: generate_ocr; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE generate_ocr (
@@ -720,7 +682,7 @@ ALTER SEQUENCE generate_ocr_id_seq OWNED BY generate_ocr.id;
 
 
 --
--- Name: has_language; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: has_language; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE has_language (
@@ -778,7 +740,7 @@ ALTER SEQUENCE has_language_id_seq OWNED BY has_language.id;
 
 
 --
--- Name: has_model; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: has_model; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE has_model (
@@ -836,7 +798,7 @@ ALTER SEQUENCE has_model_id_seq OWNED BY has_model.id;
 
 
 --
--- Name: image_height; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: image_height; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE image_height (
@@ -894,7 +856,7 @@ ALTER SEQUENCE image_height_id_seq OWNED BY image_height.id;
 
 
 --
--- Name: image_width; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: image_width; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE image_width (
@@ -952,7 +914,7 @@ ALTER SEQUENCE image_width_id_seq OWNED BY image_width.id;
 
 
 --
--- Name: is_constituent_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_constituent_of; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_constituent_of (
@@ -1010,7 +972,7 @@ ALTER SEQUENCE is_constituent_of_id_seq OWNED BY is_constituent_of.id;
 
 
 --
--- Name: is_member_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_member_of; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_member_of (
@@ -1049,7 +1011,7 @@ COMMENT ON COLUMN is_member_of.rdf_object IS 'Object of the relation.';
 
 
 --
--- Name: is_member_of_collection; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_member_of_collection; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_member_of_collection (
@@ -1126,7 +1088,7 @@ ALTER SEQUENCE is_member_of_id_seq OWNED BY is_member_of.id;
 
 
 --
--- Name: is_page_number; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_page_number; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_page_number (
@@ -1184,7 +1146,7 @@ ALTER SEQUENCE is_page_number_id_seq OWNED BY is_page_number.id;
 
 
 --
--- Name: is_page_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_page_of; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_page_of (
@@ -1242,7 +1204,7 @@ ALTER SEQUENCE is_page_of_id_seq OWNED BY is_page_of.id;
 
 
 --
--- Name: is_section; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_section; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_section (
@@ -1300,7 +1262,7 @@ ALTER SEQUENCE is_section_id_seq OWNED BY is_section.id;
 
 
 --
--- Name: is_sequence_number; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_sequence_number; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_sequence_number (
@@ -1358,7 +1320,7 @@ ALTER SEQUENCE is_sequence_number_id_seq OWNED BY is_sequence_number.id;
 
 
 --
--- Name: is_sequence_number_of; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: is_sequence_number_of; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE is_sequence_number_of (
@@ -1424,7 +1386,7 @@ ALTER SEQUENCE is_sequence_number_of_id_seq OWNED BY is_sequence_number_of.id;
 
 
 --
--- Name: log; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: log; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE log (
@@ -1474,7 +1436,7 @@ ALTER SEQUENCE log_id_seq OWNED BY log.id;
 
 
 --
--- Name: mimes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mimes; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE mimes (
@@ -1524,7 +1486,7 @@ ALTER SEQUENCE mimes_id_seq OWNED BY mimes.id;
 
 
 --
--- Name: pid_namespaces; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: pid_namespaces; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE pid_namespaces (
@@ -1582,7 +1544,7 @@ ALTER SEQUENCE namespaces_id_seq OWNED BY pid_namespaces.id;
 
 
 --
--- Name: object_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE object_is_manageable_by_role (
@@ -1640,7 +1602,7 @@ ALTER SEQUENCE object_is_manageable_by_role_id_seq OWNED BY object_is_manageable
 
 
 --
--- Name: object_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE object_is_manageable_by_user (
@@ -1698,7 +1660,7 @@ ALTER SEQUENCE object_is_manageable_by_user_id_seq OWNED BY object_is_manageable
 
 
 --
--- Name: object_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE object_is_viewable_by_role (
@@ -1756,7 +1718,7 @@ ALTER SEQUENCE object_is_viewable_by_role_id_seq OWNED BY object_is_viewable_by_
 
 
 --
--- Name: object_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE object_is_viewable_by_user (
@@ -1814,7 +1776,7 @@ ALTER SEQUENCE object_is_viewable_by_user_id_seq OWNED BY object_is_viewable_by_
 
 
 --
--- Name: object_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: object_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE object_relationships (
@@ -1888,7 +1850,7 @@ ALTER SEQUENCE object_relationships_id_seq OWNED BY object_relationships.id;
 
 
 --
--- Name: objects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: objects; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE objects (
@@ -2021,7 +1983,7 @@ ALTER SEQUENCE objects_owner_seq OWNED BY objects.owner;
 
 
 --
--- Name: old_datastreams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: old_datastreams; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE old_datastreams (
@@ -2111,7 +2073,7 @@ ALTER SEQUENCE old_datastreams_id_seq OWNED BY old_datastreams.id;
 
 
 --
--- Name: old_objects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: old_objects; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE old_objects (
@@ -2121,7 +2083,7 @@ CREATE TABLE old_objects (
     state state NOT NULL,
     owner bigint,
     label text,
-    commited timestamp with time zone NOT NULL
+    committed timestamp with time zone NOT NULL
 );
 
 
@@ -2175,10 +2137,10 @@ COMMENT ON COLUMN old_objects.label IS 'Label of the object at the version.';
 
 
 --
--- Name: COLUMN old_objects.commited; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN old_objects.committed; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN old_objects.commited IS 'The point in time that this object version became the current object.';
+COMMENT ON COLUMN old_objects.committed IS 'The point in time that this object version became the current object.';
 
 
 --
@@ -2220,7 +2182,7 @@ ALTER SEQUENCE old_objects_object_seq OWNED BY old_objects.current_object;
 
 
 --
--- Name: predicates; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: predicates; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE predicates (
@@ -2278,34 +2240,34 @@ ALTER SEQUENCE predicates_id_seq OWNED BY predicates.id;
 
 
 --
--- Name: rdf_namespace; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: rdf_namespaces; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
-CREATE TABLE rdf_namespace (
+CREATE TABLE rdf_namespaces (
     id bigint NOT NULL,
     rdf_namespace character varying(1024) NOT NULL
 );
 
 
 --
--- Name: TABLE rdf_namespace; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE rdf_namespaces; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE rdf_namespace IS 'RDF namespaces used in the repository.';
-
-
---
--- Name: COLUMN rdf_namespace.id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN rdf_namespace.id IS 'Database ID of the RDF namespace.';
+COMMENT ON TABLE rdf_namespaces IS 'RDF namespaces used in the repository.';
 
 
 --
--- Name: COLUMN rdf_namespace.rdf_namespace; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN rdf_namespaces.id; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN rdf_namespace.rdf_namespace IS 'The RDF namespace.';
+COMMENT ON COLUMN rdf_namespaces.id IS 'Database ID of the RDF namespace.';
+
+
+--
+-- Name: COLUMN rdf_namespaces.rdf_namespace; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN rdf_namespaces.rdf_namespace IS 'The RDF namespace.';
 
 
 --
@@ -2324,11 +2286,11 @@ CREATE SEQUENCE rdf_namespace_id_seq
 -- Name: rdf_namespace_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE rdf_namespace_id_seq OWNED BY rdf_namespace.id;
+ALTER SEQUENCE rdf_namespace_id_seq OWNED BY rdf_namespaces.id;
 
 
 --
--- Name: resources; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: resources; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE resources (
@@ -2367,7 +2329,7 @@ COMMENT ON COLUMN resources.mime IS 'Mime of the URI.';
 
 
 --
--- Name: sources; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: sources; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE sources (
@@ -2436,7 +2398,7 @@ ALTER SEQUENCE uris_id_seq OWNED BY resources.id;
 
 
 --
--- Name: user_roles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: user_roles; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE user_roles (
@@ -2487,7 +2449,7 @@ ALTER SEQUENCE user_roles_id_seq OWNED BY user_roles.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE TABLE users (
@@ -2812,7 +2774,7 @@ ALTER TABLE ONLY predicates ALTER COLUMN id SET DEFAULT nextval('predicates_id_s
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY rdf_namespace ALTER COLUMN id SET DEFAULT nextval('rdf_namespace_id_seq'::regclass);
+ALTER TABLE ONLY rdf_namespaces ALTER COLUMN id SET DEFAULT nextval('rdf_namespace_id_seq'::regclass);
 
 
 --
@@ -2851,7 +2813,7 @@ ALTER TABLE ONLY users ALTER COLUMN source_id SET DEFAULT nextval('users_source_
 
 
 --
--- Name: checksums_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: checksums_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY checksums
@@ -2859,7 +2821,7 @@ ALTER TABLE ONLY checksums
 
 
 --
--- Name: datastream_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
@@ -2867,7 +2829,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 
 
 --
--- Name: datastream_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
@@ -2875,7 +2837,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 
 
 --
--- Name: datastream_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
@@ -2883,7 +2845,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 
 
 --
--- Name: datastream_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
@@ -2891,7 +2853,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 
 
 --
--- Name: datastream_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastream_relationships
@@ -2899,7 +2861,7 @@ ALTER TABLE ONLY datastream_relationships
 
 
 --
--- Name: datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastreams
@@ -2907,7 +2869,7 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: date_issued_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: date_issued_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY date_issued
@@ -2915,15 +2877,7 @@ ALTER TABLE ONLY date_issued
 
 
 --
--- Name: dc_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY dublin_core
-    ADD CONSTRAINT dc_primary_key PRIMARY KEY (object_id);
-
-
---
--- Name: generate_ocr_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: generate_ocr_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY generate_ocr
@@ -2931,7 +2885,7 @@ ALTER TABLE ONLY generate_ocr
 
 
 --
--- Name: has_language_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: has_language_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY has_language
@@ -2939,7 +2893,7 @@ ALTER TABLE ONLY has_language
 
 
 --
--- Name: has_model_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: has_model_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY has_model
@@ -2947,7 +2901,7 @@ ALTER TABLE ONLY has_model
 
 
 --
--- Name: identifier; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: identifier; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY sources
@@ -2962,7 +2916,7 @@ COMMENT ON CONSTRAINT identifier ON sources IS 'Only one entry per source.';
 
 
 --
--- Name: image_height_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_height_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY image_height
@@ -2970,7 +2924,7 @@ ALTER TABLE ONLY image_height
 
 
 --
--- Name: image_width_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_width_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY image_width
@@ -2978,7 +2932,7 @@ ALTER TABLE ONLY image_width
 
 
 --
--- Name: is_constituent_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_constituent_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_constituent_of
@@ -2986,7 +2940,7 @@ ALTER TABLE ONLY is_constituent_of
 
 
 --
--- Name: is_member_of_collection_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_member_of_collection_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_member_of_collection
@@ -2994,7 +2948,7 @@ ALTER TABLE ONLY is_member_of_collection
 
 
 --
--- Name: is_member_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_member_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_member_of
@@ -3002,7 +2956,7 @@ ALTER TABLE ONLY is_member_of
 
 
 --
--- Name: is_page_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_page_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_page_number
@@ -3010,7 +2964,7 @@ ALTER TABLE ONLY is_page_number
 
 
 --
--- Name: is_page_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_page_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_page_of
@@ -3018,7 +2972,7 @@ ALTER TABLE ONLY is_page_of
 
 
 --
--- Name: is_section_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_section_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_section
@@ -3026,7 +2980,7 @@ ALTER TABLE ONLY is_section
 
 
 --
--- Name: is_sequence_number_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_sequence_number_of_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_sequence_number_of
@@ -3034,7 +2988,7 @@ ALTER TABLE ONLY is_sequence_number_of
 
 
 --
--- Name: is_sequence_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: is_sequence_number_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_sequence_number
@@ -3042,7 +2996,7 @@ ALTER TABLE ONLY is_sequence_number
 
 
 --
--- Name: log_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: log_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY log
@@ -3050,7 +3004,7 @@ ALTER TABLE ONLY log
 
 
 --
--- Name: mime_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mime_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY mimes
@@ -3058,7 +3012,7 @@ ALTER TABLE ONLY mimes
 
 
 --
--- Name: namespaces_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: namespaces_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY pid_namespaces
@@ -3066,7 +3020,7 @@ ALTER TABLE ONLY pid_namespaces
 
 
 --
--- Name: object_dsid; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: object_dsid; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY datastreams
@@ -3074,7 +3028,7 @@ ALTER TABLE ONLY datastreams
 
 
 --
--- Name: object_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
@@ -3082,7 +3036,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 
 
 --
--- Name: object_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
@@ -3090,7 +3044,7 @@ ALTER TABLE ONLY object_is_manageable_by_user
 
 
 --
--- Name: object_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
@@ -3098,7 +3052,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 
 
 --
--- Name: object_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_user_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
@@ -3106,7 +3060,7 @@ ALTER TABLE ONLY object_is_viewable_by_user
 
 
 --
--- Name: object_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: object_relationships_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY object_relationships
@@ -3114,7 +3068,7 @@ ALTER TABLE ONLY object_relationships
 
 
 --
--- Name: objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY objects
@@ -3122,7 +3076,7 @@ ALTER TABLE ONLY objects
 
 
 --
--- Name: old_datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: old_datastreams_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY old_datastreams
@@ -3130,7 +3084,7 @@ ALTER TABLE ONLY old_datastreams
 
 
 --
--- Name: old_objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: old_objects_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY old_objects
@@ -3138,7 +3092,37 @@ ALTER TABLE ONLY old_objects
 
 
 --
--- Name: predicates_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: one_datastream_version_at_a_time; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY old_datastreams
+    ADD CONSTRAINT one_datastream_version_at_a_time UNIQUE (current_datastream, committed);
+
+
+--
+-- Name: CONSTRAINT one_datastream_version_at_a_time ON old_datastreams; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT one_datastream_version_at_a_time ON old_datastreams IS 'Only one datastream version can be committed at any time.';
+
+
+--
+-- Name: one_object_version_at_a_time; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY old_objects
+    ADD CONSTRAINT one_object_version_at_a_time UNIQUE (current_object, committed);
+
+
+--
+-- Name: CONSTRAINT one_object_version_at_a_time ON old_objects; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT one_object_version_at_a_time ON old_objects IS 'Only one object version can be committed at any time.';
+
+
+--
+-- Name: predicates_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY predicates
@@ -3146,15 +3130,15 @@ ALTER TABLE ONLY predicates
 
 
 --
--- Name: rdf_namespace_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: rdf_namespace_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
-ALTER TABLE ONLY rdf_namespace
+ALTER TABLE ONLY rdf_namespaces
     ADD CONSTRAINT rdf_namespace_primary_key PRIMARY KEY (id);
 
 
 --
--- Name: sources_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: sources_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY sources
@@ -3162,7 +3146,7 @@ ALTER TABLE ONLY sources
 
 
 --
--- Name: unique_checksums; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_checksums; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY checksums
@@ -3170,7 +3154,22 @@ ALTER TABLE ONLY checksums
 
 
 --
--- Name: unique_heights; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_checksums_per_uri; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY checksums
+    ADD CONSTRAINT unique_checksums_per_uri UNIQUE (uri, type);
+
+
+--
+-- Name: CONSTRAINT unique_checksums_per_uri ON checksums; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT unique_checksums_per_uri ON checksums IS 'Each URI should only have one checksum of a given type.';
+
+
+--
+-- Name: unique_heights; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY image_height
@@ -3185,7 +3184,7 @@ COMMENT ON CONSTRAINT unique_heights ON image_height IS 'Images only have one he
 
 
 --
--- Name: unique_ids_in_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_ids_in_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY objects
@@ -3200,7 +3199,7 @@ COMMENT ON CONSTRAINT unique_ids_in_namespaces ON objects IS 'Namespaces only ha
 
 
 --
--- Name: unique_log_entries; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_log_entries; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY log
@@ -3215,7 +3214,7 @@ COMMENT ON CONSTRAINT unique_log_entries ON log IS 'Log entries should be unique
 
 
 --
--- Name: unique_mimes; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_mimes; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY mimes
@@ -3223,7 +3222,7 @@ ALTER TABLE ONLY mimes
 
 
 --
--- Name: unique_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY pid_namespaces
@@ -3238,10 +3237,25 @@ COMMENT ON CONSTRAINT unique_namespaces ON pid_namespaces IS 'Only one entry per
 
 
 --
--- Name: unique_rdf_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_predicates_in_namespaces; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY rdf_namespace
+ALTER TABLE ONLY predicates
+    ADD CONSTRAINT unique_predicates_in_namespaces UNIQUE (rdf_namespace_id, predicate);
+
+
+--
+-- Name: CONSTRAINT unique_predicates_in_namespaces ON predicates; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT unique_predicates_in_namespaces ON predicates IS 'Namespaces should only declare predicates once.';
+
+
+--
+-- Name: unique_rdf_namespaces; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
+--
+
+ALTER TABLE ONLY rdf_namespaces
     ADD CONSTRAINT unique_rdf_namespaces UNIQUE (rdf_namespace);
 
 
@@ -3249,11 +3263,26 @@ ALTER TABLE ONLY rdf_namespace
 -- Name: CONSTRAINT unique_rdf_namespaces ON rdf_namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON CONSTRAINT unique_rdf_namespaces ON rdf_namespace IS 'Namespaces should only be in the database once.';
+COMMENT ON CONSTRAINT unique_rdf_namespaces ON rdf_namespaces IS 'Namespaces should only be in the database once.';
 
 
 --
--- Name: unique_sequence_numbers; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_roles_in_sources; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY user_roles
+    ADD CONSTRAINT unique_roles_in_sources UNIQUE (role, source_id);
+
+
+--
+-- Name: CONSTRAINT unique_roles_in_sources ON user_roles; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT unique_roles_in_sources ON user_roles IS 'Sources should only defined roles once.';
+
+
+--
+-- Name: unique_sequence_numbers; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY is_sequence_number_of
@@ -3268,7 +3297,7 @@ COMMENT ON CONSTRAINT unique_sequence_numbers ON is_sequence_number_of IS 'Each 
 
 
 --
--- Name: unique_source_user; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_source_user; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY users
@@ -3283,7 +3312,7 @@ COMMENT ON CONSTRAINT unique_source_user ON users IS 'Each source shold only ide
 
 
 --
--- Name: unique_uris; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_uris; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY resources
@@ -3291,7 +3320,7 @@ ALTER TABLE ONLY resources
 
 
 --
--- Name: unique_widths; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_widths; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY image_width
@@ -3306,7 +3335,7 @@ COMMENT ON CONSTRAINT unique_widths ON image_width IS 'Images only have one widt
 
 
 --
--- Name: uri_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: uri_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY resources
@@ -3314,7 +3343,7 @@ ALTER TABLE ONLY resources
 
 
 --
--- Name: user_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: user_role_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY user_roles
@@ -3322,7 +3351,7 @@ ALTER TABLE ONLY user_roles
 
 
 --
--- Name: users_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: users_primary_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace:
 --
 
 ALTER TABLE ONLY users
@@ -3330,7 +3359,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: datastream_is_manageable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_manageable_by_role_datastream_index ON datastream_is_manageable_by_role USING btree (datastream_id);
@@ -3344,7 +3373,7 @@ COMMENT ON INDEX datastream_is_manageable_by_role_datastream_index IS 'There wil
 
 
 --
--- Name: datastream_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_manageable_by_role_role_index ON datastream_is_manageable_by_role USING btree (role_id);
@@ -3358,7 +3387,7 @@ COMMENT ON INDEX datastream_is_manageable_by_role_role_index IS 'Random lookups 
 
 
 --
--- Name: datastream_is_manageable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_manageable_by_user_datastream_index ON datastream_is_manageable_by_user USING btree (datastream_id);
@@ -3372,7 +3401,7 @@ COMMENT ON INDEX datastream_is_manageable_by_user_datastream_index IS 'There wil
 
 
 --
--- Name: datastream_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_manageable_by_user_user_index ON datastream_is_manageable_by_user USING btree (user_id);
@@ -3386,7 +3415,7 @@ COMMENT ON INDEX datastream_is_manageable_by_user_user_index IS 'Random lookups 
 
 
 --
--- Name: datastream_is_viewable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_viewable_by_role_datastream_index ON datastream_is_viewable_by_role USING btree (datastream_id);
@@ -3400,7 +3429,7 @@ COMMENT ON INDEX datastream_is_viewable_by_role_datastream_index IS 'There will 
 
 
 --
--- Name: datastream_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_viewable_by_role_role_index ON datastream_is_viewable_by_role USING btree (role_id);
@@ -3414,7 +3443,7 @@ COMMENT ON INDEX datastream_is_viewable_by_role_role_index IS 'Random lookups by
 
 
 --
--- Name: datastream_is_viewable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_viewable_by_user_datastream_index ON datastream_is_viewable_by_user USING btree (datastream_id);
@@ -3428,7 +3457,7 @@ COMMENT ON INDEX datastream_is_viewable_by_user_datastream_index IS 'There will 
 
 
 --
--- Name: datastream_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: datastream_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX datastream_is_viewable_by_user_user_index ON datastream_is_viewable_by_user USING btree (user_id);
@@ -3442,7 +3471,7 @@ COMMENT ON INDEX datastream_is_viewable_by_user_user_index IS 'Random lookups by
 
 
 --
--- Name: date_issued_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: date_issued_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX date_issued_index ON date_issued USING btree (rdf_object);
@@ -3456,287 +3485,287 @@ COMMENT ON INDEX date_issued_index IS 'Ordering by date issued should be common.
 
 
 --
--- Name: fki_datastream_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_datastream_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_datastream_log_link ON datastreams USING btree (log);
 
 
 --
--- Name: fki_datastream_relationships_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_datastream_relationships_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_datastream_relationships_datastream_link ON datastream_relationships USING btree (subject);
 
 
 --
--- Name: fki_datastream_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_datastream_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_datastream_relationships_predicate_link ON datastream_relationships USING btree (predicate_id);
 
 
 --
--- Name: fki_date_issued_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_date_issued_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_date_issued_subject_link ON date_issued USING btree (rdf_subject);
 
 
 --
--- Name: fki_generate_ocr_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_generate_ocr_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_generate_ocr_subject_link ON generate_ocr USING btree (rdf_subject);
 
 
 --
--- Name: fki_has_language_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_has_language_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_has_language_subject_link ON has_language USING btree (rdf_subject);
 
 
 --
--- Name: fki_has_model_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_has_model_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_has_model_object_key ON has_model USING btree (rdf_object);
 
 
 --
--- Name: fki_has_model_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_has_model_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_has_model_subject_link ON has_model USING btree (rdf_subject);
 
 
 --
--- Name: fki_image_height_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_image_height_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_image_height_datastream_link ON image_height USING btree (rdf_subject);
 
 
 --
--- Name: fki_image_width_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_image_width_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_image_width_datastream_link ON image_width USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_constituent_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_constituent_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_constituent_of_object_key ON is_constituent_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_constituent_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_constituent_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_constituent_of_subject_link ON is_constituent_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_member_of_collection_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_member_of_collection_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_member_of_collection_object_key ON is_member_of_collection USING btree (rdf_object);
 
 
 --
--- Name: fki_is_member_of_collection_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_member_of_collection_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_member_of_collection_subject_link ON is_member_of_collection USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_member_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_member_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_member_of_object_key ON is_member_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_member_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_member_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_member_of_subject_link ON is_member_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_page_number_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_page_number_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_page_number_subject_link ON is_page_number USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_page_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_page_of_object_key; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_page_of_object_key ON is_page_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_page_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_page_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_page_of_subject_link ON is_page_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_section_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_section_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_section_subject_link ON is_section USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_sequence_number_of_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_sequence_number_of_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_sequence_number_of_object_link ON is_sequence_number_of USING btree (rdf_object);
 
 
 --
--- Name: fki_is_sequence_number_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_sequence_number_of_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_sequence_number_of_subject_link ON is_sequence_number_of USING btree (rdf_subject);
 
 
 --
--- Name: fki_is_sequence_number_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_is_sequence_number_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_is_sequence_number_subject_link ON is_sequence_number USING btree (rdf_subject);
 
 
 --
--- Name: fki_object_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_object_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_object_log_link ON objects USING btree (log);
 
 
 --
--- Name: fki_object_namespace_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_object_namespace_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_object_namespace_link ON objects USING btree (namespace);
 
 
 --
--- Name: fki_object_relationships_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_object_relationships_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_object_relationships_object_link ON object_relationships USING btree (object_id_object);
 
 
 --
--- Name: fki_object_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_object_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_object_relationships_predicate_link ON object_relationships USING btree (predicate_id);
 
 
 --
--- Name: fki_object_relationships_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_object_relationships_subject_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_object_relationships_subject_link ON object_relationships USING btree (subject);
 
 
 --
--- Name: fki_object_user_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_object_user_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_object_user_link ON objects USING btree (owner);
 
 
 --
--- Name: fki_old_datastream_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_old_datastream_datastream_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_old_datastream_datastream_link ON old_datastreams USING btree (current_datastream);
 
 
 --
--- Name: fki_old_datastream_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_old_datastream_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_old_datastream_log_link ON old_datastreams USING btree (log);
 
 
 --
--- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (uri_id);
 
 
 --
--- Name: fki_old_object_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_old_object_object_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_old_object_object_link ON old_objects USING btree (current_object);
 
 
 --
--- Name: fki_old_objects_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_old_objects_log_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_old_objects_log_link ON old_objects USING btree (log);
 
 
 --
--- Name: fki_old_objects_owner_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_old_objects_owner_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_old_objects_owner_link ON old_objects USING btree (owner);
 
 
 --
--- Name: fki_predicate_rdf_namespace_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_predicate_rdf_namespace_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_predicate_rdf_namespace_link ON predicates USING btree (rdf_namespace_id);
 
 
 --
--- Name: fki_uri_checksum_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_uri_checksum_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_uri_checksum_link ON checksums USING btree (uri);
 
 
 --
--- Name: fki_uri_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_uri_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_uri_link ON datastreams USING btree (resource_id);
 
 
 --
--- Name: fki_uri_mime_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_uri_mime_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_uri_mime_link ON resources USING btree (mime);
 
 
 --
--- Name: fki_user_source_link; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: fki_user_source_link; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX fki_user_source_link ON users USING btree (source_id);
 
 
 --
--- Name: is_sequence_number_of_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: is_sequence_number_of_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX is_sequence_number_of_index ON is_sequence_number_of USING btree (rdf_subject, rdf_object, sequence_number);
@@ -3750,7 +3779,7 @@ COMMENT ON INDEX is_sequence_number_of_index IS 'Everything in an index.';
 
 
 --
--- Name: object_dsid_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_dsid_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_dsid_index ON datastreams USING btree (object_id, dsid);
@@ -3764,7 +3793,7 @@ COMMENT ON INDEX object_dsid_index IS 'Object & DSID is a common query.';
 
 
 --
--- Name: object_is_manageable_by_role_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_role_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_manageable_by_role_object_index ON object_is_manageable_by_role USING btree (object_id);
@@ -3778,7 +3807,7 @@ COMMENT ON INDEX object_is_manageable_by_role_object_index IS 'There will be man
 
 
 --
--- Name: object_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_manageable_by_role_role_index ON object_is_manageable_by_role USING btree (role_id);
@@ -3792,7 +3821,7 @@ COMMENT ON INDEX object_is_manageable_by_role_role_index IS 'Random lookups by r
 
 
 --
--- Name: object_is_manageable_by_user_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_user_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_manageable_by_user_object_index ON object_is_manageable_by_user USING btree (object_id);
@@ -3806,7 +3835,7 @@ COMMENT ON INDEX object_is_manageable_by_user_object_index IS 'There will be man
 
 
 --
--- Name: object_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_manageable_by_user_user_index ON object_is_manageable_by_user USING btree (user_id);
@@ -3820,7 +3849,7 @@ COMMENT ON INDEX object_is_manageable_by_user_user_index IS 'Random lookups by u
 
 
 --
--- Name: object_is_viewable_by_role_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_role_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_viewable_by_role_object_index ON object_is_viewable_by_role USING btree (object_id);
@@ -3834,7 +3863,7 @@ COMMENT ON INDEX object_is_viewable_by_role_object_index IS 'There will be many 
 
 
 --
--- Name: object_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_viewable_by_role_role_index ON object_is_viewable_by_role USING btree (role_id);
@@ -3848,7 +3877,7 @@ COMMENT ON INDEX object_is_viewable_by_role_role_index IS 'Random lookups by rol
 
 
 --
--- Name: object_is_viewable_by_user_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_user_object_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_viewable_by_user_object_index ON object_is_viewable_by_user USING btree (object_id);
@@ -3862,7 +3891,7 @@ COMMENT ON INDEX object_is_viewable_by_user_object_index IS 'There will be many 
 
 
 --
--- Name: object_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_is_viewable_by_user_user_index ON object_is_viewable_by_user USING btree (user_id);
@@ -3876,7 +3905,7 @@ COMMENT ON INDEX object_is_viewable_by_user_user_index IS 'Random lookups by use
 
 
 --
--- Name: object_label_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: object_label_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX object_label_index ON objects USING btree (label);
@@ -3890,7 +3919,7 @@ COMMENT ON INDEX object_label_index IS 'Objects are often queried/ordered by lab
 
 
 --
--- Name: pid_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: pid_index; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
 CREATE INDEX pid_index ON objects USING btree (pid_id);
@@ -3993,14 +4022,6 @@ ALTER TABLE ONLY date_issued
 --
 
 COMMENT ON CONSTRAINT date_issued_subject_link ON date_issued IS 'Each relation subject is an object.';
-
-
---
--- Name: dc_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY dublin_core
-    ADD CONSTRAINT dc_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -4567,7 +4588,7 @@ COMMENT ON CONSTRAINT old_objects_owner_link ON old_objects IS 'Old versions of 
 --
 
 ALTER TABLE ONLY predicates
-    ADD CONSTRAINT predicate_rdf_namespace_link FOREIGN KEY (rdf_namespace_id) REFERENCES rdf_namespace(id);
+    ADD CONSTRAINT predicate_rdf_namespace_link FOREIGN KEY (rdf_namespace_id) REFERENCES rdf_namespaces(id);
 
 
 --
