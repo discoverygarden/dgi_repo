@@ -2,6 +2,11 @@
 Database utility functions.
 """
 
+# Namespaces (These will likely need to be moved later).
+ISLANDORA_RELS_EXT = ''
+ISLANDORA_RELS_INT = ''
+FEDORA_ = ''
+
 
 def get_connection():
     """
@@ -20,6 +25,18 @@ def get_connection():
     )
 
     return connect(connection_string)
+
+
+def check_cursor(cursor=None):
+    """
+    Check if a cursor is valid, receiving it or a valid one.
+    """
+    if cursor is None:
+        db_connection = get_connection()
+        db_connection.autocommit = True
+        return db_connection.cursor()
+    else:
+        return cursor
 
 
 def install_schema():
