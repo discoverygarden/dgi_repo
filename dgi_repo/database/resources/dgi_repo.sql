@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.0
--- Dumped by pg_dump version 9.5.0
+-- Dumped from database version 9.5.1
+-- Dumped by pg_dump version 9.5.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -654,7 +654,7 @@ CREATE TABLE dc_contributor (
 -- Name: TABLE dc_contributor; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_contributor IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_contributor IS 'Table to represent DC contributor relations.';
 
 
 --
@@ -705,7 +705,7 @@ CREATE TABLE dc_coverage (
 -- Name: TABLE dc_coverage; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_coverage IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_coverage IS 'Table to represent DC coverage relations.';
 
 
 --
@@ -756,7 +756,7 @@ CREATE TABLE dc_creator (
 -- Name: TABLE dc_creator; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_creator IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_creator IS 'Table to represent DC creator relations.';
 
 
 --
@@ -799,7 +799,7 @@ CREATE SEQUENCE dc_date_id_seq
 CREATE TABLE dc_date (
     id bigint DEFAULT nextval('dc_date_id_seq'::regclass) NOT NULL,
     rdf_subject bigint NOT NULL,
-    rdf_object timestamp with time zone NOT NULL
+    rdf_object character varying(1024) NOT NULL
 );
 
 
@@ -807,7 +807,7 @@ CREATE TABLE dc_date (
 -- Name: TABLE dc_date; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_date IS 'Table to represent date issued relations.';
+COMMENT ON TABLE dc_date IS 'Table to represent DC date relations.';
 
 
 --
@@ -828,7 +828,7 @@ COMMENT ON COLUMN dc_date.rdf_subject IS 'Subject of the relation.';
 -- Name: COLUMN dc_date.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN dc_date.rdf_object IS 'The dc_date.';
+COMMENT ON COLUMN dc_date.rdf_object IS 'The subject of the relation.';
 
 
 --
@@ -858,7 +858,7 @@ CREATE TABLE dc_description (
 -- Name: TABLE dc_description; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_description IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_description IS 'Table to represent DC description relations.';
 
 
 --
@@ -909,7 +909,7 @@ CREATE TABLE dc_format (
 -- Name: TABLE dc_format; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_format IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_format IS 'Table to represent DC format relations.';
 
 
 --
@@ -960,7 +960,7 @@ CREATE TABLE dc_identifier (
 -- Name: TABLE dc_identifier; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_identifier IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_identifier IS 'Table to represent DC identifier relations.';
 
 
 --
@@ -1011,7 +1011,7 @@ CREATE TABLE dc_language (
 -- Name: TABLE dc_language; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_language IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_language IS 'Table to represent DC language relations.';
 
 
 --
@@ -1062,7 +1062,7 @@ CREATE TABLE dc_publisher (
 -- Name: TABLE dc_publisher; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_publisher IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_publisher IS 'Table to represent DC publisher relations.';
 
 
 --
@@ -1113,7 +1113,7 @@ CREATE TABLE dc_relation (
 -- Name: TABLE dc_relation; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_relation IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_relation IS 'Table to represent DC relation relations.';
 
 
 --
@@ -1164,7 +1164,7 @@ CREATE TABLE dc_rights (
 -- Name: TABLE dc_rights; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_rights IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_rights IS 'Table to represent DC rights relations.';
 
 
 --
@@ -1215,7 +1215,7 @@ CREATE TABLE dc_source (
 -- Name: TABLE dc_source; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_source IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_source IS 'Table to represent DC source relations.';
 
 
 --
@@ -1266,7 +1266,7 @@ CREATE TABLE dc_subject (
 -- Name: TABLE dc_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_subject IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_subject IS 'Table to represent DC subject relations.';
 
 
 --
@@ -1317,7 +1317,7 @@ CREATE TABLE dc_title (
 -- Name: TABLE dc_title; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_title IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_title IS 'Table to represent DC title relations.';
 
 
 --
@@ -1368,7 +1368,7 @@ CREATE TABLE dc_type (
 -- Name: TABLE dc_type; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE dc_type IS 'Table to represent has language relations.';
+COMMENT ON TABLE dc_type IS 'Table to represent DC type relations.';
 
 
 --
@@ -4371,20 +4371,6 @@ CREATE INDEX date_issued_index ON date_issued USING btree (rdf_object);
 --
 
 COMMENT ON INDEX date_issued_index IS 'Ordering by date issued should be common.';
-
-
---
--- Name: dc_date_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX dc_date_index ON dc_date USING btree (rdf_object);
-
-
---
--- Name: INDEX dc_date_index; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON INDEX dc_date_index IS 'Ordering by date issued should be common.';
 
 
 --
