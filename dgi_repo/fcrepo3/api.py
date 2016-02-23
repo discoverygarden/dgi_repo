@@ -252,8 +252,8 @@ class DatastreamResource(ABC):
         """
         xml_out = _getTempFile()
         with etree.xmlfile(xml_out) as xf:
-            for datastream in self._get_datastream_versions(**req.params):
-                _writeDatastreamProfile(xf, datastream)
+            datastream_info = self._get_datastream_info(pid, dsid, **req.params)
+            _writeDatastreamProfile(xf, datastream_info)
         length = xml_out.tell()
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
@@ -268,6 +268,13 @@ class DatastreamResource(ABC):
     def on_delete(self, req, resp, pid, dsid):
         """
         Purge datastream.
+        """
+        pass
+
+    @abstractmethod
+    def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
+        """
+        Get the relevant datastream info.
         """
         pass
 
@@ -295,7 +302,7 @@ class DatastreamHistoryResource(ABC):
         xml_out = _getTempFile()
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{0}}datastreamHistory'.format(FEDORA_MANAGEMENT_URI)):
-                for datastream in self._get_datastream_versions(**req.params):
+                for datastream in self._get_datastream_versions(pid, dsid, **req.params):
                     _writeDatastreamProfile(xf, datastream)
         length = xml_out.tell()
         xml_out.seek(0)
@@ -303,7 +310,7 @@ class DatastreamHistoryResource(ABC):
         resp.content_type = 'application/xml'
 
     @abstractmethod
-    def _get_datastream_versions(self, pid, startDT=None, endDT=None, **kwargs):
+    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None, **kwargs):
         """
         Get an iterable of datastream versions.
         """

@@ -203,6 +203,10 @@ class DatastreamResource(api.DatastreamResource):
         # TODO: Purge the datastream (or range of versions).
         pass
 
+    def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
+        # TODO: Get the ds* values in a dict, to build the datastream profile.
+        pass
+
 
 @route('/objects/{pid}/datastreams/{dsid}/content')
 class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
@@ -215,6 +219,6 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
 
 @route('/objects/{pid}/datastreams/{dsid}/history')
 class DatastreamHistoryResource(api.DatastreamHistoryResource):
-    def _get_datastream_versions(self, pid, startDT=None, endDT=None):
+    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None):
         # TODO: Get an iterable of datastream versions.
         pass
