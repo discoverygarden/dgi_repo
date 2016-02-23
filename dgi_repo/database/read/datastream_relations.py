@@ -4,13 +4,33 @@ Database helpers relating to datastream relations.
 
 import logging
 
-from dgi_repo.database.utilities import check_cursor
+import dgi_repo.database.read.relations as relations_reader
 
 logger = logging.getLogger(__name__)
 
-RELATION_FUNCTION_MAP = {}
+
+def read_relationship(namespace, predicate, subject=None, rdf_object=None, cursor=None):
+    """
+    Read a datastream relation from the repository.
+    """
+    from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
+
+    try:
+        cursor = relations_reader.read_from_standard_relation_table(
+            DATASTREAM_RELATION_MAP[(namespace, predicate)][0],
+            subject,
+            rdf_object,
+            cursor
+        )
+    except KeyError:
+        predicate_id = relations_reader.predicate_id_from_raw(namespace, predicate, cursor)
+        cursor = read_from_general_rdf_table(predicate_id, subject, rdf_object, cursor)
+
+    return cursor
 
 
-def read_relationship(rdf_namespace, rdf_predicate, rdf_subject):
+def read_from_general_rdf_table(predicate, subject=None, rdf_object=None, cursor=None):
     """
+    Read from the general datastream RDF table.
     """
+    return relations_reader.read_from_general_rdf_table('datastream_relationships', predicate, subject, rdf_object, cursor)
