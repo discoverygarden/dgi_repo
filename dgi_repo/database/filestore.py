@@ -1,25 +1,46 @@
+import logging
 import os
 from io import BytesIO
 from shutil import copyfileobj
 from tempfile import NamedTemporaryFile
 
-from dgi_repo.configuration import configuration as _configuration
-from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.write.datastreams import upsert_resource, upsert_mime
+from psycopg2.extensions import TransactionRollbackError
 
-UPLOADED_URI = 'uploaded'
+from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.database.utilities import get_connection
+from dgi_repo.database.write.datastreams import upsert_resource, upsert_mime
+from dgi_repo.database.read.datastreams import resource_uri
+
+logger = logging.getLogger(__name__)
+
+
+UPLOAD_SCHEME = 'uploaded'
 URI_MAP = {
-  UPLOADED_URI: os.path.join(_configuration['data_directory'], 'uploads'),
-  'datastreams': os.path.join(_configuration['data_directory'], 'datastreams')
+    UPLOAD_SCHEME: {
+        'dir': os.path.join(_configuration['data_directory'],'uploads'),
+    },
+    'datastream': {
+        'dir': os.path.join(_configuration['data_directory'], 'datastreams'),
+        'prefix': 'ds'
+    }
 }
 
-for scheme, path in URI_MAP.items():
-    try:
-        os.makedirs(path, exist_ok=True)
-    except OSError as e:
-        raise RuntimeError('The path "{}" does not exist for the scheme "{}", and could not be created.'.format(path, scheme)) from e
 
-def stash(data, destination_scheme=UPLOADED_URI, mimetype='application/octet-stream', cursor=None):
+for scheme, info in URI_MAP.items():
+    try:
+        logger.debug('Ensuring %s exists and is both readable and writable.', info['dir'])
+        os.makedirs(info['dir'], exist_ok=True)
+        logger.debug('%s exists.', info['dir'])
+    except OSError as e:
+        raise RuntimeError('The path "%s" does not exist for the scheme "%s", and could not be created.', info['dir'], scheme) from e
+    else:
+        if not os.access(info['dir'], os.W_OK):
+            raise RuntimeError('The path "%s" is not writable.', info['dir'])
+        elif not os.access(info['dir'], os.R_OK):
+            raise RuntimeError('The path "%s" is not readable.', info['dir'])
+
+
+def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-stream'):
     """
     Persist data, likely in our data directory.
 
@@ -31,8 +52,7 @@ def stash(data, destination_scheme=UPLOADED_URI, mimetype='application/octet-str
             transaction.
 
     Returns:
-        The cursor with the resource_id of the stashed resource selected on
-        success.
+        The resource_id of the stashed resource.
     """
     def stash_stream(stream):
         """
@@ -45,25 +65,48 @@ def stash(data, destination_scheme=UPLOADED_URI, mimetype='application/octet-str
             The relative path to the file, inside of the destination.
         """
         destination = URI_MAP[destination_scheme]
-        with stream as src, NamedTemporaryFile(dir=destination, delete=False) as dest:
+        with stream as src, NamedTemporaryFile(delete=False, **destination) as dest:
             copyfileobj(src, dest)
-            return os.path.relpath(dest.name, destination)
+            return os.path.relpath(dest.name, destination['dir'])
 
-    cursor = check_cursor(cursor)
-    with cursor.connection:
-        try:
-            name = stash_stream(data if hasattr(data, 'read') else BytesIO(data))
-            uri = '{}://{}'.format(destination_scheme, name)
+    def streamify():
+        """
+        Get the "data" as a file-like object.
+        """
+        if hasattr(data, 'read'):
+            return data
+        elif hasattr(data, 'encode'):
+            return BytesIO(data.encode())
+        else:
+            return BytesIO(data)
+
+    name = stash_stream(streamify())
+    uri = '{}://{}'.format(destination_scheme, name)
+    logger.debug('Stashed data as %s.', uri)
+    connection = get_connection()
+    try:
+        with connection:
+            # XXX: This _must_ happen as a separate transaction, so we know
+            # that the resource is tracked when it is present in the relevant
+            # directory (and so might be garbage collected).
+            cursor = connection.cursor()
+            cursor = upsert_mime(mimetype, cursor)
+            mime_id = cursor.fetchone()[0]
+
             upsert_resource({
               'uri': uri,
-              'mime': upsert_mime(mimetype, cursor).fetchone()[0],
+              'mime': mime_id,
             }, cursor=cursor)
-        except:
-            if os.path.exists(name):
-                os.remove(name)
-            raise
-        else:
-            return cursor
+            logger.debug('Upserted.')
+    except:
+        logger.debug('Cleanup up %s due to DB rollback.', name)
+        os.remove(resolve_uri(uri))
+        raise
+    else:
+        return cursor.fetchone()[0]
+    finally:
+        connection.close()
+
 
 def resolve_uri(uri):
     """
@@ -76,4 +119,4 @@ def resolve_uri(uri):
         The file path.
     """
     scheme, _, path = uri.partition('://')
-    return os.path.join(URI_MAP[scheme], path)
+    return os.path.join(URI_MAP[scheme]['dir'], path)
