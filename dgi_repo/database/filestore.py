@@ -58,22 +58,6 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
     Returns:
         The resource_id of the stashed resource.
     """
-    def stash_stream(stream):
-        """
-        Write the given stream to the destination.
-
-        Args:
-            stream: A file-like object to copy to the destination.
-
-        Returns:
-            The relative path to the file, inside of the destination.
-        """
-        destination = _URI_MAP[destination_scheme]
-        with stream as src, NamedTemporaryFile(delete=False, **destination) as dest:
-            logger.debug('Stashing data as %s.', dest.name)
-            copyfileobj(src, dest)
-            return os.path.relpath(dest.name, destination['dir'])
-
     def streamify():
         """
         Get the "data" as a file-like object.
@@ -88,33 +72,42 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
             logger.debug('Unknown data type: attempting to wrap in a BytesIO.')
             return BytesIO(data)
 
-    name = stash_stream(streamify())
-    uri = '{}://{}'.format(destination_scheme, name)
-    logger.info('Stashed data as %s.', uri)
-    connection = get_connection()
     try:
-        with connection:
-            # XXX: This _must_ happen as a separate transaction, so we know
-            # that the resource is tracked when it is present in the relevant
-            # directory (and so might be garbage collected).
-            cursor = connection.cursor()
-            cursor = upsert_mime(mimetype, cursor)
-            mime_id = cursor.fetchone()[0]
+        destination = _URI_MAP[destination_scheme]
+        connection = get_connection()
+        with streamify() as src, NamedTemporaryFile(delete=False, **destination) as dest:
+            name = os.path.relpath(dest.name, destination['dir'])
+            uri = '{}://{}'.format(destination_scheme, name)
 
-            upsert_resource({
-              'uri': uri,
-              'mime': mime_id,
-            }, cursor=cursor)
+            with connection:
+                # XXX: This _must_ happen as a separate transaction, so we know
+                # that the resource is tracked when it is present in the
+                # relevant directory (and so might be garbage collected).
+                cursor = connection.cursor()
+                cursor = upsert_mime(mimetype, cursor)
+                mime_id = cursor.fetchone()[0]
+
+                upsert_resource({
+                  'uri': uri,
+                  'mime': mime_id,
+                }, cursor=cursor)
+
+            logger.debug('Stashing data as %s.', dest.name)
+            copyfileobj(src, dest)
     except:
-        logger.info('Cleanup up %s due to DB rollback.', name)
-        os.remove(resolve_uri(uri))
+        logger.exception('Attempting to delete %s (%s) due to exception.', uri, dest.name)
+        os.remove(dest.name)
         raise
     else:
         resource_id = cursor.fetchone()[0]
         logger.debug('%s got resource id %s', uri, resource_id)
         return resource_id
     finally:
-        connection.close()
+        try:
+            connection.close()
+        except UnboundLocalError:
+            # Just in case we fail when actually getting a connection.
+            pass
 
 
 def resolve_uri(uri):
