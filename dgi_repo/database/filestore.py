@@ -1,3 +1,6 @@
+"""
+Handle file storage.
+"""
 import logging
 import os
 from io import BytesIO
@@ -108,6 +111,30 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
         except UnboundLocalError:
             # Just in case we fail when actually getting a connection.
             pass
+
+
+def purge(*resource_ids):
+    """
+    Delete the specified resources.
+    """
+    connection = get_connection()
+    for resource_id in resource_ids:
+        cursor = connection.cursor()
+        with connection:
+            uri = resource_uri(resource_id, cursor).fetchone()[0]
+            path = resolve_uri(uri)
+            if not os.path.exists(path):
+                logger.warn('Skipping deletion: %s (%s) does not appear to exist.', uri, path)
+                continue
+
+            logger.debug('Deleting %s (%s).', uri, path)
+            os.remove(path)
+            logger.debug('Deleted %s (%s).', uri, path)
+
+            cursor.execute('''
+            DELETE FROM resources WHERE id = %s
+            ''', (resource_id,))
+            logger.info('Resource ID %s (%s, %s) has been deleted.', resource_id, uri, path)
 
 
 def resolve_uri(uri):
