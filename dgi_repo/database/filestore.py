@@ -21,7 +21,7 @@ NamedTemporaryFile.
 '''
 _URI_MAP = {
     UPLOAD_SCHEME: {
-        'dir': os.path.join(_configuration['data_directory'],'uploads'),
+        'dir': os.path.join(_configuration['data_directory'], 'uploads'),
     },
     'datastream': {
         'dir': os.path.join(_configuration['data_directory'], 'datastreams'),
