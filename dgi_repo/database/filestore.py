@@ -15,7 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 UPLOAD_SCHEME = 'uploaded'
-URI_MAP = {
+'''
+A mapping of URI schemes to dictionaries of parameters to pass to
+NamedTemporaryFile.
+'''
+_URI_MAP = {
     UPLOAD_SCHEME: {
         'dir': os.path.join(_configuration['data_directory'],'uploads'),
     },
@@ -26,7 +30,7 @@ URI_MAP = {
 }
 
 
-for scheme, info in URI_MAP.items():
+for scheme, info in _URI_MAP.items():
     try:
         logger.debug('Ensuring %s exists and is both readable and writable.', info['dir'])
         os.makedirs(info['dir'], exist_ok=True)
@@ -64,8 +68,9 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
         Returns:
             The relative path to the file, inside of the destination.
         """
-        destination = URI_MAP[destination_scheme]
+        destination = _URI_MAP[destination_scheme]
         with stream as src, NamedTemporaryFile(delete=False, **destination) as dest:
+            logger.debug('Stashing data as %s.', dest.name)
             copyfileobj(src, dest)
             return os.path.relpath(dest.name, destination['dir'])
 
@@ -74,15 +79,18 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
         Get the "data" as a file-like object.
         """
         if hasattr(data, 'read'):
+            logger.debug('Data appears file-like.')
             return data
         elif hasattr(data, 'encode'):
+            logger.debug('Data appears to be an (encodable) string.')
             return BytesIO(data.encode())
         else:
+            logger.debug('Unknown data type: attempting to wrap in a BytesIO.')
             return BytesIO(data)
 
     name = stash_stream(streamify())
     uri = '{}://{}'.format(destination_scheme, name)
-    logger.debug('Stashed data as %s.', uri)
+    logger.info('Stashed data as %s.', uri)
     connection = get_connection()
     try:
         with connection:
@@ -97,13 +105,14 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
               'uri': uri,
               'mime': mime_id,
             }, cursor=cursor)
-            logger.debug('Upserted.')
     except:
-        logger.debug('Cleanup up %s due to DB rollback.', name)
+        logger.info('Cleanup up %s due to DB rollback.', name)
         os.remove(resolve_uri(uri))
         raise
     else:
-        return cursor.fetchone()[0]
+        resource_id = cursor.fetchone()[0]
+        logger.debug('%s got resource id %s', uri, resource_id)
+        return resource_id
     finally:
         connection.close()
 
@@ -119,4 +128,4 @@ def resolve_uri(uri):
         The file path.
     """
     scheme, _, path = uri.partition('://')
-    return os.path.join(URI_MAP[scheme]['dir'], path)
+    return os.path.join(_URI_MAP[scheme]['dir'], path)
