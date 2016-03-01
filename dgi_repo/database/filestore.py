@@ -7,8 +7,6 @@ from io import BytesIO
 from shutil import copyfileobj
 from tempfile import NamedTemporaryFile
 
-from psycopg2.extensions import TransactionRollbackError
-
 from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.database.write.datastreams import upsert_resource, upsert_mime
