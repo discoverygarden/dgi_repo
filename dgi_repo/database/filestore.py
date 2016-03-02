@@ -53,8 +53,6 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
         data: Either a file-like object or a (byte)string to dump into a file.
         destination_scheme: One of the keys of URI_MAP. Defaults to UPLOADED_URI.
         mimetype: The MIME-type of the file.
-        cursor: An optional cursor, if we are acting as part of another
-            transaction.
 
     Returns:
         The resource_id of the stashed resource.
