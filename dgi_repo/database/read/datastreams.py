@@ -54,6 +54,21 @@ def resource_id(uri, cursor=None):
     return cursor
 
 
+def resource_uri(id, cursor=None):
+    """
+    Query for a resource URI from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT uri
+        FROM resources
+        WHERE id = %s
+    ''', (id,))
+
+    return cursor
+
+
 def mime_id(mime, cursor=None):
     """
     Query for a mime ID from the repository.
