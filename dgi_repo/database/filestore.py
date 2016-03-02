@@ -101,12 +101,6 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
         resource_id = cursor.fetchone()[0]
         logger.debug('%s got resource id %s', uri, resource_id)
         return resource_id
-    finally:
-        try:
-            connection.close()
-        except UnboundLocalError:
-            # Just in case we fail when actually getting a connection.
-            pass
 
 
 def purge(*resource_ids):
