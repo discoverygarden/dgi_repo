@@ -70,7 +70,6 @@ def upsert_old_object(data, cursor=None):
     """
     Upsert an old object version in the repository.
     """
-
     from dgi_repo.database.read.repo_objects import old_object_id
 
     cursor = check_cursor(cursor)

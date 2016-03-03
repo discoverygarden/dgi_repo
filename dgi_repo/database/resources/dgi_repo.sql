@@ -142,13 +142,25 @@ ALTER SEQUENCE checksums_id_seq OWNED BY checksums.id;
 
 
 --
+-- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE datastream_is_manageable_by_role_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
 -- Name: datastream_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE datastream_is_manageable_by_role (
-    id bigint NOT NULL,
-    datastream_id bigint NOT NULL,
-    role_id bigint NOT NULL
+    id bigint DEFAULT nextval('datastream_is_manageable_by_role_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -167,36 +179,17 @@ COMMENT ON COLUMN datastream_is_manageable_by_role.id IS 'The database ID of the
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_role.datastream_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_manageable_by_role.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_is_manageable_by_role.datastream_id IS 'Database ID of the datastream.';
-
-
---
--- Name: COLUMN datastream_is_manageable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN datastream_is_manageable_by_role.role_id IS 'Role that can manage the datastream.';
+COMMENT ON COLUMN datastream_is_manageable_by_role.rdf_subject IS 'Database ID of the datastream.';
 
 
 --
--- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_manageable_by_role.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE datastream_is_manageable_by_role_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: datastream_is_manageable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE datastream_is_manageable_by_role_id_seq OWNED BY datastream_is_manageable_by_role.id;
+COMMENT ON COLUMN datastream_is_manageable_by_role.rdf_object IS 'Role that can manage the datastream.';
 
 
 --
@@ -204,9 +197,9 @@ ALTER SEQUENCE datastream_is_manageable_by_role_id_seq OWNED BY datastream_is_ma
 --
 
 CREATE TABLE datastream_is_manageable_by_user (
-    id bigint NOT NULL,
-    datastream_id bigint NOT NULL,
-    user_id bigint NOT NULL
+    id bigint DEFAULT nextval('datastream_is_manageable_by_role_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -225,17 +218,17 @@ COMMENT ON COLUMN datastream_is_manageable_by_user.id IS 'The database ID of the
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_user.datastream_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_manageable_by_user.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_is_manageable_by_user.datastream_id IS 'Database ID of the datastream.';
+COMMENT ON COLUMN datastream_is_manageable_by_user.rdf_subject IS 'Database ID of the datastream.';
 
 
 --
--- Name: COLUMN datastream_is_manageable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_manageable_by_user.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_is_manageable_by_user.user_id IS 'User that can manage the datastream.';
+COMMENT ON COLUMN datastream_is_manageable_by_user.rdf_object IS 'User that can manage the datastream.';
 
 
 --
@@ -251,10 +244,15 @@ CREATE SEQUENCE datastream_is_manageable_by_user_id_seq
 
 
 --
--- Name: datastream_is_manageable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE datastream_is_manageable_by_user_id_seq OWNED BY datastream_is_manageable_by_user.id;
+CREATE SEQUENCE datastream_is_viewable_by_role_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
 
 --
@@ -262,9 +260,9 @@ ALTER SEQUENCE datastream_is_manageable_by_user_id_seq OWNED BY datastream_is_ma
 --
 
 CREATE TABLE datastream_is_viewable_by_role (
-    id bigint NOT NULL,
-    datastream_id bigint NOT NULL,
-    role_id bigint NOT NULL
+    id bigint DEFAULT nextval('datastream_is_viewable_by_role_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -283,24 +281,24 @@ COMMENT ON COLUMN datastream_is_viewable_by_role.id IS 'The database ID of the s
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_role.datastream_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_viewable_by_role.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_is_viewable_by_role.datastream_id IS 'Database ID of the datastream.';
-
-
---
--- Name: COLUMN datastream_is_viewable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN datastream_is_viewable_by_role.role_id IS 'Role that can view the datastream.';
+COMMENT ON COLUMN datastream_is_viewable_by_role.rdf_subject IS 'Database ID of the datastream.';
 
 
 --
--- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_viewable_by_role.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE datastream_is_viewable_by_role_id_seq
+COMMENT ON COLUMN datastream_is_viewable_by_role.rdf_object IS 'Role that can view the datastream.';
+
+
+--
+-- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE datastream_is_viewable_by_user_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -309,20 +307,13 @@ CREATE SEQUENCE datastream_is_viewable_by_role_id_seq
 
 
 --
--- Name: datastream_is_viewable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE datastream_is_viewable_by_role_id_seq OWNED BY datastream_is_viewable_by_role.id;
-
-
---
 -- Name: datastream_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE datastream_is_viewable_by_user (
-    id bigint NOT NULL,
-    datastream_id bigint NOT NULL,
-    user_id bigint NOT NULL
+    id bigint DEFAULT nextval('datastream_is_viewable_by_user_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -341,36 +332,17 @@ COMMENT ON COLUMN datastream_is_viewable_by_user.id IS 'The database ID of the s
 
 
 --
--- Name: COLUMN datastream_is_viewable_by_user.datastream_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_viewable_by_user.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_is_viewable_by_user.datastream_id IS 'Database ID of the datastream.';
-
-
---
--- Name: COLUMN datastream_is_viewable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN datastream_is_viewable_by_user.user_id IS 'User that can view the datastream.';
+COMMENT ON COLUMN datastream_is_viewable_by_user.rdf_subject IS 'Database ID of the datastream.';
 
 
 --
--- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN datastream_is_viewable_by_user.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE datastream_is_viewable_by_user_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: datastream_is_viewable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE datastream_is_viewable_by_user_id_seq OWNED BY datastream_is_viewable_by_user.id;
+COMMENT ON COLUMN datastream_is_viewable_by_user.rdf_object IS 'User that can view the datastream.';
 
 
 --
@@ -381,7 +353,7 @@ CREATE TABLE datastream_relationships (
     id bigint NOT NULL,
     subject bigint NOT NULL,
     predicate_id bigint NOT NULL,
-    text_object character varying(1024)
+    rdf_object character varying(1024)
 );
 
 
@@ -414,10 +386,10 @@ COMMENT ON COLUMN datastream_relationships.predicate_id IS 'The predicate of the
 
 
 --
--- Name: COLUMN datastream_relationships.text_object; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_relationships.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_relationships.text_object IS 'The object of the relationship can be text.';
+COMMENT ON COLUMN datastream_relationships.rdf_object IS 'The object of the relationship.';
 
 
 --
@@ -2313,13 +2285,25 @@ ALTER SEQUENCE namespaces_id_seq OWNED BY pid_namespaces.id;
 
 
 --
+-- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE object_is_manageable_by_role_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
 -- Name: object_is_manageable_by_role; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE object_is_manageable_by_role (
-    id bigint NOT NULL,
-    object_id bigint NOT NULL,
-    role_id bigint NOT NULL
+    id bigint DEFAULT nextval('object_is_manageable_by_role_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -2338,24 +2322,24 @@ COMMENT ON COLUMN object_is_manageable_by_role.id IS 'The database ID of the sec
 
 
 --
--- Name: COLUMN object_is_manageable_by_role.object_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_is_manageable_by_role.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_is_manageable_by_role.object_id IS 'Database ID of the object.';
-
-
---
--- Name: COLUMN object_is_manageable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN object_is_manageable_by_role.role_id IS 'Role that can manage the object.';
+COMMENT ON COLUMN object_is_manageable_by_role.rdf_subject IS 'Database ID of the object.';
 
 
 --
--- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN object_is_manageable_by_role.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE object_is_manageable_by_role_id_seq
+COMMENT ON COLUMN object_is_manageable_by_role.rdf_object IS 'Role that can manage the object.';
+
+
+--
+-- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE object_is_manageable_by_user_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2364,20 +2348,13 @@ CREATE SEQUENCE object_is_manageable_by_role_id_seq
 
 
 --
--- Name: object_is_manageable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE object_is_manageable_by_role_id_seq OWNED BY object_is_manageable_by_role.id;
-
-
---
 -- Name: object_is_manageable_by_user; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE object_is_manageable_by_user (
-    id bigint NOT NULL,
-    object_id bigint NOT NULL,
-    user_id bigint NOT NULL
+    id bigint DEFAULT nextval('object_is_manageable_by_user_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -2396,24 +2373,24 @@ COMMENT ON COLUMN object_is_manageable_by_user.id IS 'The database ID of the sec
 
 
 --
--- Name: COLUMN object_is_manageable_by_user.object_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_is_manageable_by_user.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_is_manageable_by_user.object_id IS 'Database ID of the object.';
-
-
---
--- Name: COLUMN object_is_manageable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN object_is_manageable_by_user.user_id IS 'User that can manage the object.';
+COMMENT ON COLUMN object_is_manageable_by_user.rdf_subject IS 'Database ID of the object.';
 
 
 --
--- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN object_is_manageable_by_user.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE object_is_manageable_by_user_id_seq
+COMMENT ON COLUMN object_is_manageable_by_user.rdf_object IS 'User that can manage the object.';
+
+
+--
+-- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE object_is_viewable_by_role_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2422,20 +2399,13 @@ CREATE SEQUENCE object_is_manageable_by_user_id_seq
 
 
 --
--- Name: object_is_manageable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE object_is_manageable_by_user_id_seq OWNED BY object_is_manageable_by_user.id;
-
-
---
 -- Name: object_is_viewable_by_role; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE object_is_viewable_by_role (
-    id bigint NOT NULL,
-    object_id bigint NOT NULL,
-    role_id bigint NOT NULL
+    id bigint DEFAULT nextval('object_is_viewable_by_role_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -2454,24 +2424,24 @@ COMMENT ON COLUMN object_is_viewable_by_role.id IS 'The database ID of the secur
 
 
 --
--- Name: COLUMN object_is_viewable_by_role.object_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_is_viewable_by_role.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_is_viewable_by_role.object_id IS 'Database ID of the object.';
-
-
---
--- Name: COLUMN object_is_viewable_by_role.role_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN object_is_viewable_by_role.role_id IS 'Role that can view the object.';
+COMMENT ON COLUMN object_is_viewable_by_role.rdf_subject IS 'Database ID of the object.';
 
 
 --
--- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN object_is_viewable_by_role.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE object_is_viewable_by_role_id_seq
+COMMENT ON COLUMN object_is_viewable_by_role.rdf_object IS 'Role that can view the object.';
+
+
+--
+-- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE object_is_viewable_by_user_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2480,20 +2450,13 @@ CREATE SEQUENCE object_is_viewable_by_role_id_seq
 
 
 --
--- Name: object_is_viewable_by_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE object_is_viewable_by_role_id_seq OWNED BY object_is_viewable_by_role.id;
-
-
---
 -- Name: object_is_viewable_by_user; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE object_is_viewable_by_user (
-    id bigint NOT NULL,
-    object_id bigint NOT NULL,
-    user_id bigint NOT NULL
+    id bigint DEFAULT nextval('object_is_viewable_by_user_id_seq'::regclass) NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object bigint NOT NULL
 );
 
 
@@ -2512,36 +2475,17 @@ COMMENT ON COLUMN object_is_viewable_by_user.id IS 'The database ID of the secur
 
 
 --
--- Name: COLUMN object_is_viewable_by_user.object_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_is_viewable_by_user.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_is_viewable_by_user.object_id IS 'Database ID of the object.';
-
-
---
--- Name: COLUMN object_is_viewable_by_user.user_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN object_is_viewable_by_user.user_id IS 'User that can view the object.';
+COMMENT ON COLUMN object_is_viewable_by_user.rdf_subject IS 'Database ID of the object.';
 
 
 --
--- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN object_is_viewable_by_user.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE object_is_viewable_by_user_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: object_is_viewable_by_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE object_is_viewable_by_user_id_seq OWNED BY object_is_viewable_by_user.id;
+COMMENT ON COLUMN object_is_viewable_by_user.rdf_object IS 'User that can view the object.';
 
 
 --
@@ -2552,8 +2496,7 @@ CREATE TABLE object_relationships (
     id bigint NOT NULL,
     subject bigint NOT NULL,
     predicate_id bigint NOT NULL,
-    object_id_object bigint,
-    text_object character varying(1024)
+    rdf_object character varying(1024)
 );
 
 
@@ -2586,17 +2529,10 @@ COMMENT ON COLUMN object_relationships.predicate_id IS 'Predicate of the relatio
 
 
 --
--- Name: COLUMN object_relationships.object_id_object; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_relationships.rdf_object; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_relationships.object_id_object IS 'The relationship object can refer to a repository object.';
-
-
---
--- Name: COLUMN object_relationships.text_object; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN object_relationships.text_object IS 'The object can refer to a string.';
+COMMENT ON COLUMN object_relationships.rdf_object IS 'The RDF object in string format.';
 
 
 --
@@ -3305,34 +3241,6 @@ ALTER TABLE ONLY checksums ALTER COLUMN id SET DEFAULT nextval('checksums_id_seq
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY datastream_is_manageable_by_role ALTER COLUMN id SET DEFAULT nextval('datastream_is_manageable_by_role_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY datastream_is_manageable_by_user ALTER COLUMN id SET DEFAULT nextval('datastream_is_manageable_by_user_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY datastream_is_viewable_by_role ALTER COLUMN id SET DEFAULT nextval('datastream_is_viewable_by_role_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY datastream_is_viewable_by_user ALTER COLUMN id SET DEFAULT nextval('datastream_is_viewable_by_user_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY datastream_relationships ALTER COLUMN id SET DEFAULT nextval('datastream_relationships_id_seq'::regclass);
 
 
@@ -3453,34 +3361,6 @@ ALTER TABLE ONLY log ALTER COLUMN id SET DEFAULT nextval('log_id_seq'::regclass)
 --
 
 ALTER TABLE ONLY mimes ALTER COLUMN id SET DEFAULT nextval('mimes_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY object_is_manageable_by_role ALTER COLUMN id SET DEFAULT nextval('object_is_manageable_by_role_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY object_is_manageable_by_user ALTER COLUMN id SET DEFAULT nextval('object_is_manageable_by_user_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY object_is_viewable_by_role ALTER COLUMN id SET DEFAULT nextval('object_is_viewable_by_role_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY object_is_viewable_by_user ALTER COLUMN id SET DEFAULT nextval('object_is_viewable_by_user_id_seq'::regclass);
 
 
 --
@@ -4251,7 +4131,7 @@ ALTER TABLE ONLY users
 -- Name: datastream_is_manageable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_manageable_by_role_datastream_index ON datastream_is_manageable_by_role USING btree (datastream_id);
+CREATE INDEX datastream_is_manageable_by_role_datastream_index ON datastream_is_manageable_by_role USING btree (rdf_subject);
 
 
 --
@@ -4265,7 +4145,7 @@ COMMENT ON INDEX datastream_is_manageable_by_role_datastream_index IS 'There wil
 -- Name: datastream_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_manageable_by_role_role_index ON datastream_is_manageable_by_role USING btree (role_id);
+CREATE INDEX datastream_is_manageable_by_role_role_index ON datastream_is_manageable_by_role USING btree (rdf_object);
 
 
 --
@@ -4279,7 +4159,7 @@ COMMENT ON INDEX datastream_is_manageable_by_role_role_index IS 'Random lookups 
 -- Name: datastream_is_manageable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_manageable_by_user_datastream_index ON datastream_is_manageable_by_user USING btree (datastream_id);
+CREATE INDEX datastream_is_manageable_by_user_datastream_index ON datastream_is_manageable_by_user USING btree (rdf_subject);
 
 
 --
@@ -4293,7 +4173,7 @@ COMMENT ON INDEX datastream_is_manageable_by_user_datastream_index IS 'There wil
 -- Name: datastream_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_manageable_by_user_user_index ON datastream_is_manageable_by_user USING btree (user_id);
+CREATE INDEX datastream_is_manageable_by_user_user_index ON datastream_is_manageable_by_user USING btree (rdf_object);
 
 
 --
@@ -4307,7 +4187,7 @@ COMMENT ON INDEX datastream_is_manageable_by_user_user_index IS 'Random lookups 
 -- Name: datastream_is_viewable_by_role_datastream_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_viewable_by_role_datastream_index ON datastream_is_viewable_by_role USING btree (datastream_id);
+CREATE INDEX datastream_is_viewable_by_role_datastream_index ON datastream_is_viewable_by_role USING btree (rdf_subject);
 
 
 --
@@ -4321,7 +4201,7 @@ COMMENT ON INDEX datastream_is_viewable_by_role_datastream_index IS 'There will 
 -- Name: datastream_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_viewable_by_role_role_index ON datastream_is_viewable_by_role USING btree (role_id);
+CREATE INDEX datastream_is_viewable_by_role_role_index ON datastream_is_viewable_by_role USING btree (rdf_object);
 
 
 --
@@ -4335,7 +4215,7 @@ COMMENT ON INDEX datastream_is_viewable_by_role_role_index IS 'Random lookups by
 -- Name: datastream_is_viewable_by_user_datastream_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_viewable_by_user_datastream_index ON datastream_is_viewable_by_user USING btree (datastream_id);
+CREATE INDEX datastream_is_viewable_by_user_datastream_index ON datastream_is_viewable_by_user USING btree (rdf_subject);
 
 
 --
@@ -4349,7 +4229,7 @@ COMMENT ON INDEX datastream_is_viewable_by_user_datastream_index IS 'There will 
 -- Name: datastream_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX datastream_is_viewable_by_user_user_index ON datastream_is_viewable_by_user USING btree (user_id);
+CREATE INDEX datastream_is_viewable_by_user_user_index ON datastream_is_viewable_by_user USING btree (rdf_object);
 
 
 --
@@ -4654,13 +4534,6 @@ CREATE INDEX fki_object_namespace_link ON objects USING btree (namespace);
 
 
 --
--- Name: fki_object_relationships_object_link; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_object_relationships_object_link ON object_relationships USING btree (object_id_object);
-
-
---
 -- Name: fki_object_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4790,7 +4663,7 @@ COMMENT ON INDEX object_dsid_index IS 'Object & DSID is a common query.';
 -- Name: object_is_manageable_by_role_object_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_manageable_by_role_object_index ON object_is_manageable_by_role USING btree (object_id);
+CREATE INDEX object_is_manageable_by_role_object_index ON object_is_manageable_by_role USING btree (rdf_subject);
 
 
 --
@@ -4804,7 +4677,7 @@ COMMENT ON INDEX object_is_manageable_by_role_object_index IS 'There will be man
 -- Name: object_is_manageable_by_role_role_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_manageable_by_role_role_index ON object_is_manageable_by_role USING btree (role_id);
+CREATE INDEX object_is_manageable_by_role_role_index ON object_is_manageable_by_role USING btree (rdf_object);
 
 
 --
@@ -4818,7 +4691,7 @@ COMMENT ON INDEX object_is_manageable_by_role_role_index IS 'Random lookups by r
 -- Name: object_is_manageable_by_user_object_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_manageable_by_user_object_index ON object_is_manageable_by_user USING btree (object_id);
+CREATE INDEX object_is_manageable_by_user_object_index ON object_is_manageable_by_user USING btree (rdf_subject);
 
 
 --
@@ -4832,7 +4705,7 @@ COMMENT ON INDEX object_is_manageable_by_user_object_index IS 'There will be man
 -- Name: object_is_manageable_by_user_user_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_manageable_by_user_user_index ON object_is_manageable_by_user USING btree (user_id);
+CREATE INDEX object_is_manageable_by_user_user_index ON object_is_manageable_by_user USING btree (rdf_object);
 
 
 --
@@ -4846,7 +4719,7 @@ COMMENT ON INDEX object_is_manageable_by_user_user_index IS 'Random lookups by u
 -- Name: object_is_viewable_by_role_object_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_viewable_by_role_object_index ON object_is_viewable_by_role USING btree (object_id);
+CREATE INDEX object_is_viewable_by_role_object_index ON object_is_viewable_by_role USING btree (rdf_subject);
 
 
 --
@@ -4860,7 +4733,7 @@ COMMENT ON INDEX object_is_viewable_by_role_object_index IS 'There will be many 
 -- Name: object_is_viewable_by_role_role_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_viewable_by_role_role_index ON object_is_viewable_by_role USING btree (role_id);
+CREATE INDEX object_is_viewable_by_role_role_index ON object_is_viewable_by_role USING btree (rdf_object);
 
 
 --
@@ -4874,7 +4747,7 @@ COMMENT ON INDEX object_is_viewable_by_role_role_index IS 'Random lookups by rol
 -- Name: object_is_viewable_by_user_object_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_viewable_by_user_object_index ON object_is_viewable_by_user USING btree (object_id);
+CREATE INDEX object_is_viewable_by_user_object_index ON object_is_viewable_by_user USING btree (rdf_subject);
 
 
 --
@@ -4888,7 +4761,7 @@ COMMENT ON INDEX object_is_viewable_by_user_object_index IS 'There will be many 
 -- Name: object_is_viewable_by_user_user_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_is_viewable_by_user_user_index ON object_is_viewable_by_user USING btree (user_id);
+CREATE INDEX object_is_viewable_by_user_user_index ON object_is_viewable_by_user USING btree (rdf_object);
 
 
 --
@@ -4931,7 +4804,7 @@ COMMENT ON INDEX pid_index IS 'There will be much random access on PIDs.';
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
-    ADD CONSTRAINT datastream_is_manageable_role_link FOREIGN KEY (role_id) REFERENCES user_roles(id);
+    ADD CONSTRAINT datastream_is_manageable_role_link FOREIGN KEY (rdf_object) REFERENCES user_roles(id);
 
 
 --
@@ -4939,7 +4812,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
-    ADD CONSTRAINT datastream_is_manageable_user_link FOREIGN KEY (user_id) REFERENCES users(id);
+    ADD CONSTRAINT datastream_is_manageable_user_link FOREIGN KEY (rdf_object) REFERENCES users(id);
 
 
 --
@@ -4947,7 +4820,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
-    ADD CONSTRAINT datastream_is_viewable_role_link FOREIGN KEY (role_id) REFERENCES user_roles(id);
+    ADD CONSTRAINT datastream_is_viewable_role_link FOREIGN KEY (rdf_object) REFERENCES user_roles(id);
 
 
 --
@@ -4955,7 +4828,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
-    ADD CONSTRAINT datastream_is_viewable_user_link FOREIGN KEY (user_id) REFERENCES users(id);
+    ADD CONSTRAINT datastream_is_viewable_user_link FOREIGN KEY (rdf_object) REFERENCES users(id);
 
 
 --
@@ -5533,7 +5406,7 @@ COMMENT ON CONSTRAINT is_sequence_number_subject_link ON is_sequence_number IS '
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_role
-    ADD CONSTRAINT manageable_by_role_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
+    ADD CONSTRAINT manageable_by_role_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -5541,7 +5414,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_role
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
-    ADD CONSTRAINT manageable_by_role_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT manageable_by_role_object_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -5549,7 +5422,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 --
 
 ALTER TABLE ONLY datastream_is_manageable_by_user
-    ADD CONSTRAINT manageable_by_user_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
+    ADD CONSTRAINT manageable_by_user_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -5557,7 +5430,7 @@ ALTER TABLE ONLY datastream_is_manageable_by_user
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
-    ADD CONSTRAINT manageable_by_user_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT manageable_by_user_object_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -5595,7 +5468,7 @@ COMMENT ON CONSTRAINT object_id_link ON datastreams IS 'Datastreams belong to ob
 --
 
 ALTER TABLE ONLY object_is_manageable_by_role
-    ADD CONSTRAINT object_is_manageable_role_link FOREIGN KEY (role_id) REFERENCES user_roles(id);
+    ADD CONSTRAINT object_is_manageable_role_link FOREIGN KEY (rdf_object) REFERENCES user_roles(id);
 
 
 --
@@ -5603,7 +5476,7 @@ ALTER TABLE ONLY object_is_manageable_by_role
 --
 
 ALTER TABLE ONLY object_is_manageable_by_user
-    ADD CONSTRAINT object_is_manageable_user_link FOREIGN KEY (user_id) REFERENCES users(id);
+    ADD CONSTRAINT object_is_manageable_user_link FOREIGN KEY (rdf_object) REFERENCES users(id);
 
 
 --
@@ -5611,7 +5484,7 @@ ALTER TABLE ONLY object_is_manageable_by_user
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
-    ADD CONSTRAINT object_is_viewable_role_link FOREIGN KEY (role_id) REFERENCES user_roles(id);
+    ADD CONSTRAINT object_is_viewable_role_link FOREIGN KEY (rdf_object) REFERENCES user_roles(id);
 
 
 --
@@ -5619,7 +5492,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
-    ADD CONSTRAINT object_is_viewable_user_link FOREIGN KEY (user_id) REFERENCES users(id);
+    ADD CONSTRAINT object_is_viewable_user_link FOREIGN KEY (rdf_object) REFERENCES users(id);
 
 
 --
@@ -5650,21 +5523,6 @@ ALTER TABLE ONLY objects
 --
 
 COMMENT ON CONSTRAINT object_namespace_link ON objects IS 'Objects belong to namespaces.';
-
-
---
--- Name: object_relationships_object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY object_relationships
-    ADD CONSTRAINT object_relationships_object_link FOREIGN KEY (object_id_object) REFERENCES objects(id) ON DELETE CASCADE;
-
-
---
--- Name: CONSTRAINT object_relationships_object_link ON object_relationships; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON CONSTRAINT object_relationships_object_link ON object_relationships IS 'Relationship objects can be objects.';
 
 
 --
@@ -5875,7 +5733,7 @@ COMMENT ON CONSTRAINT user_source_link ON users IS 'Users can belong to sources.
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_role
-    ADD CONSTRAINT viewable_by_role_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
+    ADD CONSTRAINT viewable_by_role_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -5883,7 +5741,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_role
 --
 
 ALTER TABLE ONLY object_is_viewable_by_role
-    ADD CONSTRAINT viewable_by_role_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT viewable_by_role_object_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -5891,7 +5749,7 @@ ALTER TABLE ONLY object_is_viewable_by_role
 --
 
 ALTER TABLE ONLY datastream_is_viewable_by_user
-    ADD CONSTRAINT viewable_by_user_datastream_link FOREIGN KEY (datastream_id) REFERENCES datastreams(id) ON DELETE CASCADE;
+    ADD CONSTRAINT viewable_by_user_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -5899,7 +5757,7 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 --
 
 ALTER TABLE ONLY object_is_viewable_by_user
-    ADD CONSTRAINT viewable_by_user_object_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT viewable_by_user_object_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --

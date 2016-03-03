@@ -20,9 +20,10 @@ def install():
     Run code to finish installing the application.
     """
 
-    from dgi_repo.database.utilities import install_schema
+    import dgi_repo.database.utilities as db_utils
 
-    install_schema()
+    db_utils.install_schema()
+    db_utils.install_base_data()
 
 
 def break_pid(pid):
