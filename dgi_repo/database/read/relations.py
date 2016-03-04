@@ -41,7 +41,7 @@ def predicate_id(data, cursor=None):
 
 def read_from_standard_relation_table(table, subject=None, rdf_object=None, cursor=None):
     """
-    Write to a table that uses the standard relation design.
+    Read from a table that uses the standard relation design.
     """
     cursor = check_cursor(cursor)
 

@@ -80,7 +80,6 @@ def upsert_mime(mime, cursor=None):
         RETURNING id
     ''', (mime,))
 
-
     if not cursor.rowcount:
         cursor = mime_id(mime, cursor)
 

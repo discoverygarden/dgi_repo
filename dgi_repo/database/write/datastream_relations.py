@@ -14,17 +14,17 @@ logger = logging.getLogger(__name__)
 
 def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
     """
-    Read a datastream relation to the repository.
+    Write a datastream relation to the repository.
     """
     from dgi_repo.database.read.relations import predicate_id_from_raw
     from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
     from dgi_repo.database.write.relations import write_to_standard_relation_table
 
     try:
-        (table, log_message) = DATASTREAM_RELATION_MAP[(namespace, predicate)]
+        relation_db_info = DATASTREAM_RELATION_MAP[(namespace, predicate)]
         cursor = write_to_standard_relation_table(
-            table,
-            log_message,
+            relation_db_info['table'],
+            relation_db_info['upsert message'],
             subject,
             rdf_object,
             cursor
@@ -47,5 +47,12 @@ def write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor=None):
         VALUES (%s, %s, %s)
         RETURNING id
     ''', (predicate_id, subject, rdf_object))
+
+    logger.debug(
+        'Upserted a datastream relation "%s" on %s as %s.',
+        predicate_id,
+        subject,
+        rdf_object
+    )
 
     return cursor

@@ -11,6 +11,7 @@ from dgi_repo.database.utilities import check_cursor
 
 logger = logging.getLogger(__name__)
 
+
 def upsert_namespace(namespace, cursor=None):
     """
     Upsert an RDF namespace in the repository.
@@ -68,5 +69,7 @@ def write_to_standard_relation_table(table, log_message, subject, rdf_object, cu
         VALUES (%s, %s)
         RETURNING id
     '''.format(table), (subject, rdf_object))
+
+    logger.debug(log_message, subject, rdf_object)
 
     return cursor
