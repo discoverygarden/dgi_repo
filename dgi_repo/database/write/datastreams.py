@@ -33,11 +33,57 @@ def upsert_datastream(data, cursor=None):
         data['log'] = None
 
     cursor.execute('''
-        INSERT INTO datastreams (object_id, label, dsid, resource_id, versioned, archival, control_group, state, log, modified, created)
-        VALUES (%(object)s, %(label)s, %(dsid)s, %(resource)s, %(versioned)s, %(archival)s, %(control_group)s, %(state)s, %(log)s, now(), now())
+        INSERT INTO datastreams (
+            object_id,
+            label,
+            dsid,
+            resource_id,
+            versioned,
+            archival,
+            control_group,
+            state,
+            log,
+            modified,
+            created
+        )
+        VALUES (
+            %(object)s,
+            %(label)s,
+            %(dsid)s,
+            %(resource)s,
+            %(versioned)s,
+            %(archival)s,
+            %(control_group)s,
+            %(state)s,
+            %(log)s,
+            now(),
+            now()
+        )
         ON CONFLICT (object_id, dsid) DO UPDATE
-        SET (object_id, label, dsid, resource_id, versioned, archival, control_group, state, log, modified) =
-            (%(object)s, %(label)s, %(dsid)s, %(resource)s, %(versioned)s, %(archival)s, %(control_group)s, %(state)s, %(log)s, now())
+        SET (
+                object_id,
+                label,
+                dsid,
+                resource_id,
+                versioned,
+                archival,
+                control_group,
+                state,
+                log,
+                modified
+            ) =
+            (
+                %(object)s,
+                %(label)s,
+                %(dsid)s,
+                %(resource)s,
+                %(versioned)s,
+                %(archival)s,
+                %(control_group)s,
+                %(state)s,
+                %(log)s,
+                now()
+            )
         RETURNING id
     ''', data)
 
@@ -116,8 +162,22 @@ def upsert_old_datastream(data, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO old_datastreams (current_datastream, log, state, label, uri_id, committed)
-        VALUES (%(datastream)s, %(log)s, %(state)s, %(label)s, %(resource)s, %(committed)s)
+        INSERT INTO old_datastreams (
+            current_datastream,
+            log,
+            state,
+            label,
+            uri_id,
+            committed
+        )
+        VALUES (
+            %(datastream)s,
+            %(log)s,
+            %(state)s,
+            %(label)s,
+            %(resource)s,
+            %(committed)s
+        )
         ON CONFLICT (current_datastream, committed) DO NOTHING
         RETURNING id
     ''', data)

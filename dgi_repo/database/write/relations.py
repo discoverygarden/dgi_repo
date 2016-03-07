@@ -53,7 +53,10 @@ def upsert_predicate(data, cursor=None):
     if not cursor.rowcount:
         cursor = predicate_id(data, cursor)
 
-    logger.debug('Upserted predicate %(predicate)s in namespace %(namespace)s.', data)
+    logger.debug(
+        'Upserted predicate %(predicate)s in namespace %(namespace)s.',
+        data
+    )
 
     return cursor
 

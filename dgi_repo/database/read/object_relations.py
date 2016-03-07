@@ -25,7 +25,11 @@ def read_relationship(namespace, predicate, subject=None, rdf_object=None, curso
             cursor
         )
     except KeyError:
-        predicate_id = relations_reader.predicate_id_from_raw(namespace, predicate, cursor)
+        predicate_id = relations_reader.predicate_id_from_raw(
+            namespace,
+            predicate,
+            cursor
+        )
         cursor = read_from_general_rdf_table(
             predicate_id,
             subject,
