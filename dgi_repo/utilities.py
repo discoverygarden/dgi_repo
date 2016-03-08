@@ -7,7 +7,7 @@ PID_SEPARATOR = ':'
 
 def bootstrap():
     """
-    Run code that should always be ran at the begining of the application run.
+    Run code that should always be ran at the beginning of the application run.
     """
 
     import dgi_repo.logger
