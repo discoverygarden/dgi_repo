@@ -57,11 +57,15 @@ def upsert_object(data, cursor=None):
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned, log, created, modified)
         VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s, %(versioned)s, %(log)s, now(), now())
         ON CONFLICT (pid_id, namespace) DO UPDATE
-        SET (pid_id, namespace, state, owner, label, versioned, log, modified) = (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s, %(versioned)s, %(log)s, now())
+        SET (pid_id, namespace, state, owner, label, versioned, log, modified) =
+            (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s, %(versioned)s, %(log)s, now())
         RETURNING id
     ''', data)
 
-    logger.debug("Upserted into namespace: %s with PID: %s.", data['namespace'], data['pid_id'])
+    logger.debug(
+        "Upserted into namespace: %s with PID: %s.", data['namespace'],
+        data['pid_id']
+    )
 
     return cursor
 

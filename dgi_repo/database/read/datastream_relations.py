@@ -17,14 +17,23 @@ def read_relationship(namespace, predicate, subject=None, rdf_object=None, curso
 
     try:
         cursor = relations_reader.read_from_standard_relation_table(
-            DATASTREAM_RELATION_MAP[(namespace, predicate)][0],
+            DATASTREAM_RELATION_MAP[(namespace, predicate)]['table'],
             subject,
             rdf_object,
             cursor
         )
     except KeyError:
-        predicate_id = relations_reader.predicate_id_from_raw(namespace, predicate, cursor)
-        cursor = read_from_general_rdf_table(predicate_id, subject, rdf_object, cursor)
+        predicate_id = relations_reader.predicate_id_from_raw(
+            namespace,
+            predicate,
+            cursor
+        )
+        cursor = read_from_general_rdf_table(
+            predicate_id,
+            subject,
+            rdf_object,
+            cursor
+        )
 
     return cursor
 
@@ -33,4 +42,10 @@ def read_from_general_rdf_table(predicate, subject=None, rdf_object=None, cursor
     """
     Read from the general datastream RDF table.
     """
-    return relations_reader.read_from_general_rdf_table('datastream_relationships', predicate, subject, rdf_object, cursor)
+    return relations_reader.read_from_general_rdf_table(
+        'datastream_relationships',
+        predicate,
+        subject,
+        rdf_object,
+        cursor
+    )

@@ -11,6 +11,7 @@ from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.database.write.datastreams import upsert_resource, upsert_mime
 from dgi_repo.database.read.datastreams import resource_uri
+from dgi_repo.database.delete.datastreams import delete_resource
 
 logger = logging.getLogger(__name__)
 
@@ -121,9 +122,7 @@ def purge(*resource_ids):
             os.remove(path)
             logger.debug('Deleted %s (%s).', uri, path)
 
-            cursor.execute('''
-            DELETE FROM resources WHERE id = %s
-            ''', (resource_id,))
+            delete_resource(resource_id, cursor)
             logger.info('Resource ID %s (%s, %s) has been deleted.', resource_id, uri, path)
 
 

@@ -21,10 +21,10 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
     from dgi_repo.database.write.relations import write_to_standard_relation_table
 
     try:
-        (table, log_message) = OBJECT_RELATION_MAP[(namespace, predicate)]
+        relation_db_info = OBJECT_RELATION_MAP[(namespace, predicate)]
         cursor = write_to_standard_relation_table(
-            table,
-            log_message,
+            relation_db_info['table'],
+            relation_db_info['upsert message'],
             subject,
             rdf_object,
             cursor
@@ -48,6 +48,13 @@ def write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor=None):
         RETURNING id
     ''', (predicate_id, subject, rdf_object))
 
+    logger.debug(
+        'Upserted an object relation "%s" on %s as %s.',
+        predicate_id,
+        subject,
+        rdf_object
+    )
+
     return cursor
 
 
@@ -62,5 +69,12 @@ def write_sequence_number(subject, paged_object, sequence_number, cursor=None):
         VALUES (%s, %s, %s)
         RETURNING id
     ''', (subject, paged_object, sequence_number))
+
+    logger.debug(
+        'Upserted an "is sequence number of" relation on %s to %s as %s.',
+        subject,
+        paged_object,
+        sequence_number
+    )
 
     return cursor
