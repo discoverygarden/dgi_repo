@@ -3,7 +3,7 @@ DB proxy.
 """
 
 from contextlib import closing
-from tempfile import SpooledTemporaryFile
+from dgi_repo.utilities import SpooledTemporaryFile
 
 import falcon
 import simplejson as json
