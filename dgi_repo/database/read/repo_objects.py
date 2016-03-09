@@ -24,6 +24,21 @@ def object_info(db_id, cursor=None):
     return cursor
 
 
+def namespace_info(namespace_id, cursor=None):
+    """
+    Query for namespace info from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM pid_namespaces
+        WHERE id = %s
+    ''', (namespace_id,))
+
+    return cursor
+
+
 def object_id(data, cursor=None):
     """
     Query for an object ID from the repository.

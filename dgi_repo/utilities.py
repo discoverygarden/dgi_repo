@@ -51,7 +51,7 @@ def make_pid(pid_namespace, pid_id):
                 pid_namespace
             )
         )
-    if (pid_id.count(PID_SEPARATOR)):
+    if (str(pid_id).count(PID_SEPARATOR)):
         raise ValueError(
             "Too many '{}' in the id: {}.".format(PID_SEPARATOR, pid_id)
         )
