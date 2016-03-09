@@ -57,3 +57,22 @@ def make_pid(pid_namespace, pid_id):
         )
 
     return '{}{}{}'.format(pid_namespace, PID_SEPARATOR, pid_id)
+
+
+def SpooledTemporaryFile(*args, **kwargs):
+    """
+    Call tempfile.SpooledTemporaryFile with configured defaults.
+    """
+    from tempfile import SpooledTemporaryFile
+
+    from dgi_repo.configuration import configuration
+
+    if args:
+        spooled_file = SpooledTemporaryFile(*args, **kwargs)
+    else:
+        spooled_file = SpooledTemporaryFile(
+            configuration['spooled_temp_file_size'],
+            **kwargs
+        )
+
+    return spooled_file

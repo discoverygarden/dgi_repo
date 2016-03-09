@@ -74,3 +74,6 @@ logging:
     root:
         level:      INFO
         handlers:   [dgi_repo]
+
+# Can be used to balance between memory usage and disk IO.
+spooled_temp_file_size: 4096

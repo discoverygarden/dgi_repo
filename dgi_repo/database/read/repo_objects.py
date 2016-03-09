@@ -9,6 +9,21 @@ from dgi_repo.database.utilities import check_cursor
 logger = logging.getLogger(__name__)
 
 
+def object_info(db_id, cursor=None):
+    """
+    Query for an object's information from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM objects
+        WHERE id = %s
+    ''', (db_id,))
+
+    return cursor
+
+
 def object_id(data, cursor=None):
     """
     Query for an object ID from the repository.
