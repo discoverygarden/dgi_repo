@@ -3,6 +3,7 @@ Relationship specific code.
 """
 
 # RDF namespaces.
+RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 ISLANDORA_RELS_EXT_NAMESPACE = 'http://islandora.ca/ontology/relsext#'
 ISLANDORA_RELS_INT_NAMESPACE = 'http://islandora.ca/ontology/relsint#'
 FEDORA_RELS_EXT_NAMESPACE = 'info:fedora/fedora-system:def/relations-external#'
