@@ -30,13 +30,14 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
             cursor
         )
     except KeyError:
-        predicate_id = predicate_id_from_raw(namespace, predicate, cursor)
+        cursor = predicate_id_from_raw(namespace, predicate, cursor)
+        predicate_id = cursor.fetchone()[0]
         cursor = write_to_general_rdf_table(
             predicate_id,
             subject,
             rdf_object,
             cursor
-    )
+        )
 
     return cursor
 

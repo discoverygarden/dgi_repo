@@ -82,3 +82,12 @@ def old_object_id(data, cursor=None):
     ''', data)
 
     return cursor
+
+
+def object_info_from_raw(data, cursor=None):
+    """
+    Get object info from a PID.
+    """
+    cursor = check_cursor(cursor)
+
+    return cursor

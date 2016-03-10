@@ -106,4 +106,4 @@ def predicate_id_from_raw(namespace, predicate, cursor=None):
         cursor
     )
 
-    return cursor.fetchone()[0]
+    return cursor
