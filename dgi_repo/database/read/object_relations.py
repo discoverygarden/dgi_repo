@@ -2,13 +2,9 @@
 Database helpers relating to the object relations.
 """
 
-import logging
-
 import dgi_repo.database.read.relations as relations_reader
 
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def read_relationship(namespace, predicate, subject=None, rdf_object=None, cursor=None):

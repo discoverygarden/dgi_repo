@@ -2,11 +2,7 @@
 Database helpers relating to relations.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def namespace_id(namespace, cursor=None):

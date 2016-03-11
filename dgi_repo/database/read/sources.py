@@ -2,11 +2,7 @@
 Database helpers relating to sources and users.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def source_id(source, cursor=None):
@@ -35,6 +31,21 @@ def user_id(data, cursor=None):
         FROM users
         WHERE username = %(name)s AND source_id = %(source)s
     ''', data)
+
+    return cursor
+
+
+def user_info(user_id, cursor=None):
+    """
+    Query for user information from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM users
+        WHERE id = %s
+    ''', (user_id,))
 
     return cursor
 

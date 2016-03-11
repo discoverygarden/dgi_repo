@@ -2,11 +2,7 @@
 Database helpers relating to datastreams.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def datastream(data, cursor=None):
