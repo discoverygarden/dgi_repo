@@ -2697,7 +2697,7 @@ CREATE TABLE old_datastreams (
     log bigint,
     state state NOT NULL,
     label text,
-    uri_id bigint,
+    resource_id bigint,
     committed timestamp with time zone NOT NULL
 );
 
@@ -2745,10 +2745,10 @@ COMMENT ON COLUMN old_datastreams.label IS 'Label of the datastream at the versi
 
 
 --
--- Name: COLUMN old_datastreams.uri_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN old_datastreams.resource_id; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN old_datastreams.uri_id IS 'URI to the resource at the version.';
+COMMENT ON COLUMN old_datastreams.resource_id IS 'URI to the resource at the version.';
 
 
 --
@@ -4572,7 +4572,7 @@ CREATE INDEX fki_old_datastream_log_link ON old_datastreams USING btree (log);
 -- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (uri_id);
+CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (resource_id);
 
 
 --
@@ -5605,7 +5605,7 @@ COMMENT ON CONSTRAINT old_datastream_log_link ON old_datastreams IS 'Old datastr
 --
 
 ALTER TABLE ONLY old_datastreams
-    ADD CONSTRAINT old_datastreams_uri_link FOREIGN KEY (uri_id) REFERENCES resources(id);
+    ADD CONSTRAINT old_datastreams_uri_link FOREIGN KEY (resource_id) REFERENCES resources(id);
 
 
 --

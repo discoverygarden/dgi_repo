@@ -35,7 +35,7 @@ def user_id(data, cursor=None):
     return cursor
 
 
-def user_info(user_id, cursor=None):
+def user(user_id, cursor=None):
     """
     Query for user information from the repository.
     """

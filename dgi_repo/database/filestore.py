@@ -138,3 +138,16 @@ def resolve_uri(uri):
     """
     scheme, _, path = uri.partition('://')
     return os.path.join(_URI_MAP[scheme]['dir'], path)
+
+
+def uri_size(uri):
+    """
+    Get the size of a resource.
+
+    Args:
+        uri: The URI to szie.
+
+    Return:
+        The file size.
+    """
+    return os.path.getsize(resolve_uri(uri))
