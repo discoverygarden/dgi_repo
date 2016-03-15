@@ -40,8 +40,7 @@ COMMENT ON TYPE checksum_algorithims IS 'Types of checksums.';
 
 CREATE TYPE datastream_control_group AS ENUM (
     'R',
-    'E',
-    'I',
+    'X',
     'M'
 );
 

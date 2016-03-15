@@ -13,7 +13,8 @@ SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
 
 
-def generate_foxml(pid, archival=False, inline_to_managed=False, cursor=None):
+def generate_foxml(pid, base_url='http://localhost:8080/fedora',
+                   archival=False, inline_to_managed=False, cursor=None):
     """
     Generate FOXML from a PID as a SpooledTemporaryFile.
     """
@@ -21,13 +22,15 @@ def generate_foxml(pid, archival=False, inline_to_managed=False, cursor=None):
     # Using a spooled temp file, double buffering will just eat memory.
     with etree.xmlfile(foxml_file, buffered=False, encoding="utf-8") as foxml:
         foxml.write_declaration(version='1.0')
-        populate_foxml_etree(foxml, pid, cursor=cursor, archival=archival)
+        populate_foxml_etree(foxml, pid, base_url=base_url, archival=archival,
+                             inline_to_managed=inline_to_managed,
+                             cursor=cursor)
         return foxml_file
     return None
 
 
-def populate_foxml_etree(foxml, pid, archival=False, inline_to_managed=False,
-                         cursor=None,):
+def populate_foxml_etree(foxml, pid, base_url='http://localhost:8080/fedora',
+                         archival=False, inline_to_managed=False, cursor=None):
     """
     Add FOXML from a PID into an lxml etree.
     """
@@ -46,7 +49,7 @@ def populate_foxml_etree(foxml, pid, archival=False, inline_to_managed=False,
         cursor = object_info_from_raw(pid, cursor=cursor)
         object_info = cursor.fetchone()
         populate_foxml_properties(foxml, object_info, cursor=cursor)
-        populate_foxml_datastreams(foxml, object_info, archival,
+        populate_foxml_datastreams(foxml, pid, object_info, base_url, archival,
                                    inline_to_managed, cursor)
 
 
@@ -102,8 +105,10 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
             foxml.write(element)
 
 
-def populate_foxml_datastreams(foxml, object_info, archival=False,
-                               inline_to_managed=False, cursor=None):
+def populate_foxml_datastreams(foxml, pid, object_info,
+                               base_url='http://localhost:8080/fedora',
+                               archival=False, inline_to_managed=False,
+                               cursor=None):
     """
     Add FOXML datastreams into an lxml etree.
     """
@@ -111,16 +116,22 @@ def populate_foxml_datastreams(foxml, object_info, archival=False,
     datastream_list = cursor.fetchall()
 
     for datastream in datastream_list:
-        populate_foxml_datastream(foxml, datastream, archival,
-                                  inline_to_managed, cursor)
+        populate_foxml_datastream(foxml, pid, datastream, base_url=base_url,
+                                  archival=archival,
+                                  inline_to_managed=inline_to_managed,
+                                  cursor=cursor)
 
 
-def populate_foxml_datastream(foxml, datastream, archival=False,
-                              inline_to_managed=False, cursor=None):
+def populate_foxml_datastream(foxml, pid, datastream,
+                              base_url='http://localhost:8080/fedora',
+                              archival=False, inline_to_managed=False,
+                              cursor=None):
     """
-    Add FOXML datastreams into an lxml etree.
+    Add a FOXML datastream into an lxml etree.
     """
-    from dgi_repo.database.filestore import uri_size
+    import base64
+
+    import dgi_repo.database.filestore as filestore
 
     datastream_attributes = {
         'ID': datastream['dsid'],
@@ -149,8 +160,8 @@ def populate_foxml_datastream(foxml, datastream, archival=False,
                 'CREATED': created,
                 'MIMETYPE': mime_info['mime'],
             }
-            if datastream['control_group'] is not 'R':
-                size = uri_size(resource_info['uri'])
+            if datastream['control_group'] != 'R':
+                size = filestore.uri_size(resource_info['uri'])
                 version_attributes['SIZE'] = str(size)
 
             version_element = etree.Element(
@@ -167,8 +178,39 @@ def populate_foxml_datastream(foxml, datastream, archival=False,
                     {'TYPE': checksum['type'], 'DIGEST': checksum['checksum']}
                 )
 
-            # @todo: Handle inline.
-            # @todo: Handle content location.
-            # @todo: Handle binary content.
+            # @XXX: Memory footprint can be reduced by not reading full files.
+            if datastream['control_group'] == 'X' and not inline_to_managed:
+                content_element = etree.Element(
+                    '{{{0}}}xmlContent'.format(FOXML_NAMESPACE)
+                )
+                uri = filestore.resolve_uri(resource_info['uri'])
+                xml_etree = etree.parse(uri)
+                content_element.append(xml_etree.getroot())
+            elif datastream['control_group'] in ['M', 'X'] and archival:
+                uri = filestore.resolve_uri(resource_info['uri'])
+                with open(uri, 'rb') as ds_file:
+                    content_element = etree.Element(
+                        '{{{0}}}binaryContent'.format(FOXML_NAMESPACE)
+                    )
+                    content_element.text = base64.b64encode(ds_file.read())
+            else:
+                if datastream['control_group'] == 'R':
+                    content_attributes = {
+                        'TYPE': 'URL',
+                        'REF': resource_info['uri'],
+                    }
+                else:
+                    content_attributes = {
+                        'TYPE': 'INTERNAL_ID',
+                        'REF': '{}/get/{}/{}/{}'.format(base_url, pid,
+                                                        datastream['dsid'],
+                                                        created),
+                    }
 
+                content_element = etree.Element(
+                    '{{{0}}}contentLocation'.format(FOXML_NAMESPACE),
+                    content_attributes
+                )
+
+            version_element.append(content_element)
             foxml.write(version_element)
