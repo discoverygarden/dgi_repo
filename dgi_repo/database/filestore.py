@@ -123,7 +123,8 @@ def purge(*resource_ids):
             logger.debug('Deleted %s (%s).', uri, path)
 
             delete_resource(resource_id, cursor)
-            logger.info('Resource ID %s (%s, %s) has been deleted.', resource_id, uri, path)
+            logger.info('Resource ID %s (%s, %s) has been deleted.',
+                        resource_id, uri, path)
 
 
 def resolve_uri(uri):
