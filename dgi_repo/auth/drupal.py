@@ -42,7 +42,7 @@ def authenticate(identity):
     from dgi_repo.configuration import configuration
 
     if not hasattr(identity, 'site'):
-        logger.warn('Got request without site token.')
+        logger.warning('Got request without site token.')
         return False
 
     if identity.login == 'anonymous' and identity.key == 'anonymous':
