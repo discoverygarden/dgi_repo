@@ -61,21 +61,19 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
     object_state_map = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
 
     with foxml.element('{{{0}}}objectProperties'.format(FOXML_NAMESPACE)):
-
-        elements = []
         property_element = '{{{0}}}property'.format(FOXML_NAMESPACE)
 
         state_attributes = {
             'VALUE': object_state_map[object_info['state']],
             'NAME': '{}state'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        elements.append(etree.Element(property_element, state_attributes))
+        foxml.write(etree.Element(property_element, state_attributes))
 
         label_attributes = {
             'VALUE': object_info['label'] if object_info['label'] else '',
             'NAME': '{}label'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        elements.append(etree.Element(property_element, label_attributes))
+        foxml.write(etree.Element(property_element, label_attributes))
 
         user(object_info['owner'], cursor=cursor)
         owner_information = cursor.fetchone()
@@ -83,24 +81,21 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
             'VALUE': owner_information['username'],
             'NAME': '{}ownerId'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        elements.append(etree.Element(property_element, owner_attributes))
+        foxml.write(etree.Element(property_element, owner_attributes))
 
         created_date_attributes = {
             'VALUE': object_info['created'].isoformat(),
             'NAME': '{}createdDate'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        elements.append(etree.Element(property_element,
+        foxml.write(etree.Element(property_element,
                                       created_date_attributes))
 
         modified_date_attributes = {
             'VALUE': object_info['modified'].isoformat(),
             'NAME': 'info:fedora/fedora-system:def/view#lastModifiedDate',
         }
-        elements.append(etree.Element(property_element,
+        foxml.write(etree.Element(property_element,
                                       modified_date_attributes))
-
-        for element in elements:
-            foxml.write(element)
 
 
 def populate_foxml_datastreams(foxml, pid, object_info,
