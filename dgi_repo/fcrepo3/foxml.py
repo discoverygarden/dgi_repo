@@ -36,8 +36,6 @@ def populate_foxml_etree(foxml, pid, base_url='http://localhost:8080/fedora',
     """
     from dgi_repo.database.read.repo_objects import object_info_from_raw
 
-    pid_namespace, pid_id = utils.break_pid(pid)
-
     attributes = {
         'VERSION': '1.1',
         'PID': pid,
