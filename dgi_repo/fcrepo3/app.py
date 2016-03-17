@@ -3,10 +3,10 @@ from falcon_multipart.middleware import MultipartMiddleware
 from talons.auth import middleware
 from talons.auth.external import Authenticator, Authorizer
 from dgi_repo.utilities import bootstrap
-from dgi_repo.configuration import configuration
-from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier, authenticate
-from .authorize import authorize
-from . import resources
+from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier
+from dgi_repo.auth.drupal import authenticate
+from dgi_repo.fcrepo3.authorize import authorize
+from dgi_repo.fcrepo3 import resources
 from dgi_repo.database.proxy import ProxyResource
 
 bootstrap()

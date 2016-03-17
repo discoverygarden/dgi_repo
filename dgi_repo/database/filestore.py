@@ -34,11 +34,13 @@ _URI_MAP = {
 
 for scheme, info in _URI_MAP.items():
     try:
-        logger.debug('Ensuring %s exists and is both readable and writable.', info['dir'])
+        logger.debug('Ensuring %s exists and is both readable and writable.',
+                     info['dir'])
         os.makedirs(info['dir'], exist_ok=True)
         logger.debug('%s exists.', info['dir'])
     except OSError as e:
-        raise RuntimeError('The path "%s" does not exist for the scheme "%s", and could not be created.', info['dir'], scheme) from e
+        message = 'The path "%s" does not exist for the scheme "%s", and could not be created.'
+        raise RuntimeError(message, info['dir'], scheme) from e
     else:
         if not os.access(info['dir'], os.W_OK):
             raise RuntimeError('The path "%s" is not writable.', info['dir'])
@@ -46,13 +48,14 @@ for scheme, info in _URI_MAP.items():
             raise RuntimeError('The path "%s" is not readable.', info['dir'])
 
 
-def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-stream'):
+def stash(data, destination_scheme=UPLOAD_SCHEME,
+          mimetype='application/octet-stream'):
     """
     Persist data, likely in our data directory.
 
     Args:
         data: Either a file-like object or a (byte)string to dump into a file.
-        destination_scheme: One of the keys of URI_MAP. Defaults to UPLOADED_URI.
+        destination_scheme: One of URI_MAP's keys. Defaults to UPLOADED_URI.
         mimetype: The MIME-type of the file.
 
     Returns:
@@ -75,7 +78,8 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
     try:
         destination = _URI_MAP[destination_scheme]
         connection = get_connection()
-        with streamify() as src, NamedTemporaryFile(delete=False, **destination) as dest:
+        with streamify() as src,
+             NamedTemporaryFile(delete=False, **destination) as dest:
             name = os.path.relpath(dest.name, destination['dir'])
             uri = '{}://{}'.format(destination_scheme, name)
 
@@ -95,7 +99,8 @@ def stash(data, destination_scheme=UPLOAD_SCHEME, mimetype='application/octet-st
             logger.debug('Stashing data as %s.', dest.name)
             copyfileobj(src, dest)
     except:
-        logger.exception('Attempting to delete %s (%s) due to exception.', uri, dest.name)
+        logger.exception('Attempting to delete %s (%s) due to exception.',
+                         uri, dest.name)
         os.remove(dest.name)
         raise
     else:
@@ -115,7 +120,11 @@ def purge(*resource_ids):
             uri = resource_uri(resource_id, cursor).fetchone()[0]
             path = resolve_uri(uri)
             if not os.path.exists(path):
-                logger.warning('Skipping deletion: %s (%s) does not appear to exist.', uri, path)
+                logger.warning(
+                    'Skipping deletion: %s (%s) does not appear to exist.',
+                    uri,
+                    path
+                )
                 continue
 
             logger.debug('Deleting %s (%s).', uri, path)
