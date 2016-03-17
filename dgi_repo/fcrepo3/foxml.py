@@ -67,13 +67,13 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
             'VALUE': object_state_map[object_info['state']],
             'NAME': '{}state'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.element(property_element, state_attributes)
+        foxml.write(etree.Element(property_element, state_attributes))
 
         label_attributes = {
             'VALUE': object_info['label'] if object_info['label'] else '',
             'NAME': '{}label'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.element(property_element, label_attributes)
+        foxml.write(etree.Element(property_element, label_attributes))
 
         user(object_info['owner'], cursor=cursor)
         owner_information = cursor.fetchone()
@@ -81,21 +81,21 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
             'VALUE': owner_information['username'],
             'NAME': '{}ownerId'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.element(property_element, owner_attributes)
+        foxml.write(etree.Element(property_element, owner_attributes))
 
         created_date_attributes = {
             'VALUE': object_info['created'].isoformat(),
             'NAME': '{}createdDate'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.element(property_element,
-                                      created_date_attributes)
+        foxml.write(etree.Element(property_element,
+                                  created_date_attributes))
 
         modified_date_attributes = {
             'VALUE': object_info['modified'].isoformat(),
             'NAME': 'info:fedora/fedora-system:def/view#lastModifiedDate',
         }
-        foxml.element(property_element,
-                                      modified_date_attributes)
+        foxml.write(etree.Element(property_element,
+                                  modified_date_attributes))
 
 
 def populate_foxml_datastreams(foxml, pid, object_info,
