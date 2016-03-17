@@ -165,6 +165,7 @@ def old_datastreams(ds_db_id, cursor=None):
         SELECT *
         FROM old_datastreams
         WHERE current_datastream = %s
+        ORDER BY committed
     ''', (ds_db_id,))
 
     return cursor
