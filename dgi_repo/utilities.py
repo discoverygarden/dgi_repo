@@ -70,9 +70,13 @@ def SpooledTemporaryFile(*args, **kwargs):
     if args:
         spooled_file = SpooledTemporaryFile(*args, **kwargs)
     else:
-        spooled_file = SpooledTemporaryFile(
-            configuration['spooled_temp_file_size'],
-            **kwargs
-        )
+        try:
+            if kwargs['max_size']:
+                spooled_file = SpooledTemporaryFile(**kwargs)
+        except KeyError:
+            spooled_file = SpooledTemporaryFile(
+                configuration['spooled_temp_file_size'],
+                **kwargs
+            )
 
     return spooled_file
