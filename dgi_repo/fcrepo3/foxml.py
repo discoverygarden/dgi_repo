@@ -67,13 +67,13 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
             'VALUE': object_state_map[object_info['state']],
             'NAME': '{}state'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.write(etree.Element(property_element, state_attributes))
+        foxml.element(property_element, state_attributes)
 
         label_attributes = {
             'VALUE': object_info['label'] if object_info['label'] else '',
             'NAME': '{}label'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.write(etree.Element(property_element, label_attributes))
+        foxml.element(property_element, label_attributes)
 
         user(object_info['owner'], cursor=cursor)
         owner_information = cursor.fetchone()
@@ -81,21 +81,21 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
             'VALUE': owner_information['username'],
             'NAME': '{}ownerId'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.write(etree.Element(property_element, owner_attributes))
+        foxml.element(property_element, owner_attributes)
 
         created_date_attributes = {
             'VALUE': object_info['created'].isoformat(),
             'NAME': '{}createdDate'.format(relations.FEDORA_MODEL_NAMESPACE),
         }
-        foxml.write(etree.Element(property_element,
-                                      created_date_attributes))
+        foxml.element(property_element,
+                                      created_date_attributes)
 
         modified_date_attributes = {
             'VALUE': object_info['modified'].isoformat(),
             'NAME': 'info:fedora/fedora-system:def/view#lastModifiedDate',
         }
-        foxml.write(etree.Element(property_element,
-                                      modified_date_attributes))
+        foxml.element(property_element,
+                                      modified_date_attributes)
 
 
 def populate_foxml_datastreams(foxml, pid, object_info,
@@ -157,53 +157,50 @@ def populate_foxml_datastream(foxml, pid, datastream,
                 size = filestore.uri_size(resource_info['uri'])
                 version_attributes['SIZE'] = str(size)
 
-            version_element = etree.Element(
-                '{{{0}}}datastreamVersion'.format(FOXML_NAMESPACE),
-                version_attributes
-            )
+            with  foxml.element('{{{0}}}datastreamVersion'.format(
+                FOXML_NAMESPACE), version_attributes):
 
-            read_datastreams.checksums(version['resource_id'], cursor=cursor)
-            checksums = cursor.fetchall()
-            for checksum in checksums:
-                etree.SubElement(
-                    version_element,
-                    '{{{0}}}datastreamDigest'.format(FOXML_NAMESPACE),
-                    {'TYPE': checksum['type'], 'DIGEST': checksum['checksum']}
-                )
+                read_datastreams.checksums(version['resource_id'],
+                                           cursor=cursor)
+                checksums = cursor.fetchall()
+                for checksum in checksums:
+                    foxml.write(etree.Element(
+                        '{{{0}}}datastreamDigest'.format(FOXML_NAMESPACE),
+                        {
+                            'TYPE': checksum['type'],
+                            'DIGEST': checksum['checksum']
+                        }
+                    ))
 
-            # @XXX: Memory footprint can be reduced by not reading full files.
-            if datastream['control_group'] == 'X' and not inline_to_managed:
-                content_element = etree.Element(
-                    '{{{0}}}xmlContent'.format(FOXML_NAMESPACE)
-                )
-                uri = filestore.resolve_uri(resource_info['uri'])
-                xml_etree = etree.parse(uri)
-                content_element.append(xml_etree.getroot())
-            elif datastream['control_group'] in ['M', 'X'] and archival:
-                uri = filestore.resolve_uri(resource_info['uri'])
-                with open(uri, 'rb') as ds_file:
+                if datastream['control_group'] == 'X' and not inline_to_managed:
                     content_element = etree.Element(
-                        '{{{0}}}binaryContent'.format(FOXML_NAMESPACE)
+                        '{{{0}}}xmlContent'.format(FOXML_NAMESPACE)
                     )
-                    content_element.text = base64.b64encode(ds_file.read())
-            else:
-                if datastream['control_group'] == 'R':
-                    content_attributes = {
-                        'TYPE': 'URL',
-                        'REF': resource_info['uri'],
-                    }
+                    uri = filestore.resolve_uri(resource_info['uri'])
+                    xml_etree = etree.parse(uri)
+                    content_element.append(xml_etree.getroot())
+                    foxml.write(content_element)
+                elif datastream['control_group'] in ['M', 'X'] and archival:
+                    uri = filestore.resolve_uri(resource_info['uri'])
+                    with open(uri, 'rb') as ds_file:
+                        with foxml.element('{{{0}}}binaryContent'.format(
+                                           FOXML_NAMESPACE)):
+                            base64.encode(ds_file, foxml)
                 else:
-                    content_attributes = {
-                        'TYPE': 'INTERNAL_ID',
-                        'REF': ('{}/objects/{}/datastreams/{}/'
-                                'content?asOfDateTime={}').format(base_url, pid,
-                                    datastream['dsid'], created),
-                    }
+                    if datastream['control_group'] == 'R':
+                        content_attributes = {
+                            'TYPE': 'URL',
+                            'REF': resource_info['uri'],
+                        }
+                    else:
+                        content_attributes = {
+                            'TYPE': 'INTERNAL_ID',
+                            'REF': ('{}/objects/{}/datastreams/{}/'
+                                    'content?asOfDateTime={}').format(base_url,
+                                        pid, datastream['dsid'], created),
+                        }
 
-                content_element = etree.Element(
-                    '{{{0}}}contentLocation'.format(FOXML_NAMESPACE),
-                    content_attributes
-                )
-
-            version_element.append(content_element)
-            foxml.write(version_element)
+                    foxml.write(etree.Element(
+                        '{{{0}}}contentLocation'.format(FOXML_NAMESPACE),
+                        content_attributes
+                    ))
