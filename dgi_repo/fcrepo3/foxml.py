@@ -195,9 +195,9 @@ def populate_foxml_datastream(foxml, pid, datastream,
                 else:
                     content_attributes = {
                         'TYPE': 'INTERNAL_ID',
-                        'REF': '{}/get/{}/{}/{}'.format(base_url, pid,
-                                                        datastream['dsid'],
-                                                        created),
+                        'REF': ('{}/objects/{}/datastreams/{}/'
+                                'content?asOfDateTime={}').format(base_url, pid,
+                                    datastream['dsid'], created),
                     }
 
                 content_element = etree.Element(
