@@ -134,8 +134,9 @@ def populate_foxml_datastream(foxml, pid, datastream,
     }
     with foxml.element('{{{0}}}datastream'.format(FOXML_NAMESPACE),
                        datastream_attributes):
-        versions = [datastream]
+        versions = []
         versions.extend(read_datastreams.old_datastreams(datastream['id']))
+        versions.append(datastream)
 
         for index, version in enumerate(versions):
             read_datastreams.resource(version['resource_id'], cursor=cursor)
@@ -157,7 +158,7 @@ def populate_foxml_datastream(foxml, pid, datastream,
                 size = filestore.uri_size(resource_info['uri'])
                 version_attributes['SIZE'] = str(size)
 
-            with  foxml.element('{{{0}}}datastreamVersion'.format(
+            with foxml.element('{{{0}}}datastreamVersion'.format(
                 FOXML_NAMESPACE), version_attributes):
 
                 read_datastreams.checksums(version['resource_id'],
