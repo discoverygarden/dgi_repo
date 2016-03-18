@@ -115,7 +115,7 @@ def purge(*resource_ids):
             uri = resource_uri(resource_id, cursor).fetchone()[0]
             path = resolve_uri(uri)
             if not os.path.exists(path):
-                logger.warn('Skipping deletion: %s (%s) does not appear to exist.', uri, path)
+                logger.warning('Skipping deletion: %s (%s) does not appear to exist.', uri, path)
                 continue
 
             logger.debug('Deleting %s (%s).', uri, path)
@@ -123,7 +123,8 @@ def purge(*resource_ids):
             logger.debug('Deleted %s (%s).', uri, path)
 
             delete_resource(resource_id, cursor)
-            logger.info('Resource ID %s (%s, %s) has been deleted.', resource_id, uri, path)
+            logger.info('Resource ID %s (%s, %s) has been deleted.',
+                        resource_id, uri, path)
 
 
 def resolve_uri(uri):

@@ -42,7 +42,7 @@ def authenticate(identity):
     from dgi_repo.configuration import configuration
 
     if not hasattr(identity, 'site'):
-        logger.warn('Got request without site token.')
+        logger.warning('Got request without site token.')
         return False
 
     if identity.login == 'anonymous' and identity.key == 'anonymous':
@@ -79,13 +79,15 @@ WHERE u.name=%s AND u.pass=%s'''
                     identity.drupal_user_id = uid
                 identity.roles.add(role)
             identity.roles.add('authenticated user')
-            logger.info('Authenticated %s:%s with roles: %s', identity.site, identity.login, identity.roles)
+            logger.info('Authenticated %s:%s with roles: %s', identity.site,
+                        identity.login, identity.roles)
             return True
         else:
-            logger.info('Failed to authenticate %s:%s.', identity.site, identity.login)
+            logger.info('Failed to authenticate %s:%s.', identity.site,
+                        identity.login)
             return False
     except:
-        logger.exception('Error while authenticating using Drupal credentials.')
+        logger.exception('Error while authenticating with Drupal credentials.')
     finally:
         try:
             cursor.close()
