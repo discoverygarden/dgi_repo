@@ -157,7 +157,11 @@ class PidResource(api.PidResource):
         for pid_id in range(highest_id - numPIDs + 1, highest_id + 1):
             pids.append(utils.make_pid(namespace, pid_id))
 
-        logger.info('Getting new PIDs: %s.', pids)
+        if numPIDs == 1:
+            pids_to_log = pids
+        else:
+            pids_to_log = '{}-{}'.format(pids[0], pids[-1])
+        logger.info('Getting new PID(s): %s.', pids_to_log)
 
         return pids
 
