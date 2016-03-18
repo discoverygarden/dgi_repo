@@ -2,11 +2,37 @@
 Database helpers relating to repository objects.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
 
-logger = logging.getLogger(__name__)
+
+def object_info(db_id, cursor=None):
+    """
+    Query for an object's information from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM objects
+        WHERE id = %s
+    ''', (db_id,))
+
+    return cursor
+
+
+def namespace_info(namespace_id, cursor=None):
+    """
+    Query for namespace info from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM pid_namespaces
+        WHERE id = %s
+    ''', (namespace_id,))
+
+    return cursor
 
 
 def object_id(data, cursor=None):
@@ -18,7 +44,7 @@ def object_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM objects
-        WHERE objects.pid_id = '%(pid_id)s' AND namespace = %(namespace)s
+        WHERE objects.pid_id = %(pid_id)s AND namespace = %(namespace)s
     ''', data)
 
     return cursor
@@ -50,5 +76,25 @@ def old_object_id(data, cursor=None):
         FROM old_objects
         WHERE current_object = %(object)s AND committed = %(committed)s
     ''', data)
+
+    return cursor
+
+
+def object_info_from_raw(pid, cursor=None):
+    """
+    Get object info from a PID.
+    """
+    from dgi_repo import utilities
+
+    cursor = check_cursor(cursor)
+    namespace, pid_id = utilities.break_pid(pid)
+
+    namespace_id(namespace, cursor=cursor)
+    namespace_db_id = cursor.fetchone()[0]
+
+    object_id({'namespace': namespace_db_id, 'pid_id': pid_id}, cursor=cursor)
+    object_db_id = cursor.fetchone()[0]
+
+    object_info(object_db_id, cursor=cursor)
 
     return cursor

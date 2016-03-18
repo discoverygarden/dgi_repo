@@ -2,11 +2,7 @@
 Database helpers relating to relations.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def namespace_id(namespace, cursor=None):
@@ -100,10 +96,10 @@ def predicate_id_from_raw(namespace, predicate, cursor=None):
     cursor = check_cursor(cursor)
 
     namespace_id(namespace, cursor)
-    namespace_db_id = cursor.fetchone()
+    namespace_db_id, = cursor.fetchone()
     predicate_id(
         {'namespace': namespace_db_id, 'predicate': predicate},
         cursor
     )
 
-    return cursor.fetchone()
+    return cursor

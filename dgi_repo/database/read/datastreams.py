@@ -2,11 +2,7 @@
 Database helpers relating to datastreams.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def datastream(data, cursor=None):
@@ -20,6 +16,21 @@ def datastream(data, cursor=None):
         FROM datastreams
         WHERE object_id = %(object)s AND dsid = %(dsid)s
     ''', data)
+
+    return cursor
+
+
+def datastreams(object_id, cursor=None):
+    """
+    Query for all datastreams on an object.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM datastreams
+        WHERE object_id = %s
+    ''', (object_id,))
 
     return cursor
 
@@ -54,6 +65,21 @@ def resource_id(uri, cursor=None):
     return cursor
 
 
+def resource(id, cursor=None):
+    """
+    Query for resource information from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM resources
+        WHERE id = %s
+    ''', (id,))
+
+    return cursor
+
+
 def resource_uri(id, cursor=None):
     """
     Query for a resource URI from the repository.
@@ -65,6 +91,21 @@ def resource_uri(id, cursor=None):
         FROM resources
         WHERE id = %s
     ''', (id,))
+
+    return cursor
+
+
+def mime(mime_id, cursor=None):
+    """
+    Query for mime information from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM mimes
+        WHERE id = %s
+    ''', (mime_id,))
 
     return cursor
 
@@ -84,7 +125,7 @@ def mime_id(mime, cursor=None):
     return cursor
 
 
-def checksum_id(uri, cursor=None):
+def checksum_id(resource_id, cursor=None):
     """
     Query for a checksum record from the repository.
     """
@@ -94,7 +135,38 @@ def checksum_id(uri, cursor=None):
         SELECT id
         FROM checksums
         WHERE uri = %s
-    ''', (uri,))
+    ''', (resource_id,))
+
+    return cursor
+
+
+def checksums(resource_id, cursor=None):
+    """
+    Query for all checksums on a resource from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM checksums
+        WHERE uri = %s
+    ''', (resource_id,))
+
+    return cursor
+
+
+def old_datastreams(ds_db_id, cursor=None):
+    """
+    Query for old versions of a datastream.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM old_datastreams
+        WHERE current_datastream = %s
+        ORDER BY committed
+    ''', (ds_db_id,))
 
     return cursor
 

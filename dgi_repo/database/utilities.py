@@ -206,6 +206,8 @@ def get_connection():
     """
 
     from psycopg2 import connect
+    from psycopg2.extras import DictCursor
+    from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
 
     from dgi_repo.configuration import configuration
 
@@ -216,7 +218,11 @@ def get_connection():
         configuration['database']['host']
     )
 
-    return connect(connection_string)
+    connection = connect(connection_string, cursor_factory=DictCursor)
+
+    connection.set_isolation_level(ISOLATION_LEVEL_REPEATABLE_READ)
+
+    return connection
 
 
 def check_cursor(cursor=None):
@@ -261,7 +267,7 @@ def install_base_data():
             for namespace, predicates in rels.items():
 
                 relations_writer.upsert_namespace(namespace, cursor)
-                namespace_id = cursor.fetchone()
+                namespace_id, = cursor.fetchone()
 
                 for predicate in predicates:
                     relations_writer.upsert_predicate(

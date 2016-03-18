@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import falcon
 from lxml import etree
-from tempfile import SpooledTemporaryFile
+from dgi_repo.utilities import SpooledTemporaryFile
 from time import strptime
 
 FEDORA_ACCESS_URI = 'http://www.fedora.info/definitions/1/0/access/'

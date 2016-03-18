@@ -2,11 +2,7 @@
 Database helpers relating to the log.
 """
 
-import logging
-
 from dgi_repo.database.utilities import check_cursor
-
-logger = logging.getLogger(__name__)
 
 
 def log_id(log, cursor=None):

@@ -167,7 +167,7 @@ def upsert_old_datastream(data, cursor=None):
             log,
             state,
             label,
-            uri_id,
+            resource_id,
             committed
         )
         VALUES (

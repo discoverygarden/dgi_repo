@@ -2,11 +2,7 @@
 Database helpers relating to datastream relations.
 """
 
-import logging
-
 import dgi_repo.database.read.relations as relations_reader
-
-logger = logging.getLogger(__name__)
 
 
 def read_relationship(namespace, predicate, subject=None, rdf_object=None, cursor=None):
@@ -23,11 +19,12 @@ def read_relationship(namespace, predicate, subject=None, rdf_object=None, curso
             cursor
         )
     except KeyError:
-        predicate_id = relations_reader.predicate_id_from_raw(
+        cursor = relations_reader.predicate_id_from_raw(
             namespace,
             predicate,
             cursor
         )
+        predicate_id = cursor.fetchone()[0]
         cursor = read_from_general_rdf_table(
             predicate_id,
             subject,
