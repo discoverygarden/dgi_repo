@@ -2,9 +2,16 @@
 Falcon Resource implementations.
 """
 
-from . import api
 import base64
+import logging
 import io
+
+from dgi_repo import utilities as utils
+from dgi_repo.fcrepo3 import api
+from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.database.write.repo_objects import get_pid_ids
+
+logger = logging.getLogger(__name__)
 
 route_map = {
     '/describe': api.DescribeResource
@@ -138,10 +145,25 @@ class UploadResource(api.UploadResource):
 
 @route('/objects/nextPID')
 class PidResource(api.PidResource):
+
     def _get_pids(self, numPIDs=1, namespace=None):
-        # TODO: Allocate PIDs and return in iterable (method as generator or a
-        # list or otherwise).
-        return ("{0}:{1}".format(namespace, i) for i in range(0, numPIDs))
+        if namespace is None:
+            namespace = _configuration['default_namespace']
+
+        namespace_info = get_pid_ids(namespace, numPIDs)
+        highest_id = namespace_info.fetchone()['highest_id']
+        pids = []
+
+        for pid_id in range(highest_id - numPIDs + 1, highest_id + 1):
+            pids.append(utils.make_pid(namespace, pid_id))
+
+        if numPIDs == 1:
+            pids_to_log = pids
+        else:
+            pids_to_log = '{}-{}'.format(pids[0], pids[-1])
+        logger.info('Getting new PID(s): %s.', pids_to_log)
+
+        return pids
 
 
 @route('/objects/{pid}')

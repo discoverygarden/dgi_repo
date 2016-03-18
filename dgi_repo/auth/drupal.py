@@ -8,7 +8,10 @@ default?)... Or materialization directly out of YAML
 (http://pyyaml.org/wiki/PyYAMLDocumentation#YAMLtagsandPythontypes)?
 """
 import logging
+
 import talons.auth.basicauth
+
+from dgi_repo.configuration import configuration as _configuration
 
 """
 A mapping of tokens to callables.
@@ -38,10 +41,7 @@ def authenticate(identity):
     Returns:
         A boolean indicating if the given identity authenticates.
     """
-
-    from dgi_repo.configuration import configuration
-
-    if not hasattr(identity, 'site'):
+    if not hasattr(identity, 'site') or identity.site is None:
         logger.warning('Got request without site token.')
         return False
 
@@ -53,7 +53,7 @@ def authenticate(identity):
         return True
 
     # Grab the config for the selected site.
-    db_info = configuration['drupal_sites'][identity.site]['database']
+    db_info = _configuration['drupal_sites'][identity.site]['database']
     query = db_info['query'] if 'query' in db_info else '''SELECT DISTINCT u.uid, r.name
 FROM (
   users u
@@ -124,10 +124,7 @@ def get_connection(site):
     """
     Get a connection for the given site.
     """
-
-    from dgi_repo.configuration import configuration
-
-    config = configuration['drupal_sites'][site]['database']
+    config = _configuration['drupal_sites'][site]['database']
     return _CONNECTORS[config['type']](config['connection'])
 
 

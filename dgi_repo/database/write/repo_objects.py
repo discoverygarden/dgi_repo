@@ -7,8 +7,9 @@ control.
 
 import logging
 
+from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.configuration import configuration
+from dgi_repo.database.read.repo_objects import old_object_id
 
 logger = logging.getLogger(__name__)
 
@@ -17,20 +18,34 @@ def get_pid_id(namespace=None, cursor=None):
     """
     Get an auto-incremented PID from the given namespace.
     """
+    if namespace is None:
+        namespace = _configuration['default_namespace']
+
+    cursor = get_pid_ids(namespace, cursor=cursor)
+
+    logger.debug("Retrieved a new PID in %s.", namespace)
+
+    return cursor
+
+
+def get_pid_ids(namespace=None, num_pids=1, cursor=None):
+    """
+    Get auto-incremented PIDs from the given namespace.
+    """
     cursor = check_cursor(cursor)
 
     if namespace is None:
-        namespace = configuration['default_namespace']
+        namespace = _configuration['default_namespace']
 
     cursor.execute('''
         INSERT INTO pid_namespaces (namespace, highest_id)
-        VALUES (%s, 1)
+        VALUES (%(namespace)s, %(num_pids)s)
         ON CONFLICT (namespace) DO UPDATE
-        SET highest_id = pid_namespaces.highest_id + 1
+        SET highest_id = pid_namespaces.highest_id + %(num_pids)s
         RETURNING highest_id, id
-    ''', (namespace,))
+    ''', ({'namespace': namespace, 'num_pids': num_pids}))
 
-    logger.debug("Retrieved a new PID in %s.", namespace)
+    logger.debug("Retrieved new PIDs in %s.", namespace)
 
     return cursor
 
@@ -43,7 +58,7 @@ def upsert_object(data, cursor=None):
 
     # Set some defaults.
     if 'namespace' not in data:
-        data['namespace'] = configuration['default_namespace']
+        data['namespace'] = _configuration['default_namespace']
     if 'state' not in data:
         data['state'] = 'A'
     if 'label' not in data:
@@ -54,11 +69,14 @@ def upsert_object(data, cursor=None):
         data['log'] = None
 
     cursor.execute('''
-        INSERT INTO objects (pid_id, namespace, state, owner, label, versioned, log, created, modified)
-        VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s, %(versioned)s, %(log)s, now(), now())
+        INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
+                             log, created, modified)
+        VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s,
+                %(versioned)s, %(log)s, now(), now())
         ON CONFLICT (pid_id, namespace) DO UPDATE
-        SET (pid_id, namespace, state, owner, label, versioned, log, modified) =
-            (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s, %(versioned)s, %(log)s, now())
+        SET (pid_id, namespace, state, owner, label, versioned, log,
+             modified) = (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s,
+             %(label)s, %(versioned)s, %(log)s, now())
         RETURNING id
     ''', data)
 
@@ -74,8 +92,6 @@ def upsert_old_object(data, cursor=None):
     """
     Upsert an old object version in the repository.
     """
-    from dgi_repo.database.read.repo_objects import old_object_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''
