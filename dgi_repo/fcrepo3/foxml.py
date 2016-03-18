@@ -134,8 +134,7 @@ def populate_foxml_datastream(foxml, pid, datastream,
     }
     with foxml.element('{{{0}}}datastream'.format(FOXML_NAMESPACE),
                        datastream_attributes):
-        versions = []
-        versions.extend(read_datastreams.old_datastreams(datastream['id']))
+        versions = list(read_datastreams.old_datastreams(datastream['id']))
         versions.append(datastream)
 
         for index, version in enumerate(versions):
