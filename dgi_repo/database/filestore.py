@@ -78,8 +78,8 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
     try:
         destination = _URI_MAP[destination_scheme]
         connection = get_connection()
-        with streamify() as src,
-             NamedTemporaryFile(delete=False, **destination) as dest:
+        with streamify() as src, NamedTemporaryFile(delete=False,
+                                                    **destination) as dest:
             name = os.path.relpath(dest.name, destination['dir'])
             uri = '{}://{}'.format(destination_scheme, name)
 

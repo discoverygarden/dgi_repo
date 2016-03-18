@@ -70,15 +70,13 @@ def SpooledTemporaryFile(*args, **kwargs):
     # Because it's the first arg; if there are args the max_size is overridden.
     if args:
         spooled_file = SpooledTemporaryFile(*args, **kwargs)
+    elif 'max_size' in kwargs:
+        # Favour a keyword max_size over our defaults.
+        spooled_file = SpooledTemporaryFile(**kwargs)
     else:
-        try:
-            # Favour a keyword max_size over our defaults.
-            if kwargs['max_size']:
-                spooled_file = SpooledTemporaryFile(**kwargs)
-        except KeyError:
-            spooled_file = SpooledTemporaryFile(
-                configuration['spooled_temp_file_size'],
-                **kwargs
-            )
+        spooled_file = SpooledTemporaryFile(
+            configuration['spooled_temp_file_size'],
+            **kwargs
+        )
 
     return spooled_file
