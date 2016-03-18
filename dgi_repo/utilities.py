@@ -67,10 +67,12 @@ def SpooledTemporaryFile(*args, **kwargs):
 
     from dgi_repo.configuration import configuration
 
+    # Because it's the first arg; if there are args the max_size is overridden.
     if args:
         spooled_file = SpooledTemporaryFile(*args, **kwargs)
     else:
         try:
+            # Favour a keyword max_size over our defaults.
             if kwargs['max_size']:
                 spooled_file = SpooledTemporaryFile(**kwargs)
         except KeyError:
