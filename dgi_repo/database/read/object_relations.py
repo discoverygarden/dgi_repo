@@ -5,14 +5,14 @@ Database helpers relating to the object relations.
 import dgi_repo.database.read.relations as relations_reader
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.utilities import OBJECT_RELATION_MAP
 
 
-def read_relationship(namespace, predicate, subject=None, rdf_object=None, cursor=None):
+def read_relationship(namespace, predicate, subject=None, rdf_object=None,
+                      cursor=None):
     """
     Read an object relation from the repository.
     """
-    from dgi_repo.database.utilities import OBJECT_RELATION_MAP
-
     try:
         cursor = relations_reader.read_from_standard_relation_table(
             OBJECT_RELATION_MAP[(namespace, predicate)]['table'],
@@ -37,7 +37,8 @@ def read_relationship(namespace, predicate, subject=None, rdf_object=None, curso
     return cursor
 
 
-def read_from_general_rdf_table(predicate, subject=None, rdf_object=None, cursor=None):
+def read_from_general_rdf_table(predicate, subject=None, rdf_object=None,
+                                cursor=None):
     """
     Read from the general object RDF table.
     """

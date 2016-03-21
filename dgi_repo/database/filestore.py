@@ -15,7 +15,6 @@ from dgi_repo.database.delete.datastreams import delete_resource
 
 logger = logging.getLogger(__name__)
 
-
 UPLOAD_SCHEME = 'uploaded'
 '''
 A mapping of URI schemes to dictionaries of parameters to pass to
@@ -39,7 +38,8 @@ for scheme, info in _URI_MAP.items():
         os.makedirs(info['dir'], exist_ok=True)
         logger.debug('%s exists.', info['dir'])
     except OSError as e:
-        message = 'The path "%s" does not exist for the scheme "%s", and could not be created.'
+        message = ('The path "%s" does not exist for the scheme "%s", and'
+                   ' could not be created.')
         raise RuntimeError(message, info['dir'], scheme) from e
     else:
         if not os.access(info['dir'], os.W_OK):

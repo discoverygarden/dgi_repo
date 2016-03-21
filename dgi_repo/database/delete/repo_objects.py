@@ -39,7 +39,8 @@ def delete_old_object(old_object_id, cursor=None):
         WHERE id = %s
     ''', (old_object_id,))
 
-    logger.debug('Deleted old object version information with ID: %s', old_object_id)
+    logger.debug('Deleted old object version information with ID: %s',
+                 old_object_id)
 
     return cursor
 

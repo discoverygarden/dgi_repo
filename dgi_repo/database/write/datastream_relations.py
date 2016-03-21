@@ -8,6 +8,9 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
+from dgi_repo.database.read.relations import predicate_id_from_raw
+from dgi_repo.database.write.relations import write_to_standard_relation_table
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +19,6 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
     """
     Write a datastream relation to the repository.
     """
-    from dgi_repo.database.read.relations import predicate_id_from_raw
-    from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
-    from dgi_repo.database.write.relations import write_to_standard_relation_table
-
     try:
         relation_db_info = DATASTREAM_RELATION_MAP[(namespace, predicate)]
         cursor = write_to_standard_relation_table(

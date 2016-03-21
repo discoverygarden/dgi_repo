@@ -35,7 +35,8 @@ def predicate_id(data, cursor=None):
     return cursor
 
 
-def read_from_standard_relation_table(table, subject=None, rdf_object=None, cursor=None):
+def read_from_standard_relation_table(table, subject=None, rdf_object=None,
+                                      cursor=None):
     """
     Read from a table that uses the standard relation design.
     """
@@ -62,7 +63,8 @@ def read_from_standard_relation_table(table, subject=None, rdf_object=None, curs
     return cursor
 
 
-def read_from_general_rdf_table(table, predicate, subject=None, rdf_object=None, cursor=None):
+def read_from_general_rdf_table(table, predicate, subject=None,
+                                rdf_object=None, cursor=None):
     """
     Read from the general object RDF table.
     """

@@ -3,11 +3,13 @@ DB proxy.
 """
 
 from contextlib import closing
-from dgi_repo.utilities import SpooledTemporaryFile
 
 import falcon
 import simplejson as json
 from psycopg2 import connect, DatabaseError, ProgrammingError
+
+from dgi_repo.configuration import configuration as config
+from dgi_repo.utilities import SpooledTemporaryFile
 
 
 class ProxyResource(object):
@@ -32,12 +34,14 @@ class ProxyResource(object):
         the rows returned from the query.
         """
         if req.content_type != 'application/json':
-            raise falcon.HTTPUnsupportedMediaType('Only "application/json" is supported on this endpoint.')
+            raise falcon.HTTPUnsupportedMediaType(
+                'Only "application/json" is supported on this endpoint.'
+            )
         info = json.load(req.stream)
         if 'query' not in info:
             raise falcon.HTTPMissingParam('query')
 
-        # XXX: "mode" cannot be binary, since json.dump explicitly writes "str".
+        # XXX: "mode" cannot be binary, as json.dump explicitly writes "str".
         resp.stream = SpooledTemporaryFile(max_size=4096, mode='w')
 
         with closing(self._get_connection()) as conn:
@@ -48,13 +52,19 @@ class ProxyResource(object):
                     try:
                         cursor.execute(info['query'], info['replacements'])
                     except TypeError:
-                        raise falcon.HTTPBadRequest('Bad query', 'Query placeholders invalid for the given "replacements"?')
+                        raise falcon.HTTPBadRequest(
+                            'Bad query',
+                            ('Query placeholders invalid for the given'
+                             ' "replacements"?')
+                        )
                 else:
                     cursor.execute(info['query'])
             except ProgrammingError as pe:
-                raise falcon.HTTPBadRequest('Bad query', pe.diag.message_primary)
+                raise falcon.HTTPBadRequest('Bad query',
+                                            pe.diag.message_primary)
             except DatabaseError as de:
-                raise falcon.HTTPInternalServerError('Query failed', de.diag.message_primary)
+                raise falcon.HTTPInternalServerError('Query failed',
+                                                     de.diag.message_primary)
             else:
                 json.dump(cursor, resp.stream, iterable_as_array=True)
 
@@ -62,7 +72,6 @@ class ProxyResource(object):
         """
         Helper to get a connection with reduced permissions.
         """
-        from dgi_repo.configuration import configuration as config
         connection = connect(
             host=config['database']['host'],
             database=config['database']['name'],

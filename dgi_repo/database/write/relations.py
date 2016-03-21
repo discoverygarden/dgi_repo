@@ -8,6 +8,8 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.read.relations import namespace_id
+from dgi_repo.database.read.relations import predicate_id
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +18,6 @@ def upsert_namespace(namespace, cursor=None):
     """
     Upsert an RDF namespace in the repository.
     """
-    from dgi_repo.database.read.relations import namespace_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''
@@ -39,8 +39,6 @@ def upsert_predicate(data, cursor=None):
     """
     Upsert a predicate in the repository.
     """
-    from dgi_repo.database.read.relations import predicate_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''
@@ -61,7 +59,8 @@ def upsert_predicate(data, cursor=None):
     return cursor
 
 
-def write_to_standard_relation_table(table, log_message, subject, rdf_object, cursor=None):
+def write_to_standard_relation_table(table, log_message, subject, rdf_object,
+                                     cursor=None):
     """
     Write to a table that uses the standard relation design.
     """

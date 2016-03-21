@@ -8,6 +8,8 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.utilities import OBJECT_RELATION_MAP
+from dgi_repo.database.delete.relations import delete_from_standard_relation_table
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +18,6 @@ def delete_relationship(namespace, predicate, db_id, cursor=None):
     """
     Delete an object relation from the repository.
     """
-    from dgi_repo.database.utilities import OBJECT_RELATION_MAP
-    from dgi_repo.database.delete.relations import delete_from_standard_relation_table
-
     try:
         relation_db_info = OBJECT_RELATION_MAP[(namespace, predicate)]
         cursor = delete_from_standard_relation_table(
