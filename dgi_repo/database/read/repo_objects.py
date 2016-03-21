@@ -3,6 +3,7 @@ Database helpers relating to repository objects.
 """
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo import utilities
 
 
 def object_info(db_id, cursor=None):
@@ -84,8 +85,6 @@ def object_info_from_raw(pid, cursor=None):
     """
     Get object info from a PID.
     """
-    from dgi_repo import utilities
-
     cursor = check_cursor(cursor)
     namespace, pid_id = utilities.break_pid(pid)
 

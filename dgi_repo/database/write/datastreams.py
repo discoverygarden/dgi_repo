@@ -8,6 +8,8 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.read.datastreams import old_datastream_id
+from dgi_repo.database.read.datastreams import mime_id
 
 logger = logging.getLogger(__name__)
 
@@ -115,8 +117,6 @@ def upsert_mime(mime, cursor=None):
     """
     Upsert a mime in the repository.
     """
-    from dgi_repo.database.read.datastreams import mime_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''
@@ -157,8 +157,6 @@ def upsert_old_datastream(data, cursor=None):
     """
     Upsert an old datastream version in the repository.
     """
-    from dgi_repo.database.read.datastreams import old_datastream_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''

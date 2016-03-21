@@ -3,7 +3,13 @@ Database utility functions.
 """
 
 import logging
+from os.path import join, dirname
 
+from psycopg2 import connect
+from psycopg2.extras import DictCursor
+from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
+
+from dgi_repo.configuration import configuration
 import dgi_repo.fcrepo3.relations as rels
 
 logger = logging.getLogger(__name__)
@@ -204,13 +210,6 @@ def get_connection():
     """
     Get a connection to the application database.
     """
-
-    from psycopg2 import connect
-    from psycopg2.extras import DictCursor
-    from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
-
-    from dgi_repo.configuration import configuration
-
     connection_string = 'dbname={} user={} password={} host={}'.format(
         configuration['database']['name'],
         configuration['database']['username'],
@@ -241,8 +240,6 @@ def install_schema():
     """
     Install the application schema to the database.
     """
-
-    from os.path import join, dirname
     db_connection = get_connection()
     with db_connection:
         sql_file_path = join(dirname(__file__), 'resources', 'dgi_repo.sql')
@@ -257,14 +254,12 @@ def install_base_data():
     """
     Install the application's base data to the database.
     """
-
     import dgi_repo.database.write.relations as relations_writer
-    from dgi_repo.fcrepo3.relations import RELATIONS as rels
 
     db_connection = get_connection()
     with db_connection:
         with db_connection.cursor() as cursor:
-            for namespace, predicates in rels.items():
+            for namespace, predicates in rels.RELATIONS.items():
 
                 relations_writer.upsert_namespace(namespace, cursor)
                 namespace_id, = cursor.fetchone()

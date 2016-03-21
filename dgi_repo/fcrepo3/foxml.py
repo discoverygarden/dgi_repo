@@ -1,11 +1,16 @@
 """
 Functions to help with FOXML.
 """
+import base64
 
 from lxml import etree
 
+from dgi_repo.database.read.repo_objects import object_info_from_raw
+import dgi_repo.database.filestore as filestore
 import dgi_repo.database.read.datastreams as read_datastreams
 from dgi_repo import utilities as utils
+from dgi_repo.database.read.sources import user
+from dgi_repo.fcrepo3 import relations
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
 SCHEMA_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -34,8 +39,6 @@ def populate_foxml_etree(foxml, pid, base_url='http://localhost:8080/fedora',
     """
     Add FOXML from a PID into an lxml etree.
     """
-    from dgi_repo.database.read.repo_objects import object_info_from_raw
-
     attributes = {
         'VERSION': '1.1',
         'PID': pid,
@@ -55,9 +58,6 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
     """
     Add FOXML properties into an lxml etree.
     """
-    from dgi_repo.database.read.sources import user
-    from dgi_repo.fcrepo3 import relations
-
     object_state_map = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
 
     with foxml.element('{{{0}}}objectProperties'.format(FOXML_NAMESPACE)):
@@ -122,10 +122,6 @@ def populate_foxml_datastream(foxml, pid, datastream,
     """
     Add a FOXML datastream into an lxml etree.
     """
-    import base64
-
-    import dgi_repo.database.filestore as filestore
-
     datastream_attributes = {
         'ID': datastream['dsid'],
         'STATE': datastream['state'],
@@ -158,7 +154,7 @@ def populate_foxml_datastream(foxml, pid, datastream,
                 version_attributes['SIZE'] = str(size)
 
             with foxml.element('{{{0}}}datastreamVersion'.format(
-                FOXML_NAMESPACE), version_attributes):
+                    FOXML_NAMESPACE), version_attributes):
 
                 read_datastreams.checksums(version['resource_id'],
                                            cursor=cursor)
@@ -172,7 +168,8 @@ def populate_foxml_datastream(foxml, pid, datastream,
                         }
                     ))
 
-                if datastream['control_group'] == 'X' and not inline_to_managed:
+                if datastream['control_group'] == 'X' and (not
+                                                           inline_to_managed):
                     content_element = etree.Element(
                         '{{{0}}}xmlContent'.format(FOXML_NAMESPACE)
                     )
@@ -196,8 +193,12 @@ def populate_foxml_datastream(foxml, pid, datastream,
                         content_attributes = {
                             'TYPE': 'INTERNAL_ID',
                             'REF': ('{}/objects/{}/datastreams/{}/'
-                                    'content?asOfDateTime={}').format(base_url,
-                                        pid, datastream['dsid'], created),
+                                    'content?asOfDateTime={}').format(
+                                        base_url,
+                                        pid,
+                                        datastream['dsid'],
+                                        created
+                                    ),
                         }
 
                     foxml.write(etree.Element(

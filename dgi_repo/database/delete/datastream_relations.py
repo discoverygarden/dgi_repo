@@ -7,6 +7,10 @@ control.
 
 import logging
 
+from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
+from dgi_repo.database.delete.relations import delete_from_standard_relation_table
+
 logger = logging.getLogger(__name__)
 
 
@@ -14,9 +18,6 @@ def delete_relationship(namespace, predicate, db_id, cursor=None):
     """
     Delete a datastream relation from the repository.
     """
-    from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
-    from dgi_repo.database.delete.relations import delete_from_standard_relation_table
-
     try:
         relation_db_info = DATASTREAM_RELATION_MAP[(namespace, predicate)]
         cursor = delete_from_standard_relation_table(
@@ -35,8 +36,6 @@ def delete_from_general_rdf_table(db_id, cursor=None):
     """
     Delete from the general datastream RDF table.
     """
-    from dgi_repo.database.utilities import check_cursor
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''

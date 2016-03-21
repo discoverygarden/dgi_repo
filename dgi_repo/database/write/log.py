@@ -8,6 +8,7 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.read.log import log_id
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +17,6 @@ def upsert_log(log, cursor=None):
     """
     Upsert a log in the repository.
     """
-    from dgi_repo.database.read.log import log_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''

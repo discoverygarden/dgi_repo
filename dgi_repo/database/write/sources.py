@@ -8,6 +8,9 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.read.sources import source_id
+from dgi_repo.database.read.sources import user_id
+from dgi_repo.database.read.sources import role_id
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +19,6 @@ def upsert_source(source, cursor=None):
     """
     Upsert a source in the repository.
     """
-    from dgi_repo.database.read.sources import source_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''
@@ -39,8 +40,6 @@ def upsert_user(data, cursor=None):
     """
     Upsert a user in the repository.
     """
-    from dgi_repo.database.read.sources import user_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''
@@ -62,8 +61,6 @@ def upsert_role(data, cursor=None):
     """
     Upsert a role in the repository.
     """
-    from dgi_repo.database.read.sources import role_id
-
     cursor = check_cursor(cursor)
 
     cursor.execute('''

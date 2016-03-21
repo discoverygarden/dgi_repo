@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 from dgi_repo.fcrepo3 import resources
 from dgi_repo.configuration import configuration as _configuration
 
+
 class GetNextPidTestCase(unittest.TestCase):
     """
     This class is for testing the get next PID endpoint.
@@ -26,7 +27,10 @@ class GetNextPidTestCase(unittest.TestCase):
         pid_resource = resources.PidResource()
         new_pids = pid_resource._get_pids()
 
-        self.assertEqual(new_pids, ['{}:5'.format(_configuration['default_namespace'])])
+        self.assertEqual(
+            new_pids,
+            ['{}:5'.format(_configuration['default_namespace'])]
+        )
 
 if __name__ == '__main__':
     unittest.main()
