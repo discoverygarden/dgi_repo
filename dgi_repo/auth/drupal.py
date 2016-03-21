@@ -53,7 +53,11 @@ def authenticate(identity):
         return True
 
     # Grab the config for the selected site.
-    db_info = _configuration['drupal_sites'][identity.site]['database']
+    try:
+        db_info = _configuration['drupal_sites'][identity.site]['database']
+    except KeyError:
+        logger.info('Site not in configuration: %s.', identity.site)
+        return False
     query = db_info['query'] if 'query' in db_info else '''SELECT DISTINCT u.uid, r.name
 FROM (
   users u

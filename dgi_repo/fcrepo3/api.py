@@ -31,7 +31,7 @@ class FakeSoapResource(ABC):
         """
         Parse SOAP message and respond accordingly.
         """
-        soap_xml_out = _getTempFile()
+        soap_xml_out = SpooledTemporaryFile()
         with etree.xmlfile(soap_xml_out) as xf:
             with xf.element('{{{0}}}Envelope'.format(self.__class__.SOAP_NS)):
                 with xf.element('{{{0}}}Body'.format(self.__class__.SOAP_NS)):
@@ -118,7 +118,7 @@ class PidResource(ABC):
         req.get_param_as_int('numPIDs', min=1, store=params)
         req.get_param('namespace', store=params)
 
-        xml_out = _getTempFile()
+        xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{{0}}}pidList'.format(FEDORA_ACCESS_URI)):
                 for pid in self._get_pids(**params):
@@ -194,7 +194,7 @@ class DatastreamListResource(ABC):
         }
         parseDateTime(req, 'asOfDateTime', params)
 
-        xml_out = _getTempFile()
+        xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{{0}}}objectDatastreams'.format(FEDORA_ACCESS_URI)):
                 for datastream in self._get_datastreams(**params):
@@ -250,7 +250,7 @@ class DatastreamResource(ABC):
         """
         Get datastream info.
         """
-        xml_out = _getTempFile()
+        xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
             datastream_info = self._get_datastream_info(pid, dsid, **req.params)
             _writeDatastreamProfile(xf, datastream_info)
@@ -299,7 +299,7 @@ class DatastreamHistoryResource(ABC):
         """
         Dump the datastream history.
         """
-        xml_out = _getTempFile()
+        xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{0}}datastreamHistory'.format(FEDORA_MANAGEMENT_URI)):
                 for datastream in self._get_datastream_versions(pid, dsid, **req.params):
@@ -331,14 +331,3 @@ def _writeDatastreamProfile(xf, datastream_info):
         for key, value in datastream_info.items():
             with xf.element('{{{0}}}{1}'.format(FEDORA_MANAGEMENT_URI, key)):
                 xf.write(value)
-
-
-def _getTempFile():
-    """
-    Helper for temp file acquisition.
-
-    Returns:
-        A file object which should be automatically deleted when it is closed.
-    """
-    # TODO: Expose "max_size" as configuration, for tuning.
-    return SpooledTemporaryFile(max_size=4096)

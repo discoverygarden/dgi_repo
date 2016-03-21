@@ -42,7 +42,7 @@ class ProxyResource(object):
             raise falcon.HTTPMissingParam('query')
 
         # XXX: "mode" cannot be binary, as json.dump explicitly writes "str".
-        resp.stream = SpooledTemporaryFile(max_size=4096, mode='w')
+        resp.stream = SpooledTemporaryFile(mode='w')
 
         with closing(self._get_connection()) as conn:
             # XXX: Named cursor must _not_ be closed... so no "with".
