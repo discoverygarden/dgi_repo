@@ -44,7 +44,8 @@ def delete_predicate(predicate_id, cursor=None):
     return cursor
 
 
-def delete_from_standard_relation_table(table, log_message, db_id, cursor=None):
+def delete_from_standard_relation_table(table, log_message, db_id,
+                                        cursor=None):
     """
     Delete from a table that uses the standard relation design.
     """
