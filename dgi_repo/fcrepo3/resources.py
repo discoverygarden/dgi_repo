@@ -10,6 +10,7 @@ from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api
 from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.write.repo_objects import get_pid_ids
+from dgi_repo.database import filestore
 
 logger = logging.getLogger(__name__)
 
@@ -138,15 +139,28 @@ xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/
 
 @route('/upload')
 class UploadResource(api.UploadResource):
+    """
+    Provide the upload endpoint.
+    """
+
     def _store(self, uploaded_file):
-        # TODO: Copy the file somewhere semi-persistent and return a URI to it.
-        pass
+        """
+        Store a file as an upload.
+        """
+
+        return filestore.stash(uploaded_file)[1]
 
 
 @route('/objects/nextPID')
 class PidResource(api.PidResource):
+    """
+    Provide the get next PID endpoint.
+    """
 
     def _get_pids(self, numPIDs=1, namespace=None):
+        """
+        Get a set number of PIDs from a namespace.
+        """
         if namespace is None:
             namespace = _configuration['default_namespace']
 

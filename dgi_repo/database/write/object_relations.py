@@ -31,7 +31,8 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
     except KeyError:
         cursor = predicate_id_from_raw(namespace, predicate, cursor)
         predicate_id = cursor.fetchone()[0]
-        cursor = write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor)
+        cursor = write_to_general_rdf_table(predicate_id, subject, rdf_object,
+                                            cursor)
 
     return cursor
 
@@ -65,7 +66,8 @@ def write_sequence_number(subject, paged_object, sequence_number, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO is_sequence_number_of (rdf_subject, rdf_object, sequence_number)
+        INSERT INTO is_sequence_number_of (rdf_subject, rdf_object,
+                                           sequence_number)
         VALUES (%s, %s, %s)
         RETURNING id
     ''', (subject, paged_object, sequence_number))

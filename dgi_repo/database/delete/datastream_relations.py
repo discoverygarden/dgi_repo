@@ -9,7 +9,8 @@ import logging
 
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
-from dgi_repo.database.delete.relations import delete_from_standard_relation_table
+from dgi_repo.database.delete.relations import (
+    delete_from_standard_relation_table)
 
 logger = logging.getLogger(__name__)
 

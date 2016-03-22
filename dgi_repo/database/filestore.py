@@ -59,7 +59,7 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
         mimetype: The MIME-type of the file.
 
     Returns:
-        The resource_id of the stashed resource.
+        The resource_id and URI of the stashed resource.
     """
     def streamify():
         """
@@ -106,7 +106,7 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
     else:
         resource_id = cursor.fetchone()[0]
         logger.debug('%s got resource id %s', uri, resource_id)
-        return resource_id
+        return resource_id, uri
 
 
 def purge(*resource_ids):
