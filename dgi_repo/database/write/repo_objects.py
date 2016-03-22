@@ -81,7 +81,7 @@ def upsert_object(data, cursor=None):
     ''', data)
 
     logger.debug(
-        "Upserted into namespace: %s with PID: %s.", data['namespace'],
+        "Upserted into namespace: %s with PID ID: %s.", data['namespace'],
         data['pid_id']
     )
 

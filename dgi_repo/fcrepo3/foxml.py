@@ -18,6 +18,12 @@ SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
 
 
+def import_foxml(xml):
+    """
+    @todo implement.
+    """
+
+
 def generate_foxml(pid, base_url='http://localhost:8080/fedora',
                    archival=False, inline_to_managed=False, cursor=None):
     """

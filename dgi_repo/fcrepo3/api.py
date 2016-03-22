@@ -152,7 +152,7 @@ class ObjectResource(ABC):
         """
         Ingest a new object.
         """
-        pass
+        resp.content_type = 'text/plain'
 
     def on_get(self, req, resp, pid):
         """
@@ -170,7 +170,7 @@ class ObjectResource(ABC):
         """
         Purge an object.
         """
-        pass
+        resp.content_type = 'text/plain'
 
 
 class ObjectResourceExport(ABC):

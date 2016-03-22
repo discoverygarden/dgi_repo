@@ -12,6 +12,7 @@ import logging
 import talons.auth.basicauth
 
 from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.database.write import sources
 
 """
 A mapping of tokens to callables.
@@ -85,6 +86,16 @@ WHERE u.name=%s AND u.pass=%s'''
             identity.roles.add('authenticated user')
             logger.info('Authenticated %s:%s with roles: %s', identity.site,
                         identity.login, identity.roles)
+
+            cursor = None
+            cursor = sources.upsert_source(identity.site, cursor=cursor)
+            identity.source_id = cursor.fetchone()[0]
+            cursor = sources.upsert_user(
+                {'name':identity.login, 'source': identity.source_id},
+                cursor=cursor
+            )
+            identity.user_id = cursor.fetchone()[0]
+
             return True
         else:
             logger.info('Failed to authenticate %s:%s.', identity.site,

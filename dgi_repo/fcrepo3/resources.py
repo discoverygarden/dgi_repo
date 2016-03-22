@@ -7,9 +7,11 @@ import logging
 import io
 
 from dgi_repo import utilities as utils
-from dgi_repo.fcrepo3 import api
+from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.configuration import configuration as _configuration
-from dgi_repo.database.write.repo_objects import get_pid_ids
+import dgi_repo.database.write.repo_objects as object_writer
+import dgi_repo.database.read.repo_objects as object_reader
+import dgi_repo.database.write.sources as source_writer
 from dgi_repo.database import filestore
 
 logger = logging.getLogger(__name__)
@@ -164,7 +166,7 @@ class PidResource(api.PidResource):
         if namespace is None:
             namespace = _configuration['default_namespace']
 
-        namespace_info = get_pid_ids(namespace, numPIDs)
+        namespace_info = object_writer.get_pid_ids(namespace, numPIDs)
         highest_id = namespace_info.fetchone()['highest_id']
         pids = []
 
@@ -182,25 +184,97 @@ class PidResource(api.PidResource):
 
 @route('/objects/{pid}')
 class ObjectResource(api.ObjectResource):
+    """
+    Provide the object endpoint.
+    """
+
     def on_post(self, req, resp, pid):
+        """
+        Create the new object.
+        """
         super().on_post(req, resp, pid)
-        # TODO: Create the new object.
-        pass
+        cursor = None
+
+        xml = req.get_param('file')
+        if xml:
+            # Import FOXML, getting PID.
+            pid = foxml.import_foxml(xml)
+        else:
+            if not pid or pid == 'new':
+                # Generate PID.
+                raw_namespace = req.get_param('namespace')
+                if not raw_namespace:
+                    raw_namespace = _configuration['default_namespace']
+                cursor = object_writer.get_pid_id(raw_namespace,
+                                                  cursor=cursor)
+                pid_id, namespace = cursor.fetchone()
+                pid = utils.make_pid(raw_namespace, pid_id)
+            else:
+                # Get namespace.
+                raw_namespace, pid_id = utils.break_pid(pid)
+                cursor = object_reader.namespace_id(raw_namespace,
+                                                    cursor=cursor)
+                try:
+                    namespace = cursor.fetchone()[0]
+                except TypeError:
+                    cursor = object_writer.get_pid_id(raw_namespace,
+                                                      cursor=cursor)
+                    namespace = cursor.fetchone()[1]
+
+                # Jump up PIDs if needed.
+                if pid_id.isdigit():
+                    pid_id = int(pid_id)
+                    cursor = object_reader.namespace_info(namespace,
+                                                          cursor=cursor)
+                    highest_pid = cursor.fetchone()['highest_id']
+                    if highest_pid < pid_id:
+                        object_writer.get_pid_ids(raw_namespace,
+                                                  highest_pid - pid_id,
+                                                  cursor=cursor)
+
+            # Figure out the owner's DB ID.
+            raw_owner = req.get_param('ownerId')
+            if raw_owner:
+                cursor = source_writer.upsert_user(
+                    {'name': raw_owner, 'source': req.identity.source_id},
+                    cursor=cursor
+                )
+                owner = cursor.fetchone()[0]
+            else:
+                owner = req.env['wsgi.identity'].user_id
+
+            object_writer.upsert_object(
+                {
+                    'namespace': namespace,
+                    'state': (req.get_param('state') if req.get_param('state')
+                              else 'A'),
+                    'label': req.get_param('label'),
+                    'log': req.get_param('logiMessage'),
+                    'pid_id': pid_id,
+                    'owner': owner,
+                },
+                cursor=cursor
+            )
+
+        resp.body = 'Ingested {}'.format(pid)
 
     def on_get(self, req, resp, pid):
+        """
+        Generate the object profile XML.
+        """
         super().on_get(req, resp, pid)
-        # TODO: Generate the object profile XML.
-        pass
 
     def on_put(self, req, resp, pid):
+        """
+        Commit the object modification.
+        """
         super().on_put(req, resp, pid)
-        # TODO: Commit the object modification.
-        pass
 
     def on_delete(self, req, resp, pid):
+        """
+        Purge the object.
+        """
         super().on_delete(req, resp, pid)
-        # TODO: Purge the object.
-        pass
 
 
 @route('/objects/{pid}/export', '/objects/{pid}/objectXML')
