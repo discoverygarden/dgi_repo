@@ -2,8 +2,7 @@
 Database utility functions.
 """
 
-import logging
-from os.path import join, dirname
+from os.path import join
 
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
@@ -11,8 +10,6 @@ from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
 
 from dgi_repo.configuration import configuration
 import dgi_repo.fcrepo3.relations as rels
-
-logger = logging.getLogger(__name__)
 
 RELATION_MAP = {
     (rels.FEDORA_RELS_EXT_NAMESPACE, rels.IS_MEMBER_OF_COLLECTION_PREDICATE): {
@@ -258,41 +255,3 @@ def check_cursor(cursor=None):
         return db_connection.cursor()
     else:
         return cursor
-
-
-def install_schema():
-    """
-    Install the application schema to the database.
-    """
-    db_connection = get_connection()
-    with db_connection:
-        sql_file_path = join(dirname(__file__), 'resources', 'dgi_repo.sql')
-        with open(sql_file_path, 'r') as schema_file:
-            with db_connection.cursor() as db_cursor:
-                db_cursor.execute(schema_file.read())
-    db_connection.close()
-    logger.info('Installed schema.')
-
-
-def install_base_data():
-    """
-    Install the application's base data to the database.
-    """
-    import dgi_repo.database.write.relations as relations_writer
-
-    db_connection = get_connection()
-    with db_connection:
-        with db_connection.cursor() as cursor:
-            for namespace, predicates in rels.RELATIONS.items():
-
-                relations_writer.upsert_namespace(namespace, cursor)
-                namespace_id, = cursor.fetchone()
-
-                for predicate in predicates:
-                    relations_writer.upsert_predicate(
-                        {'namespace': namespace_id, 'predicate': predicate},
-                        cursor
-                    )
-
-    db_connection.close()
-    logger.info('Installed base data.')

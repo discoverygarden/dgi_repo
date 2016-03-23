@@ -4,6 +4,7 @@ Utility functions.
 from tempfile import SpooledTemporaryFile as _SpooledTemporaryFile
 
 import dgi_repo.logger
+import dgi_repo.database.install as db_install
 from dgi_repo.configuration import configuration
 
 PID_SEPARATOR = ':'
@@ -20,11 +21,8 @@ def install():
     """
     Run code to finish installing the application.
     """
-
-    import dgi_repo.database.utilities as db_utils
-
-    db_utils.install_schema()
-    db_utils.install_base_data()
+    db_install.install_schema()
+    db_install.install_base_data()
 
 
 def break_pid(pid):
