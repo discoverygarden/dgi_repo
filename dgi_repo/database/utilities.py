@@ -17,8 +17,10 @@ logger = logging.getLogger(__name__)
 RELATION_MAP = {
     (rels.FEDORA_RELS_EXT_NAMESPACE, rels.IS_MEMBER_OF_COLLECTION_PREDICATE): {
         'table': 'is_member_of_collection',
-        'upsert message': 'Added an "is member of collection" relation from %s to %s.',
-        'delete message': 'Deleted an "is member of collection" relation with ID: %s.',
+        'upsert message': ('Added an "is member of collection" relation from'
+                           ' %s to %s.'),
+        'delete message': ('Deleted an "is member of collection" relation with'
+                           ' ID: %s.'),
     },
     (rels.FEDORA_RELS_EXT_NAMESPACE, rels.IS_MEMBER_OF_PREDICATE): {
         'table': 'is_member_of',
@@ -27,8 +29,10 @@ RELATION_MAP = {
     },
     (rels.FEDORA_RELS_EXT_NAMESPACE, rels.IS_CONSTITUENT_OF_PREDICATE): {
         'table': 'is_constituent_of',
-        'upsert message': 'Added an "is constituent of" relation from %s to %s.',
-        'delete message': 'Deleted an "is constituent of" relation with ID: %s.',
+        'upsert message': ('Added an "is constituent of" relation from %s to'
+                           ' %s.'),
+        'delete message': ('Deleted an "is constituent of" relation with ID:'
+                           ' %s.'),
     },
     (rels.FEDORA_MODEL_NAMESPACE, rels.HAS_MODEL_PREDICATE): {
         'table': 'has_model',
@@ -159,49 +163,69 @@ RELATION_MAP = {
 
 DATASTREAM_RELATION_MAP = RELATION_MAP.copy()
 DATASTREAM_RELATION_MAP.update({
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE,
+     rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
         'table': 'datastream_is_manageable_by_role',
-        'upsert message': 'Added a datastream is manageable by role permission from %s to %s.',
-        'delete message': 'Deleted a datastream is manageable by role permission with ID: %s.',
+        'upsert message': ('Added a datastream is manageable by role'
+                           ' permission from %s to %s.'),
+        'delete message': ('Deleted a datastream is manageable by role'
+                           ' permission with ID: %s.'),
     },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE,
+     rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
         'table': 'datastream_is_manageable_by_user',
-        'upsert message': 'Added a datastream is manageable by user permission from %s to %s.',
-        'delete message': 'Deleted a datastream is manageable by user permission with ID: %s.',
+        'upsert message': ('Added a datastream is manageable by user'
+                           ' permission from %s to %s.'),
+        'delete message': ('Deleted a datastream is manageable by user'
+                           ' permission with ID: %s.'),
     },
     (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_VIEWABLE_BY_ROLE_PREDICATE): {
         'table': 'datastream_is_viewable_by_role',
-        'upsert message': 'Added a datastream is viewable by role permission from %s to %s.',
-        'delete message': 'Deleted a datastream is viewable by role permission with ID: %s.',
+        'upsert message': ('Added a datastream is viewable by role permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted a datastream is viewable by role'
+                           ' permission with ID: %s.'),
     },
     (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_VIEWABLE_BY_USER_PREDICATE): {
         'table': 'datastream_is_viewable_by_user',
-        'upsert message': 'Added a datastream is viewable by user permission from %s to %s.',
-        'delete message': 'Deleted a datastream is viewable by user permission with ID: %s.',
+        'upsert message': ('Added a datastream is viewable by user permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted a datastream is viewable by user'
+                           ' permission with ID: %s.'),
     },
 })
 
 OBJECT_RELATION_MAP = RELATION_MAP.copy()
 OBJECT_RELATION_MAP.update({
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE,
+     rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
         'table': 'object_is_manageable_by_role',
-        'upsert message': 'Added an object is manageable by role permission from %s to %s.',
-        'delete message': 'Deleted an object is manageable by role permission with ID: %s.',
+        'upsert message': ('Added an object is manageable by role permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted an object is manageable by role permission'
+                           ' with ID: %s.'),
     },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE,
+     rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
         'table': 'object_is_manageable_by_user',
-        'upsert message': 'Added an object is manageable by user permission from %s to %s.',
-        'delete message': 'Deleted an object is manageable by user permission with ID: %s.',
+        'upsert message': ('Added an object is manageable by user permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted an object is manageable by user'
+                           ' permission with ID: %s.'),
     },
     (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_VIEWABLE_BY_ROLE_PREDICATE): {
         'table': 'object_is_viewable_by_role',
-        'upsert message': 'Added an object is viewable by role permission from %s to %s.',
-        'delete message': 'Deleted an object is viewable by role permission with ID: %s.',
+        'upsert message': ('Added an object is viewable by role permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted an object is viewable by role permission'
+                           ' with ID: %s.'),
     },
     (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_VIEWABLE_BY_USER_PREDICATE): {
         'table': 'object_is_viewable_by_user',
-        'upsert message': 'Added an object is viewable by user permission from %s to %s.',
-        'delete message': 'Deleted an object is viewable by user permission with ID: %s.',
+        'upsert message': ('Added an object is viewable by user permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted an object is viewable by user permission'
+                           ' with ID: %s.'),
     },
 })
 
