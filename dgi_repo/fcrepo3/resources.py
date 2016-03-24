@@ -14,6 +14,7 @@ from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.configuration import configuration as _configuration
 import dgi_repo.database.write.log as log_writer
 import dgi_repo.database.write.repo_objects as object_writer
+import dgi_repo.database.delete.repo_objects as object_purger
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.read.object_relations as object_relation_reader
 import dgi_repo.database.write.sources as source_writer
@@ -273,9 +274,11 @@ class ObjectResource(api.ObjectResource):
             except IntegrityError:
                 # Object exists return 500; @XXX it's what Fedora does.
                 resp.status = falcon.HTTP_500
+                logger.info('Did not ingest {} as it already existed.', pid)
                 return
 
         resp.body = 'Ingested {}'.format(pid)
+        logger.info('Ingested {} with log: "{}".', pid, log)
         return
 
     def on_get(self, req, resp, pid):
@@ -330,6 +333,7 @@ class ObjectResource(api.ObjectResource):
             owner
         )
 
+        logger.info('Retrieved object: {}.', pid)
         return
 
     def on_put(self, req, resp, pid):
