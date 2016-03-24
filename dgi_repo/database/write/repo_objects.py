@@ -55,18 +55,7 @@ def upsert_object(data, cursor=None):
     Upsert an object in the repository.
     """
     cursor = check_cursor(cursor)
-
-    # Set some defaults.
-    if 'namespace' not in data:
-        data['namespace'] = _configuration['default_namespace']
-    if 'state' not in data:
-        data['state'] = 'A'
-    if 'label' not in data:
-        data['label'] = None
-    if 'versioned' not in data:
-        data['versioned'] = True
-    if 'log' not in data:
-        data['log'] = None
+    data = _set_object_defaults(data)
 
     cursor.execute('''
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
@@ -86,6 +75,47 @@ def upsert_object(data, cursor=None):
     )
 
     return cursor
+
+
+def write_object(data, cursor=None):
+    """
+    Write an object in the repository.
+    """
+    cursor = check_cursor(cursor)
+    data = _set_object_defaults(data)
+
+    cursor.execute('''
+        INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
+                             log, created, modified)
+        VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s,
+                %(versioned)s, %(log)s, now(), now())
+        RETURNING id
+    ''', data)
+
+    logger.debug(
+        "Wrote into namespace: %s with PID ID: %s.", data['namespace'],
+        data['pid_id']
+    )
+
+    return cursor
+
+
+def _set_object_defaults(data):
+    """
+    Populate defaults if not provided in the data.
+    """
+    if 'namespace' not in data:
+        data['namespace'] = _configuration['default_namespace']
+    if 'state' not in data:
+        data['state'] = 'A'
+    if 'label' not in data:
+        data['label'] = None
+    if 'versioned' not in data:
+        data['versioned'] = True
+    if 'log' not in data:
+        data['log'] = None
+
+    return data
 
 
 def upsert_old_object(data, cursor=None):

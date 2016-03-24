@@ -7,10 +7,12 @@ import logging
 import io
 
 import falcon
+from psycopg2 import IntegrityError
 
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.configuration import configuration as _configuration
+import dgi_repo.database.write.log as log_writer
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.read.object_relations as object_relation_reader
@@ -247,20 +249,34 @@ class ObjectResource(api.ObjectResource):
             else:
                 owner = req.env['wsgi.identity'].user_id
 
-            object_writer.upsert_object(
-                {
-                    'namespace': namespace,
-                    'state': (req.get_param('state') if req.get_param('state')
-                              else 'A'),
-                    'label': req.get_param('label'),
-                    'log': req.get_param('logiMessage'),
-                    'pid_id': pid_id,
-                    'owner': owner,
-                },
-                cursor=cursor
-            )
+            # Figure out the log's DB ID.
+            raw_log = req.get_param('log')
+            if raw_log:
+                cursor = log_writer.upsert_log(raw_log, cursor=cursor)
+                log = cursor.fetchone()[0]
+            else:
+                log = None
+
+            try:
+                cursor = object_writer.write_object(
+                    {
+                        'namespace': namespace,
+                        'state': (req.get_param('state') if req.get_param('state')
+                                  else 'A'),
+                        'label': req.get_param('label'),
+                        'log': log,
+                        'pid_id': pid_id,
+                        'owner': owner,
+                    },
+                    cursor=cursor
+                )
+            except IntegrityError:
+                # Object exists return 500; @XXX it's what Fedora does.
+                resp.status = falcon.HTTP_500
+                return
 
         resp.body = 'Ingested {}'.format(pid)
+        return
 
     def on_get(self, req, resp, pid):
         """
