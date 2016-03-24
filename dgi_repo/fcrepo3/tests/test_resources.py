@@ -15,7 +15,9 @@ class GetNextPidTestCase(unittest.TestCase):
     This class is for testing the get next PID endpoint.
     """
 
-    @unittest.mock.patch('dgi_repo.fcrepo3.resources.get_pid_ids')
+    @unittest.mock.patch(
+        'dgi_repo.fcrepo3.resources.object_writer.get_pid_ids'
+    )
     def test_single_pid_gen(self, mock_pids):
         """
         Test for correct single default NS PID.

@@ -91,7 +91,7 @@ WHERE u.name=%s AND u.pass=%s'''
             cursor = sources.upsert_source(identity.site, cursor=cursor)
             identity.source_id = cursor.fetchone()[0]
             cursor = sources.upsert_user(
-                {'name':identity.login, 'source': identity.source_id},
+                {'name': identity.login, 'source': identity.source_id},
                 cursor=cursor
             )
             identity.user_id = cursor.fetchone()[0]

@@ -172,6 +172,70 @@ class ObjectResource(ABC):
         """
         resp.content_type = 'text/plain'
 
+    def get_object_profile(self, pid, label, models, created,
+                           modified, state, owner):
+        """
+        Build up object profile XML.
+        """
+        tree = etree.fromstring(('''<?xml version="1.0"?>
+        <objectProfile
+          xmlns="http://www.fedora.info/definitions/1/0/access/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/
+                  http://www.fedora.info/definitions/1/0/objectProfile.xsd">
+          <objModels>
+            <model>info:fedora/fedora-system:FedoraObject-3.0</model>
+          </objModels>
+          </objectProfile>
+        '''))
+
+        model_xpath = etree.ETXPath(
+         '//{{{}}}objModels'.format(FEDORA_ACCESS_URI)
+        )
+        models_element = model_xpath(tree)[0]
+        for model in models:
+            model_element = etree.SubElement(
+                models_element,
+                '{{{}}}model'.format(FEDORA_ACCESS_URI)
+            )
+            model_element.text = model
+
+        tree.attrib['pid'] = pid
+
+        if label:
+            label_element = etree.SubElement(
+                tree,
+                '{{{}}}objLabel'.format(FEDORA_ACCESS_URI)
+            )
+            label_element.text = label
+
+        state_element = etree.SubElement(
+            tree,
+            '{{{}}}objState'.format(FEDORA_ACCESS_URI)
+        )
+        state_element.text = state
+
+        owner_element = etree.SubElement(
+            tree,
+            '{{{}}}objOwnerId'.format(FEDORA_ACCESS_URI)
+        )
+        owner_element.text = owner
+
+        created_element = etree.SubElement(
+            tree,
+            '{{{}}}objCreateDate'.format(FEDORA_ACCESS_URI)
+        )
+        created_element.text = created.isoformat()
+
+        modified_element = etree.SubElement(
+            tree,
+            '{{{}}}objLastModDate'.format(FEDORA_ACCESS_URI)
+        )
+        modified_element.text = modified.isoformat()
+
+        return etree.tostring(tree, xml_declaration=True, encoding="UTF-8")
+
 
 class ObjectResourceExport(ABC):
     """

@@ -6,12 +6,16 @@ import base64
 import logging
 import io
 
+import falcon
+
 from dgi_repo import utilities as utils
-from dgi_repo.fcrepo3 import api, foxml
+from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.configuration import configuration as _configuration
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
+import dgi_repo.database.read.object_relations as object_relation_reader
 import dgi_repo.database.write.sources as source_writer
+import dgi_repo.database.read.sources as source_reader
 from dgi_repo.database import filestore
 
 logger = logging.getLogger(__name__)
@@ -261,8 +265,56 @@ class ObjectResource(api.ObjectResource):
     def on_get(self, req, resp, pid):
         """
         Generate the object profile XML.
+
+        This does not respect asOfDateTime from Fedora.
         """
         super().on_get(req, resp, pid)
+        cursor = None
+
+        try:
+            cursor = object_reader.object_info_from_raw(pid, cursor=cursor)
+        except TypeError:
+            # Object doesn't exist return 404.
+            resp.status = falcon.HTTP_404
+            return
+
+        # Get object info.
+        object_info = cursor.fetchone()
+        cursor = object_relation_reader.read_relationship(
+            relations.FEDORA_MODEL_NAMESPACE,
+            relations.HAS_MODEL_PREDICATE,
+            object_info['id'],
+            cursor=cursor
+        )
+        model_info = cursor.fetchall()
+        models = set()
+        for rdf_object_info in model_info:
+            cursor = object_reader.object_info(rdf_object_info['rdf_object'],
+                                               cursor=cursor)
+            model_object_info = cursor.fetchone()
+
+            cursor = object_reader.namespace_info(
+                model_object_info['namespace'],
+                cursor=cursor
+            )
+            namespace = cursor.fetchone()['namespace']
+
+            model_pid = utils.make_pid(namespace, model_object_info['pid_id'])
+            models.add('info:fedora/{}'.format(model_pid))
+        cursor = source_reader.user(object_info['owner'], cursor=cursor)
+        owner = cursor.fetchone()['username']
+
+        resp.body = super().get_object_profile(
+            pid,
+            object_info['label'],
+            models,
+            object_info['created'],
+            object_info['modified'],
+            object_info['state'],
+            owner
+        )
+
+        return
 
     def on_put(self, req, resp, pid):
         """
