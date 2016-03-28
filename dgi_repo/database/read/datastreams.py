@@ -65,6 +65,21 @@ def resource_id(uri, cursor=None):
     return cursor
 
 
+def resource_from_uri(uri, cursor=None):
+    """
+    Query for a resource from the repository using the URI.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM resources
+        WHERE uri = %s
+    ''', (uri,))
+
+    return cursor
+
+
 def resource(id, cursor=None):
     """
     Query for resource information from the repository.

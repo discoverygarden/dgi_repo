@@ -8,8 +8,7 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.read.datastreams import old_datastream_id
-from dgi_repo.database.read.datastreams import mime_id
+from dgi_repo.database.read.datastreams import mime_id, old_datastream_id
 
 logger = logging.getLogger(__name__)
 

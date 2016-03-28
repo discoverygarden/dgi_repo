@@ -7,15 +7,20 @@ from io import BytesIO
 from shutil import copyfileobj
 from tempfile import NamedTemporaryFile
 
+from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
+
 from dgi_repo.configuration import configuration as _configuration
-from dgi_repo.database.utilities import get_connection
-from dgi_repo.database.write.datastreams import upsert_resource, upsert_mime
+from dgi_repo.database.utilities import get_connection, check_cursor
+from dgi_repo.database.write.datastreams import (upsert_resource, upsert_mime,
+                                                 upsert_datastream)
 from dgi_repo.database.read.datastreams import resource_uri
 from dgi_repo.database.delete.datastreams import delete_resource
+import dgi_repo.database.read.datastreams as datastream_reader
 
 logger = logging.getLogger(__name__)
 
 UPLOAD_SCHEME = 'uploaded'
+DATASTREAM_SCHEME = 'datastream'
 '''
 A mapping of URI schemes to dictionaries of parameters to pass to
 NamedTemporaryFile.
@@ -117,7 +122,8 @@ def purge(*resource_ids):
     for resource_id in resource_ids:
         cursor = connection.cursor()
         with connection:
-            uri = resource_uri(resource_id, cursor).fetchone()[0]
+            uri = datastream_reader.resource_uri(resource_id,
+                    cursor).fetchone()[0]
             path = resolve_uri(uri)
             if not os.path.exists(path):
                 logger.warning(
@@ -161,3 +167,47 @@ def uri_size(uri):
         The file size.
     """
     return os.path.getsize(resolve_uri(uri))
+
+
+def create_datastream_from_data(datastream_data, data, mime=None, cursor=None):
+    """
+    Create a datastream from bytes, file or string.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    datastream_data['resource'] = stash(
+        data, DATASTREAM_SCHEME, mime)[0]
+
+    _create_datastream_from_filestore(datastream_data, cursor)
+
+    return cursor
+
+
+def create_datastream_from_upload(datastream_data, upload_uri, cursor=None):
+    """
+    Create a datastream from a resource.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    datastream_reader.resource_from_uri(upload_uri, cursor)
+    mime_id = cursor.fetchone()['mime_id']
+    datastream_reader.mime(mime_id, cursor)
+    mime = cursor.fetchone()['mime']
+
+    with open(resolve_uri(upload_uri), 'rb') as data:
+        create_datastream_from_data(datastream_data, data, mime, cursor)
+
+    return cursor
+
+
+def _create_datastream_from_filestore(datastream_data, cursor=None):
+    """
+    Create datastream removing the file if something goes wrong.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    try:
+        upsert_datastream(datastream_data, cursor)
+    except Exception as e:
+        purge(datastream_data['resource'])
+        raise e
