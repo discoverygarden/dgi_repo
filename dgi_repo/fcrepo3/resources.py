@@ -209,9 +209,8 @@ class ObjectResource(api.ObjectResource):
         else:
             if not pid or pid == 'new':
                 # Generate PID.
-                raw_namespace = req.get_param('namespace')
-                if not raw_namespace:
-                    raw_namespace = _configuration['default_namespace']
+                raw_namespace = req.get_param('namespace',
+                                default=_configuration['default_namespace'])
                 cursor = object_writer.get_pid_id(raw_namespace,
                                                   cursor=cursor)
                 pid_id, namespace = cursor.fetchone()
@@ -224,6 +223,7 @@ class ObjectResource(api.ObjectResource):
                 try:
                     namespace = cursor.fetchone()[0]
                 except TypeError:
+                    # @XXX burns the first PID in a namespace.
                     cursor = object_writer.get_pid_id(raw_namespace,
                                                       cursor=cursor)
                     namespace = cursor.fetchone()[1]
@@ -262,8 +262,7 @@ class ObjectResource(api.ObjectResource):
                 cursor = object_writer.write_object(
                     {
                         'namespace': namespace,
-                        'state': (req.get_param('state') if req.get_param('state')
-                                  else 'A'),
+                        'state': req.get_param('state', default='A'),
                         'label': req.get_param('label'),
                         'log': log,
                         'pid_id': pid_id,
