@@ -8,18 +8,20 @@ import io
 
 import falcon
 from psycopg2 import IntegrityError
+from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
-from dgi_repo import utilities as utils
-from dgi_repo.fcrepo3 import api, foxml, relations
-from dgi_repo.configuration import configuration as _configuration
-import dgi_repo.database.write.log as log_writer
-import dgi_repo.database.write.repo_objects as object_writer
-import dgi_repo.database.delete.repo_objects as object_purger
-import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.read.object_relations as object_relation_reader
+import dgi_repo.database.delete.repo_objects as object_purger
+import dgi_repo.database.write.repo_objects as object_writer
+import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.write.sources as source_writer
 import dgi_repo.database.read.sources as source_reader
+import dgi_repo.database.write.log as log_writer
+from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.database.utilities import check_cursor
+from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.database import filestore
+from dgi_repo import utilities as utils
 
 logger = logging.getLogger(__name__)
 
@@ -203,7 +205,7 @@ class ObjectResource(api.ObjectResource):
         Create the new object.
         """
         super().on_post(req, resp, pid)
-        cursor = None
+        cursor = check_cursor(None, ISOLATION_LEVEL_READ_COMMITTED)
 
         xml = req.get_param('file')
         if xml:
@@ -216,28 +218,24 @@ class ObjectResource(api.ObjectResource):
                     'namespace',
                     default=_configuration['default_namespace']
                 )
-                cursor = object_writer.get_pid_id(raw_namespace,
-                                                  cursor=cursor)
+                object_writer.get_pid_id(raw_namespace, cursor=cursor)
                 pid_id, namespace = cursor.fetchone()
                 pid = utils.make_pid(raw_namespace, pid_id)
             else:
-                # Get namespace.
+                # Reserve given PID in namespace.
                 raw_namespace, pid_id = utils.break_pid(pid)
-                cursor = object_reader.namespace_id(raw_namespace,
-                                                    cursor=cursor)
+                object_reader.namespace_id(raw_namespace, cursor=cursor)
                 try:
                     namespace = cursor.fetchone()[0]
                 except TypeError:
                     # @XXX burns the first PID in a namespace.
-                    cursor = object_writer.get_pid_id(raw_namespace,
-                                                      cursor=cursor)
+                    object_writer.get_pid_id(raw_namespace, cursor=cursor)
                     namespace = cursor.fetchone()[1]
 
                 # Jump up PIDs if needed.
                 if pid_id.isdigit():
                     pid_id = int(pid_id)
-                    cursor = object_reader.namespace_info(namespace,
-                                                          cursor=cursor)
+                    object_reader.namespace_info(namespace, cursor=cursor)
                     highest_pid = cursor.fetchone()['highest_id']
                     if highest_pid < pid_id:
                         object_writer.get_pid_ids(raw_namespace,
@@ -247,7 +245,7 @@ class ObjectResource(api.ObjectResource):
             # Figure out the owner's DB ID.
             raw_owner = req.get_param('ownerId')
             if raw_owner:
-                cursor = source_writer.upsert_user(
+                source_writer.upsert_user(
                     {'name': raw_owner, 'source': req.identity.source_id},
                     cursor=cursor
                 )
@@ -258,13 +256,13 @@ class ObjectResource(api.ObjectResource):
             # Figure out the log's DB ID.
             raw_log = req.get_param('log')
             if raw_log:
-                cursor = log_writer.upsert_log(raw_log, cursor=cursor)
+                log_writer.upsert_log(raw_log, cursor=cursor)
                 log = cursor.fetchone()[0]
             else:
                 log = None
 
             try:
-                cursor = object_writer.write_object(
+                object_writer.write_object(
                     {
                         'namespace': namespace,
                         'state': req.get_param('state', default='A'),
@@ -279,6 +277,8 @@ class ObjectResource(api.ObjectResource):
                 # Object exists return 500; @XXX it's what Fedora does.
                 logger.info('Did not ingest %s as it already existed.', pid)
                 raise falcon.HTTPError('500 Internal Server Error')
+
+            foxml.create_default_dc_ds(cursor.fetchone()[0], pid)
 
         resp.body = 'Ingested {}'.format(pid)
         logger.info('Ingested %s with log: "%s".', pid, log)

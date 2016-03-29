@@ -4,12 +4,15 @@ Functions to help with FOXML.
 import base64
 
 from lxml import etree
+from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
-from dgi_repo.database.read.repo_objects import object_info_from_raw
 import dgi_repo.database.filestore as filestore
 import dgi_repo.database.read.datastreams as read_datastreams
-from dgi_repo import utilities as utils
+from dgi_repo.database.read.repo_objects import object_info_from_raw
+from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
+from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import relations
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
@@ -18,10 +21,49 @@ SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
 
 
-def import_foxml(xml):
+def import_foxml(xml, cursor=None):
     """
     @todo implement.
     """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+    generate_dc = True
+    pid = None
+    object_id = None
+    if generate_dc:
+        create_default_dc_ds(object_id, pid)
+
+
+def create_default_dc_ds(object_id, pid, cursor=None):
+    """
+    Populate a minimal DC DS as Fedora does.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    dc_tree = etree.fromstring('''
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
+         http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:identifier></dc:identifier>
+        </oai_dc:dc>
+    ''')
+    dc_tree[0].text = pid
+
+    log = upsert_log('Automatically generated DC.').fetchone()[0]
+
+    filestore.create_datastream_from_data(
+        {
+            'object': object_id,
+            'dsid': 'DC',
+            'label': 'DC Record',
+            'log': log,
+            'control_group': 'X'
+        },
+        etree.tostring(dc_tree),
+        'application/xml',
+        cursor
+    )
 
 
 def generate_foxml(pid, base_url='http://localhost:8080/fedora',
