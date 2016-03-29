@@ -123,7 +123,7 @@ def purge(*resource_ids):
         cursor = connection.cursor()
         with connection:
             uri = datastream_reader.resource_uri(resource_id,
-                    cursor).fetchone()[0]
+                                                 cursor).fetchone()[0]
             path = resolve_uri(uri)
             if not os.path.exists(path):
                 logger.warning(

@@ -65,11 +65,13 @@ class FakeSoapResource(ABC):
         - the method name in "{namespace://URI}method-name" form, and
         - a dictionary of parameters passed to the method.
         """
-        for method_el in req._params['envelope'].xpath('/s:Envelope/s:Body/t:*', namespaces={
-            's': self.__class__.SOAP_NS,
-            't': FEDORA_TYPES_URI
-        }):
-            yield (method_el.tag, {child.tag: child.text for child in method_el.getchildren()})
+        for method_el in req._params['envelope'].xpath(
+            '/s:Envelope/s:Body/t:*', namespaces={'s': self.__class__.SOAP_NS,
+                                                  't': FEDORA_TYPES_URI}):
+            yield (
+                method_el.tag,
+                {child.tag: child.text for child in method_el.getchildren()}
+            )
 
 
 class UploadResource(ABC):
@@ -173,7 +175,7 @@ class ObjectResource(ABC):
         resp.content_type = 'text/plain'
 
     def _get_object_profile(self, pid, label, models, created,
-                           modified, state, owner):
+                            modified, state, owner):
         """
         Build up object profile XML.
         """

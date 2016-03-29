@@ -43,8 +43,10 @@ def route(*routes):
 @route('/services/access')
 class SoapAccessResource(api.FakeSoapResource):
     def _respond(self, xf, method, kwargs):
-        if method == '{{{0}}}getDatastreamDissemination'.format(api.FEDORA_TYPES_URI):
-            with xf.element('{{{0}}}getDatastreamDisseminationResponse'.format(api.FEDORA_TYPES_URI)):
+        if method == '{{{0}}}getDatastreamDissemination'.format(
+                api.FEDORA_TYPES_URI):
+            with xf.element('{{{0}}}getDatastreamDisseminationResponse'.format(
+                    api.FEDORA_TYPES_URI)):
                 with xf.element('MIMEType'):
                     # TODO: Write the "real" MIME-type.
                     xf.write('application/octet-stream')
@@ -73,7 +75,8 @@ class SoapAccessResource(api.FakeSoapResource):
 class SoapManagementResource(api.FakeSoapResource):
     def _respond(self, xf, method, kwargs):
         if method == '{{{0}}}export'.format(api.FEDORA_TYPES_URI):
-            with xf.element('{{{0}}}exportResponse'.format(api.FEDORA_TYPES_URI)):
+            with xf.element('{{{0}}}exportResponse'.format(
+                    api.FEDORA_TYPES_URI)):
                 with xf.element('objectXML'):
                     foxml = io.BytesIO(b"""<?xml version="1.0" encoding="UTF-8"?>
 <foxml:digitalObject VERSION="1.1" PID="islandora:root" FEDORA_URI="info:fedora/islandora:root"
@@ -209,8 +212,10 @@ class ObjectResource(api.ObjectResource):
         else:
             if not pid or pid == 'new':
                 # Generate PID.
-                raw_namespace = req.get_param('namespace',
-                                default=_configuration['default_namespace'])
+                raw_namespace = req.get_param(
+                    'namespace',
+                    default=_configuration['default_namespace']
+                )
                 cursor = object_writer.get_pid_id(raw_namespace,
                                                   cursor=cursor)
                 pid_id, namespace = cursor.fetchone()
