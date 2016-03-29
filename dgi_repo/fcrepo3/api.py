@@ -262,9 +262,11 @@ class DatastreamListResource(ABC):
 
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            with xf.element('{{{0}}}objectDatastreams'.format(FEDORA_ACCESS_URI)):
+            with xf.element('{{{0}}}objectDatastreams'.format(
+                    FEDORA_ACCESS_URI)):
                 for datastream in self._get_datastreams(**params):
-                    with xf.element('{{{0}}}datastream'.format(FEDORA_ACCESS_URI), attrib=datastream):
+                    with xf.element('{{{0}}}datastream'.format(
+                            FEDORA_ACCESS_URI), attrib=datastream):
                         pass
         length = xml_out.tell()
         xml_out.seek(0)
@@ -299,7 +301,9 @@ def parseDateTime(req, field, params):
         try:
             params[field] = strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
         except ValueError:
-            raise falcon.HTTPBadRequest('Failed to parse {0} date: {1}'.format(field, value))
+            raise falcon.HTTPBadRequest(
+                'Failed to parse {0} date: {1}'.format(field, value)
+            )
 
 
 class DatastreamResource(ABC):
@@ -318,7 +322,8 @@ class DatastreamResource(ABC):
         """
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            datastream_info = self._get_datastream_info(pid, dsid, **req.params)
+            datastream_info = self._get_datastream_info(pid, dsid,
+                                                        **req.params)
             _writeDatastreamProfile(xf, datastream_info)
         length = xml_out.tell()
         xml_out.seek(0)
@@ -367,8 +372,10 @@ class DatastreamHistoryResource(ABC):
         """
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            with xf.element('{{0}}datastreamHistory'.format(FEDORA_MANAGEMENT_URI)):
-                for datastream in self._get_datastream_versions(pid, dsid, **req.params):
+            with xf.element('{{0}}datastreamHistory'.format(
+                    FEDORA_MANAGEMENT_URI)):
+                for datastream in self._get_datastream_versions(pid, dsid,
+                                                                **req.params):
                     _writeDatastreamProfile(xf, datastream)
         length = xml_out.tell()
         xml_out.seek(0)
@@ -376,7 +383,8 @@ class DatastreamHistoryResource(ABC):
         resp.content_type = 'application/xml'
 
     @abstractmethod
-    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None, **kwargs):
+    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None,
+                                 **kwargs):
         """
         Get an iterable of datastream versions.
         """
