@@ -323,7 +323,7 @@ class ObjectResource(api.ObjectResource):
         cursor = source_reader.user(object_info['owner'], cursor=cursor)
         owner = cursor.fetchone()['username']
 
-        resp.body = super().get_object_profile(
+        resp.body = super()._get_object_profile(
             pid,
             object_info['label'],
             models,

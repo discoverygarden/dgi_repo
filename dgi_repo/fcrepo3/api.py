@@ -172,7 +172,7 @@ class ObjectResource(ABC):
         """
         resp.content_type = 'text/plain'
 
-    def get_object_profile(self, pid, label, models, created,
+    def _get_object_profile(self, pid, label, models, created,
                            modified, state, owner):
         """
         Build up object profile XML.

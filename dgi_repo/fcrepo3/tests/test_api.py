@@ -20,7 +20,7 @@ class GetObjectProfileTestCase(unittest.TestCase):
         Test object profile values.
         """
         object_resource = api.ObjectResource()
-        xml = object_resource.get_object_profile(
+        xml = object_resource._get_object_profile(
             'boaty:mcboatface',
             'intertubes',
             ['do:thereisnotry'],
