@@ -341,6 +341,7 @@ class ObjectResource(api.ObjectResource):
     def on_put(self, req, resp, pid):
         """
         Commit the object modification.
+        @todo: implement
         """
         super().on_put(req, resp, pid)
 
@@ -349,6 +350,19 @@ class ObjectResource(api.ObjectResource):
         Purge the object.
         """
         super().on_delete(req, resp, pid)
+        cursor = check_cursor()
+
+        try:
+            object_reader.object_info_from_raw(pid, cursor)
+            object_id = cursor.fetchone()['id']
+            object_purger.delete_object(object_id, cursor)
+        except TypeError:
+            # Object doesn't exist return 404.
+            resp.body = 'Object not found in low-level storage: {}'.format(pid)
+            raise falcon.HTTPNotFound()
+
+        resp.body = 'Purged {}'.format(pid)
+        logger.info('Purged %s', pid)
 
 
 @route('/objects/{pid}/export', '/objects/{pid}/objectXML')

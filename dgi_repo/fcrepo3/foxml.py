@@ -23,6 +23,7 @@ SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
 
 def import_foxml(xml, cursor=None):
     """
+    Create a repo object out of a FOXML file.
     @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
