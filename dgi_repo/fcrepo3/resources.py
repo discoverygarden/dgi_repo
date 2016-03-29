@@ -273,9 +273,8 @@ class ObjectResource(api.ObjectResource):
                 )
             except IntegrityError:
                 # Object exists return 500; @XXX it's what Fedora does.
-                resp.status = falcon.HTTP_500
                 logger.info('Did not ingest {} as it already existed.', pid)
-                return
+                raise falcon.HTTPError('500 Internal Server Error')
 
         resp.body = 'Ingested {}'.format(pid)
         logger.info('Ingested {} with log: "{}".', pid, log)
@@ -294,8 +293,7 @@ class ObjectResource(api.ObjectResource):
             cursor = object_reader.object_info_from_raw(pid, cursor=cursor)
         except TypeError:
             # Object doesn't exist return 404.
-            resp.status = falcon.HTTP_404
-            return
+            raise falcon.HTTPNotFound()
 
         # Get object info.
         object_info = cursor.fetchone()
