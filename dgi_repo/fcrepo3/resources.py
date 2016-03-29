@@ -273,11 +273,11 @@ class ObjectResource(api.ObjectResource):
                 )
             except IntegrityError:
                 # Object exists return 500; @XXX it's what Fedora does.
-                logger.info('Did not ingest {} as it already existed.', pid)
+                logger.info('Did not ingest %s as it already existed.', pid)
                 raise falcon.HTTPError('500 Internal Server Error')
 
         resp.body = 'Ingested {}'.format(pid)
-        logger.info('Ingested {} with log: "{}".', pid, log)
+        logger.info('Ingested %s with log: "%s".', pid, log)
         return
 
     def on_get(self, req, resp, pid):
@@ -331,7 +331,7 @@ class ObjectResource(api.ObjectResource):
             owner
         )
 
-        logger.info('Retrieved object: {}.', pid)
+        logger.info('Retrieved object: %s.', pid)
         return
 
     def on_put(self, req, resp, pid):
