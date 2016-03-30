@@ -273,6 +273,10 @@ class FoxmlTarget(object):
         pass
 
     def data(self, data):
+        """
+        Handle character data (datastream content).
+        @XXX Documentation on buffer size doesn't exist; this may be an issue.
+        """
         pass
 
     def comment(self, text):
