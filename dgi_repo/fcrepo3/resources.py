@@ -208,9 +208,9 @@ class ObjectResource(api.ObjectResource):
         cursor = check_cursor(None, ISOLATION_LEVEL_READ_COMMITTED)
 
         xml = req.get_param('file')
-        if xml:
+        if xml is not None:
             # Import FOXML, getting PID.
-            pid = foxml.import_foxml(xml)
+            pid = foxml.import_foxml(xml.file)
         else:
             if not pid or pid == 'new':
                 # Generate PID.

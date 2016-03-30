@@ -24,14 +24,9 @@ SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
 def import_foxml(xml, cursor=None):
     """
     Create a repo object out of a FOXML file.
-    @todo implement.
     """
-    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
-    generate_dc = True
-    pid = None
-    object_id = None
-    if generate_dc:
-        create_default_dc_ds(object_id, pid)
+    foxml_importer = etree.XMLParser(target=FoxmlTarget(cursor=cursor))
+    etree.parse(xml, foxml_importer)
 
 
 def create_default_dc_ds(object_id, pid, cursor=None):
@@ -254,3 +249,36 @@ def populate_foxml_datastream(foxml, pid, datastream,
                         '{{{0}}}contentLocation'.format(FOXML_NAMESPACE),
                         content_attributes
                     ))
+
+
+class FoxmlTarget(object):
+    """
+    Parser target for incremental reading/ingest of FOXML.
+    @todo implement.
+    """
+
+    def __init__(self, cursor=None):
+        """
+        Prep for use.
+        """
+        self.cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+        self.generate_dc = True
+        self.pid = None
+        self.object_id = None
+
+    def start(self, tag, attrib):
+        pass
+
+    def end(self, tag):
+        pass
+
+    def data(self, data):
+        pass
+
+    def comment(self, text):
+        pass
+
+    def close(self):
+        if self.generate_dc:
+            create_default_dc_ds(self.object_id, self.pid)
+        self.__init__()
