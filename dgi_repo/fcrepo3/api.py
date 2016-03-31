@@ -174,6 +174,14 @@ class ObjectResource(ABC):
         """
         resp.content_type = 'text/plain'
 
+    def _send_404(self, pid, resp):
+        """
+        Send a Fedora like 404 when objects don't exist.
+        """
+        resp.content_type = 'text/plain'
+        resp.body = 'Object not found in low-level storage: {}'.format(pid)
+        raise falcon.HTTPNotFound()
+
     def _get_object_profile(self, pid, label, models, created,
                             modified, state, owner):
         """

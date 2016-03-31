@@ -28,6 +28,7 @@ setup(
         'psycopg2',
         'pyyaml',
         'simplejson',
+        'python-dateutil',
     ],
     dependency_links=[(
         'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc9'

@@ -16,6 +16,7 @@ This module requires the following:
 * [falcon-multipart](https://github.com/yohanboniface/falcon-multipart)
 * [lxml](https://pypi.python.org/pypi/lxml)
 * [simplejson](https://pypi.python.org/pypi/simplejson/)
+* [python-dateutil](https://pypi.python.org/pypi/python-dateutil/)
 * [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation

@@ -6,6 +6,7 @@ import base64
 import logging
 import io
 
+import dateutil.parser
 import falcon
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
@@ -291,17 +292,16 @@ class ObjectResource(api.ObjectResource):
         This does not respect asOfDateTime from Fedora.
         """
         super().on_get(req, resp, pid)
-        cursor = None
+        cursor = check_cursor(None)
 
         try:
-            cursor = object_reader.object_info_from_raw(pid, cursor=cursor)
+            object_reader.object_info_from_raw(pid, cursor=cursor)
         except TypeError:
-            # Object doesn't exist return 404.
-            raise falcon.HTTPNotFound()
+            self._send_404(pid, resp)
 
         # Get object info.
         object_info = cursor.fetchone()
-        cursor = object_relation_reader.read_relationship(
+        object_relation_reader.read_relationship(
             relations.FEDORA_MODEL_NAMESPACE,
             relations.HAS_MODEL_PREDICATE,
             object_info['id'],
@@ -314,7 +314,7 @@ class ObjectResource(api.ObjectResource):
                                                cursor=cursor)
             model_object_info = cursor.fetchone()
 
-            cursor = object_reader.namespace_info(
+            object_reader.namespace_info(
                 model_object_info['namespace'],
                 cursor=cursor
             )
@@ -322,10 +322,10 @@ class ObjectResource(api.ObjectResource):
 
             model_pid = utils.make_pid(namespace, model_object_info['pid_id'])
             models.add('info:fedora/{}'.format(model_pid))
-        cursor = source_reader.user(object_info['owner'], cursor=cursor)
+        source_reader.user(object_info['owner'], cursor=cursor)
         owner = cursor.fetchone()['username']
 
-        resp.body = super()._get_object_profile(
+        resp.body = self._get_object_profile(
             pid,
             object_info['label'],
             models,
@@ -341,9 +341,33 @@ class ObjectResource(api.ObjectResource):
     def on_put(self, req, resp, pid):
         """
         Commit the object modification.
-        @todo: implement
         """
         super().on_put(req, resp, pid)
+        cursor = check_cursor()
+        #@todo: Get current object info.
+        try:
+            object_reader.object_info_from_raw(pid, cursor=cursor)
+        except TypeError:
+            self._send_404(pid, resp)
+
+        object_info = cursor.fetchone()
+
+        #@todo: Check modified date param, exiting if needed.
+        modified_date = req.get_param('lastModifiedDate')
+        if modified_date is not None:
+            modified_date = dateutil.parser.parse(modified_date)
+            logger.info(modified_date.isoformat())
+            if object_info['modified'] > modified_date:
+                #@todo: look into what Fedora is doing.
+                raise falcon.HTTPConflict(
+                    None,
+                    '({}) ({})'.format(object_info['modified'].isoformat(),
+                                       modified_date.isoformat())
+                )
+
+        #@todo: Create old version of object.
+
+        #@todo: Update object info.
 
     def on_delete(self, req, resp, pid):
         """
@@ -357,9 +381,7 @@ class ObjectResource(api.ObjectResource):
             object_id = cursor.fetchone()['id']
             object_purger.delete_object(object_id, cursor)
         except TypeError:
-            # Object doesn't exist return 404.
-            resp.body = 'Object not found in low-level storage: {}'.format(pid)
-            raise falcon.HTTPNotFound()
+            self._send_404(pid, resp)
 
         resp.body = 'Purged {}'.format(pid)
         logger.info('Purged %s', pid)

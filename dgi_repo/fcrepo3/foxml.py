@@ -275,6 +275,7 @@ class FoxmlTarget(object):
     def data(self, data):
         """
         Handle character data (datastream content).
+
         @XXX Documentation on buffer size doesn't exist; this may be an issue.
         """
         pass
@@ -283,6 +284,11 @@ class FoxmlTarget(object):
         pass
 
     def close(self):
+        """
+        Prep for next use.
+
+        We retain the current cursor.
+        """
         if self.generate_dc:
             create_default_dc_ds(self.object_id, self.pid)
-        self.__init__()
+        self.__init__(self.cursor)
