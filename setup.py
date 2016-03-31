@@ -29,6 +29,7 @@ setup(
         'pyyaml',
         'simplejson',
         'python-dateutil',
+        'pytz',
     ],
     dependency_links=[(
         'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc9'

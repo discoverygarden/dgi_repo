@@ -344,7 +344,7 @@ class ObjectResource(api.ObjectResource):
         """
         super().on_put(req, resp, pid)
         cursor = check_cursor()
-        #@todo: Get current object info.
+        # Get current object info.
         try:
             object_reader.object_info_from_raw(pid, cursor=cursor)
         except TypeError:
@@ -355,19 +355,25 @@ class ObjectResource(api.ObjectResource):
         #@todo: Check modified date param, exiting if needed.
         modified_date = req.get_param('lastModifiedDate')
         if modified_date is not None:
-            modified_date = dateutil.parser.parse(modified_date)
-            logger.info(modified_date.isoformat())
+            modified_date = utils.check_datetime_timezone(
+                dateutil.parser.parse(modified_date)
+            )
+
             if object_info['modified'] > modified_date:
-                #@todo: look into what Fedora is doing.
-                raise falcon.HTTPConflict(
-                    None,
-                    '({}) ({})'.format(object_info['modified'].isoformat(),
-                                       modified_date.isoformat())
-                )
+                logger.info(('{} lastModifiedDate ({}) is more recent than the'
+                             ' request ({})').format(
+                                pid,
+                                object_info['modified'].isoformat(),
+                                modified_date.isoformat()
+                ))
+                raise falcon.HTTPError('409 Conflict')
 
         #@todo: Create old version of object.
 
         #@todo: Update object info.
+
+        resp.body = modified_date.isoformat()
+        logger.info('Purged %s', pid)
 
     def on_delete(self, req, resp, pid):
         """

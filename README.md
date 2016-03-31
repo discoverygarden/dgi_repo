@@ -17,6 +17,7 @@ This module requires the following:
 * [lxml](https://pypi.python.org/pypi/lxml)
 * [simplejson](https://pypi.python.org/pypi/simplejson/)
 * [python-dateutil](https://pypi.python.org/pypi/python-dateutil/)
+* [pytz](https://pypi.python.org/pypi/pytz)
 * [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation

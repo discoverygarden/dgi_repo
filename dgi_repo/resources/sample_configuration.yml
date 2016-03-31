@@ -1,6 +1,6 @@
 # dgi_repo sample configuration.
 data_directory: /var/lib/dgi_repo
-
+timezone: UTC
 default_namespace: islandora
 
 database:
