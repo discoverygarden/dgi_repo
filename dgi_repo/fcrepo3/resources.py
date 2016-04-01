@@ -244,23 +244,10 @@ class ObjectResource(api.ObjectResource):
                                                   cursor=cursor)
 
             # Figure out the owner's DB ID.
-            raw_owner = req.get_param('ownerId')
-            if raw_owner:
-                source_writer.upsert_user(
-                    {'name': raw_owner, 'source': req.identity.source_id},
-                    cursor=cursor
-                )
-                owner = cursor.fetchone()[0]
-            else:
-                owner = req.env['wsgi.identity'].user_id
+            owner = self._resolve_owner(req, cursor)
 
             # Figure out the log's DB ID.
-            raw_log = req.get_param('log')
-            if raw_log:
-                log_writer.upsert_log(raw_log, cursor=cursor)
-                log = cursor.fetchone()[0]
-            else:
-                log = None
+            log = self._resolve_log(req, cursor)
 
             try:
                 object_writer.write_object(
@@ -380,17 +367,30 @@ class ObjectResource(api.ObjectResource):
             )
             cursor.fetchone()
 
-        #@todo: Update object info.
+        # Update object info.
         new_object_info = object_info
-        #@todo: label,ownerId,state,logMessage,lastModifiedDate
+        new_object_info['label'] = req.get_param('label',
+                                                 default=object_info['label'])
+        new_object_info['state'] = req.get_param('state',
+                                                 default=object_info['state'])
+        if req.get_param('ownerId') is not None:
+            new_object_info['owner'] = self._resolve_owner(req, cursor)
+        if req.get_param('logMessage') is not None:
+            new_object_info['log'] = self._resolve_log(req, cursor)
+        if modified_date is not None:
+            resp.body = modified_date.isoformat()
+            new_object_info['modified'] = req.get_param(
+                'lastModifiedDate',
+                default=object_info['modified']
+            )
+        else:
+            del(new_object_info['modified'])
         object_writer.upsert_object(
             new_object_info,
             cursor=cursor
         )
 
-        if modified_date is not None:
-            resp.body = modified_date.isoformat()
-        logger.info('Purged %s', pid)
+        logger.info('Modified %s', pid)
 
     def on_delete(self, req, resp, pid):
         """
@@ -408,6 +408,33 @@ class ObjectResource(api.ObjectResource):
 
         resp.body = 'Purged {}'.format(pid)
         logger.info('Purged %s', pid)
+
+    def _resolve_owner(self, req, cursor):
+        """
+        Get the DB owner from the req.
+        """
+        raw_owner = req.get_param('ownerId')
+        if raw_owner:
+            source_writer.upsert_user(
+                {'name': raw_owner, 'source': req.identity.source_id},
+                cursor=cursor
+            )
+            owner = cursor.fetchone()[0]
+        else:
+            owner = req.env['wsgi.identity'].user_id
+        return owner
+
+    def _resolve_log(self, req, cursor):
+        """
+        Get the DB log from the req.
+        """
+        raw_log = req.get_param('logMessage')
+        if raw_log:
+            log_writer.upsert_log(raw_log, cursor=cursor)
+            log = cursor.fetchone()[0]
+        else:
+            log = None
+        return log
 
 
 @route('/objects/{pid}/export', '/objects/{pid}/objectXML')
