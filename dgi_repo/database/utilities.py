@@ -227,6 +227,9 @@ OBJECT_RELATION_MAP.update({
 def get_connection(isolation_level=ISOLATION_LEVEL_REPEATABLE_READ):
     """
     Get a connection to the application database.
+
+    In general isolation level doesn't need to be changed unless you are
+    stashing files, so as your transaction can be aware of them.
     """
     if isolation_level is None:
         isolation_level = ISOLATION_LEVEL_REPEATABLE_READ

@@ -381,6 +381,12 @@ class ObjectResource(api.ObjectResource):
             cursor.fetchone()
 
         #@todo: Update object info.
+        new_object_info = object_info
+        #@todo: label,ownerId,state,logMessage,lastModifiedDate
+        object_writer.upsert_object(
+            new_object_info,
+            cursor=cursor
+        )
 
         if modified_date is not None:
             resp.body = modified_date.isoformat()
