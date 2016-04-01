@@ -350,9 +350,9 @@ class ObjectResource(api.ObjectResource):
         except TypeError:
             self._send_404(pid, resp)
 
-        object_info = cursor.fetchone()
+        object_info = dict(cursor.fetchone())
 
-        #@todo: Check modified date param, exiting if needed.
+        # Check modified date param, exiting if needed.
         modified_date = req.get_param('lastModifiedDate')
         if modified_date is not None:
             modified_date = utils.check_datetime_timezone(
@@ -368,11 +368,22 @@ class ObjectResource(api.ObjectResource):
                 ))
                 raise falcon.HTTPError('409 Conflict')
 
-        #@todo: Create old version of object.
+        # Create old version of object.
+        if object_info['versioned']:
+            old_object_info = object_info
+            old_object_info['committed'] = object_info['modified']
+            old_object_info['object'] = object_info['id']
+            del(old_object_info['id'])
+            object_writer.upsert_old_object(
+                old_object_info,
+                cursor=cursor
+            )
+            cursor.fetchone()
 
         #@todo: Update object info.
 
-        resp.body = modified_date.isoformat()
+        if modified_date is not None:
+            resp.body = modified_date.isoformat()
         logger.info('Purged %s', pid)
 
     def on_delete(self, req, resp, pid):
