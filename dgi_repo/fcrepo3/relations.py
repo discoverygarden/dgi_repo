@@ -7,6 +7,7 @@ ISLANDORA_RELS_EXT_NAMESPACE = 'http://islandora.ca/ontology/relsext#'
 ISLANDORA_RELS_INT_NAMESPACE = 'http://islandora.ca/ontology/relsint#'
 FEDORA_RELS_EXT_NAMESPACE = 'info:fedora/fedora-system:def/relations-external#'
 FEDORA_MODEL_NAMESPACE = 'info:fedora/fedora-system:def/model#'
+FEDORA_VIEW_NAMESPACE = 'info:fedora/fedora-system:def/view#'
 DC_NAMESPACE = 'http://purl.org/dc/elements/1.1/'
 
 # RDF predicates.
@@ -14,6 +15,11 @@ IS_CONSTITUENT_OF_PREDICATE = 'isConstituentOf'
 IS_MEMBER_OF_PREDICATE = 'isMemberOf'
 IS_MEMBER_OF_COLLECTION_PREDICATE = 'isMemberOfCollection'
 HAS_MODEL_PREDICATE = 'hasModel'
+STATE_PREDICATE = 'state'
+LABEL_PREDICATE = 'label'
+OWNER_PREDICATE = 'ownerId'
+CREATED_DATE_PREDICATE = 'createdDate'
+LAST_MODIFIED_DATE_PREDICATE = 'lastModifiedDate'
 DEFER_DERIVATIVES_PREDICATE = 'deferDerivatives'
 DATE_ISSUED_PREDICATE = 'dateIssued'
 CONTRIBUTOR_PREDICATE = 'contributor'
@@ -70,7 +76,14 @@ RELATIONS = {
         IS_MEMBER_OF_PREDICATE,
     ],
     FEDORA_MODEL_NAMESPACE: [
+        STATE_PREDICATE,
+        LABEL_PREDICATE,
+        OWNER_PREDICATE,
+        CREATED_DATE_PREDICATE,
         HAS_MODEL_PREDICATE,
+    ],
+    FEDORA_VIEW_NAMESPACE: [
+        LAST_MODIFIED_DATE_PREDICATE,
     ],
     DC_NAMESPACE: [
         CONTRIBUTOR_PREDICATE,

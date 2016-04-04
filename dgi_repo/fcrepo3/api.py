@@ -1,8 +1,15 @@
+"""
+Falcon resource abstract base classes.
+"""
+import logging
 from abc import ABC, abstractmethod
+from time import strptime
+
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
-from time import strptime
+
+logger = logging.getLogger(__name__)
 
 FEDORA_ACCESS_URI = 'http://www.fedora.info/definitions/1/0/access/'
 FEDORA_MANAGEMENT_URI = 'http://www.fedora.info/definitions/1/0/management/'
@@ -179,8 +186,17 @@ class ObjectResource(ABC):
         Send a Fedora like 404 when objects don't exist.
         """
         resp.content_type = 'text/plain'
+        logger.info('Object not found in low-level storage: %s', pid)
         resp.body = 'Object not found in low-level storage: {}'.format(pid)
         raise falcon.HTTPNotFound()
+
+    def _send_500(self, pid, resp):
+        """
+        Send a Fedora like 500 when objects exist.
+        # Object exists return 500; @XXX it's what Fedora does.
+        """
+        logger.info('Did not ingest %s as it already existed.', pid)
+        raise falcon.HTTPError('500 Internal Server Error')
 
     def _get_object_profile(self, pid, label, models, created,
                             modified, state, owner):

@@ -9,7 +9,7 @@ import logging
 
 from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.read.repo_objects import old_object_id
+from dgi_repo.database.read.repo_objects import old_object_id, namespace_info
 
 logger = logging.getLogger(__name__)
 
@@ -139,4 +139,19 @@ def upsert_old_object(data, cursor=None):
         data
     )
 
+    return cursor
+
+
+def jump_pids(namespace_id, pid_id, cursor=None):
+    """
+    Raise the namespace's highest pid_id to the indicated point.
+    """
+    if pid_id.isdigit():
+        pid_id = int(pid_id)
+        namespace_info(namespace_id, cursor=cursor)
+        namespace = cursor.fetchone()
+        if namespace['highest_id'] < pid_id:
+            get_pid_ids(namespace['namespace'],
+                        namespace['highest_id'] - pid_id,
+                        cursor=cursor)
     return cursor

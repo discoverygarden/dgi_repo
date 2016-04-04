@@ -2,14 +2,19 @@
 Functions to help with FOXML.
 """
 import base64
+from io import BytesIO
 
 from lxml import etree
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
+import dgi_repo.database.read.datastreams as datastream_reader
+import dgi_repo.database.write.repo_objects as object_writer
+import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
-import dgi_repo.database.read.datastreams as read_datastreams
 from dgi_repo.database.read.repo_objects import object_info_from_raw
+from dgi_repo.database.write.sources import upsert_user
 from dgi_repo.database.utilities import check_cursor
+from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
@@ -20,13 +25,16 @@ SCHEMA_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance'
 SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
 
+OBJECT_STATE_MAP = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
+OBJECT_STATE_LABEL_MAP = {'Active': 'A', 'Inactive': 'I', 'Deleted': 'D'}
 
-def import_foxml(xml, cursor=None):
+
+def import_foxml(xml, source, cursor=None):
     """
     Create a repo object out of a FOXML file.
     """
-    foxml_importer = etree.XMLParser(target=FoxmlTarget(cursor=cursor))
-    etree.parse(xml, foxml_importer)
+    foxml_importer = etree.XMLParser(target=FoxmlTarget(source, cursor=cursor))
+    return etree.parse(xml, foxml_importer)
 
 
 def create_default_dc_ds(object_id, pid, cursor=None):
@@ -58,7 +66,7 @@ def create_default_dc_ds(object_id, pid, cursor=None):
         },
         etree.tostring(dc_tree),
         'application/xml',
-        cursor
+        cursor=cursor
     )
 
 
@@ -102,20 +110,20 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
     """
     Add FOXML properties into an lxml etree.
     """
-    object_state_map = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
-
     with foxml.element('{{{0}}}objectProperties'.format(FOXML_NAMESPACE)):
         property_element = '{{{0}}}property'.format(FOXML_NAMESPACE)
 
         state_attributes = {
-            'VALUE': object_state_map[object_info['state']],
-            'NAME': '{}state'.format(relations.FEDORA_MODEL_NAMESPACE),
+            'VALUE': OBJECT_STATE_MAP[object_info['state']],
+            'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
+                                  relations.STATE_PREDICATE),
         }
         foxml.write(etree.Element(property_element, state_attributes))
 
         label_attributes = {
             'VALUE': object_info['label'] if object_info['label'] else '',
-            'NAME': '{}label'.format(relations.FEDORA_MODEL_NAMESPACE),
+            'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
+                                  relations.LABEL_PREDICATE),
         }
         foxml.write(etree.Element(property_element, label_attributes))
 
@@ -123,20 +131,23 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
         owner_information = cursor.fetchone()
         owner_attributes = {
             'VALUE': owner_information['username'],
-            'NAME': '{}ownerId'.format(relations.FEDORA_MODEL_NAMESPACE),
+            'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
+                                  relations.OWNER_PREDICATE),
         }
         foxml.write(etree.Element(property_element, owner_attributes))
 
         created_date_attributes = {
             'VALUE': object_info['created'].isoformat(),
-            'NAME': '{}createdDate'.format(relations.FEDORA_MODEL_NAMESPACE),
+            'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
+                                  relations.CREATED_DATE_PREDICATE),
         }
         foxml.write(etree.Element(property_element,
                                   created_date_attributes))
 
         modified_date_attributes = {
             'VALUE': object_info['modified'].isoformat(),
-            'NAME': 'info:fedora/fedora-system:def/view#lastModifiedDate',
+            'NAME': '{}{}'.format(relations.FEDORA_VIEW_NAMESPACE,
+                                  relations.LAST_MODIFIED_DATE_PREDICATE)
         }
         foxml.write(etree.Element(property_element,
                                   modified_date_attributes))
@@ -149,7 +160,7 @@ def populate_foxml_datastreams(foxml, pid, object_info,
     """
     Add FOXML datastreams into an lxml etree.
     """
-    cursor = read_datastreams.datastreams(object_info['id'])
+    cursor = datastream_reader.datastreams(object_info['id'])
     datastream_list = cursor.fetchall()
 
     for datastream in datastream_list:
@@ -174,13 +185,13 @@ def populate_foxml_datastream(foxml, pid, datastream,
     }
     with foxml.element('{{{0}}}datastream'.format(FOXML_NAMESPACE),
                        datastream_attributes):
-        versions = list(read_datastreams.old_datastreams(datastream['id']))
+        versions = list(datastream_reader.old_datastreams(datastream['id']))
         versions.append(datastream)
 
         for index, version in enumerate(versions):
-            read_datastreams.resource(version['resource_id'], cursor=cursor)
+            datastream_reader.resource(version['resource_id'], cursor=cursor)
             resource_info = cursor.fetchone()
-            read_datastreams.mime(resource_info['mime'], cursor=cursor)
+            datastream_reader.mime(resource_info['mime'], cursor=cursor)
             mime_info = cursor.fetchone()
             try:
                 created = version['committed'].isoformat()
@@ -200,8 +211,8 @@ def populate_foxml_datastream(foxml, pid, datastream,
             with foxml.element('{{{0}}}datastreamVersion'.format(
                     FOXML_NAMESPACE), version_attributes):
 
-                read_datastreams.checksums(version['resource_id'],
-                                           cursor=cursor)
+                datastream_reader.checksums(version['resource_id'],
+                                            cursor=cursor)
                 checksums = cursor.fetchall()
                 for checksum in checksums:
                     foxml.write(etree.Element(
@@ -251,26 +262,236 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
+def internalize_rels_int(relations_file, cursor=None):
+    """
+    Store the RELS_INT information in the DB.
+    @todo implement.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+    relation_tree = etree.parse(relations_file)
+    return cursor
+
+
+def internalize_rels_dc(relations_file, cursor=None):
+    """
+    Store the DC relation information in the DB.
+    @todo implement.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+    relation_tree = etree.parse(relations_file)
+    return cursor
+
+
+def internalize_rels_ext(relations_file, cursor=None):
+    """
+    Store the RELS_EXT information in the DB.
+    @todo implement.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+    relation_tree = etree.parse(relations_file)
+    return cursor
+
+
 class FoxmlTarget(object):
     """
     Parser target for incremental reading/ingest of FOXML.
-    @todo implement.
+    @todo: handle external/redirects (contentLocation).
+    @todo: handle uploaded files.
+    @todo: checksums (contentDigest)
     """
 
-    def __init__(self, cursor=None):
+    def __init__(self, source, cursor=None):
         """
         Prep for use.
         """
         self.cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
-        self.generate_dc = True
-        self.pid = None
+        self.source = source
+        self.object_info = {}
+        self.ds_info = {}
         self.object_id = None
+        self.rels_int = None
+        self.ds_file = None
+        self.tree_builder = None
+        self.dsid = None
 
-    def start(self, tag, attrib):
-        pass
+    def start(self, tag, attributes):
+        """
+        Grab data from the start of tags.
+        """
+        # Start up a file for content.
+        if (tag == '{{{0}}}xmlContent'.format(FOXML_NAMESPACE) and
+                self.dsid != 'AUDIT'):
+            self.ds_file = utils.SpooledTemporaryFile()
+            self.tree_builder = etree.TreeBuilder()
+        elif self.tree_builder is not None:
+            self.tree_builder.start(tag, attributes)
+
+        if tag == '{{{0}}}binaryContent'.format(FOXML_NAMESPACE):
+            self.in_content = True
+            self.ds_file = SpooledTemporaryFile()
+
+        # Record current DSID.
+        if tag == '{{{0}}}datastream'.format(FOXML_NAMESPACE):
+            self.dsid = attributes['ID']
+            self.ds_info[attributes['ID']] = {'versions': []}
+
+        # Store DS info
+        if (tag == '{{{0}}}datastream'.format(FOXML_NAMESPACE) and
+                self.dsid != 'AUDIT'):
+            self.ds_info[self.dsid].update(attributes)
+        if (tag == '{{{0}}}datastreamVersion'.format(FOXML_NAMESPACE) and
+                self.dsid != 'AUDIT'):
+            attributes['data'] = None
+            self.ds_info[self.dsid]['versions'].append(attributes)
+
+        # Store object info.
+        if tag == '{{{0}}}property'.format(FOXML_NAMESPACE):
+            self.object_info[attributes['NAME']] = attributes['VALUE']
+        if tag == '{{{0}}}digitalObject'.format(FOXML_NAMESPACE):
+            self.object_info['PID'] = attributes['PID']
 
     def end(self, tag):
-        pass
+        """
+        Internalize data at the end of tags.
+        """
+        # Create the object.
+        if tag == '{{{0}}}objectProperties'.format(FOXML_NAMESPACE):
+            raw_namespace, pid_id = utils.break_pid(self.object_info['PID'])
+            object_reader.namespace_id(raw_namespace, cursor=self.cursor)
+            try:
+                namespace = self.cursor.fetchone()['id']
+            except TypeError:
+                # @XXX burns the first PID in a namespace.
+                object_writer.get_pid_id(raw_namespace, cursor=self.cursor)
+                namespace = self.cursor.fetchone()['id']
+
+            raw_log = 'Object created through FOXML import.'
+            upsert_log(raw_log, cursor=self.cursor)
+            log = self.cursor.fetchone()[0]
+
+            raw_owner = self.object_info['{}{}'.format(
+                relations.FEDORA_MODEL_NAMESPACE,
+                relations.OWNER_PREDICATE
+            )]
+            upsert_user({'name': raw_owner, 'source': self.source},
+                        cursor=self.cursor)
+            owner = self.cursor.fetchone()[0]
+
+            created = self.object_info['{}{}'.format(
+                relations.FEDORA_MODEL_NAMESPACE,
+                relations.CREATED_DATE_PREDICATE
+            )]
+
+            modified = self.object_info['{}{}'.format(
+                relations.FEDORA_VIEW_NAMESPACE,
+                relations.LAST_MODIFIED_DATE_PREDICATE
+            )]
+
+            state = OBJECT_STATE_LABEL_MAP[self.object_info['{}{}'.format(
+                relations.FEDORA_MODEL_NAMESPACE,
+                relations.STATE_PREDICATE
+            )]]
+
+            label = self.object_info['{}{}'.format(
+                relations.FEDORA_MODEL_NAMESPACE,
+                relations.LABEL_PREDICATE
+            )]
+
+            object_writer.jump_pids(namespace, pid_id, cursor=self.cursor)
+            object_writer.write_object(
+                {
+                    'namespace': namespace,
+                    'state': state,
+                    'label': label,
+                    'log': log,
+                    'pid_id': pid_id,
+                    'owner': owner,
+                    'created': created,
+                    'modified': modified,
+                },
+                cursor=self.cursor
+            )
+            self.object_id = self.cursor.fetchone()[0]
+
+        # Stash content.
+        if (tag == '{{{0}}}xmlContent'.format(FOXML_NAMESPACE) and
+                self.dsid != 'AUDIT'):
+            base_element = self.tree_builder.close()
+            xml_ds = BytesIO(etree.tostring(base_element))
+            self.ds_info[self.dsid]['versions'][-1]['data'] = xml_ds
+            self.tree_builder = None
+        elif self.tree_builder is not None:
+            self.tree_builder.end(tag)
+
+        if tag == '{{{0}}}binaryContent'.format(FOXML_NAMESPACE):
+            self.ds_file.seek(0)
+            self.ds_info[self.dsid]['versions'][-1]['data'] = self.ds_file
+            self.ds_file = None
+
+        # Store old and current DSs, passing off RELS/DC.
+        if (tag == '{{{0}}}datastream'.format(FOXML_NAMESPACE) and
+                self.dsid != 'AUDIT'):
+            last_ds = self.ds_info[self.dsid]['versions'].pop()
+            last_ds.update(self.ds_info[self.dsid])
+            try:
+                last_ds['actualy_created'] = (self.ds_info[self.dsid]
+                                              ['versions'][0]['CREATED'])
+            except IndexError:
+                last_ds['actualy_created'] = last_ds['CREATED']
+
+            # Populate relations.
+            if self.dsid == 'DC':
+                internalize_rels_dc(last_ds['data'], cursor=self.cursor)
+            if self.dsid == 'RELS-EXT':
+                internalize_rels_ext(last_ds['data'], cursor=self.cursor)
+            if self.dsid == 'RELS-INT':
+                self.rels_int = last_ds['data']
+            self.cursor.fetchall()
+
+            # Write DS.
+            if last_ds['data'] is not None:
+                filestore.create_datastream_from_data(
+                    self._prep_ds(last_ds),
+                    last_ds['data'],
+                    last_ds['MIMETYPE'],
+                    cursor=self.cursor
+                )
+                ds_db_id = self.cursor.fetchone()['id']
+
+            # Write old DSs.
+            for ds_version in self.ds_info[self.dsid]['versions']:
+                ds_version.update(self.ds_info[self.dsid])
+                ds_version['datastream'] = ds_db_id
+                ds_version['actualy_created'] = None
+                if ds_version['data'] is not None:
+                    filestore.create_datastream_from_data(
+                        self._prep_ds(ds_version),
+                        ds_version['data'],
+                        ds_version['MIMETYPE'],
+                        True,
+                        cursor=self.cursor
+                    )
+
+            # Reset current datastream.
+            self.dsid = None
+
+    def _prep_ds(self, ds):
+        """
+        Get a datastream dictionary to pass to the DB helpers (base and old).
+        """
+        prepared_ds = ds.copy()
+        prepared_ds.update({
+            'object': self.object_id,
+            'dsid': self.dsid,
+            'label': ds['LABEL'],
+            'versioned': True if ds['VERSIONABLE'] == 'TRUE' else False,
+            'control_group': ds['CONTROL_GROUP'],
+            'state': ds['STATE'],
+            'modified': ds['CREATED'],
+            'created': ds['actualy_created'],
+            'committed': ds['CREATED'],
+        })
+        return prepared_ds
 
     def data(self, data):
         """
@@ -278,10 +499,18 @@ class FoxmlTarget(object):
 
         @XXX Documentation on buffer size doesn't exist; this may be an issue.
         """
-        pass
+        # ds_file is None unless we are writing to a file.
+        if self.ds_file is not None:
+            self.ds_file.write(data.encode())
+        elif self.tree_builder is not None:
+            self.tree_builder.data(data)
 
-    def comment(self, text):
-        pass
+    def comment(self, data):
+        """
+        Maintain comments from Inline XML.
+        """
+        if self.tree_builder is not None:
+            self.tree_builder.comment(data)
 
     def close(self):
         """
@@ -289,6 +518,16 @@ class FoxmlTarget(object):
 
         We retain the current cursor.
         """
-        if self.generate_dc:
-            create_default_dc_ds(self.object_id, self.pid)
-        self.__init__(self.cursor)
+        # Create a default DC DS.
+        if self.object_id is not None:
+            if 'DC' not in self.ds_info:
+                create_default_dc_ds(self.object_id, self.object_info['PID'])
+        # Create RELS-INT relations once all DSs are made.
+        if self.rels_int is not None:
+            internalize_rels_int(self.rels_int, cursor=self.cursor)
+            self.cursor.fetchall()
+        # Reset for next use.
+        pid = self.object_info['PID']
+        self.__init__(self.cursor, self.source)
+
+        return pid

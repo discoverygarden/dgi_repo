@@ -158,6 +158,9 @@ def upsert_old_datastream(data, cursor=None):
     """
     cursor = check_cursor(cursor)
 
+    if 'log' not in data:
+        data['log'] = None
+
     cursor.execute('''
         INSERT INTO old_datastreams (
             current_datastream,

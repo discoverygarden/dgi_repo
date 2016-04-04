@@ -210,8 +210,13 @@ class ObjectResource(api.ObjectResource):
 
         xml = req.get_param('file')
         if xml is not None:
-            # Import FOXML, getting PID.
-            pid = foxml.import_foxml(xml.file)
+            try:
+                # Import FOXML, getting PID.
+                pid = foxml.import_foxml(xml.file,
+                                         req.env['wsgi.identity'].source_id)
+                logger.info('Imported %s', pid)
+            except TypeError:
+                self._send_500(pid, resp)
         else:
             if not pid or pid == 'new':
                 # Generate PID.
@@ -234,14 +239,7 @@ class ObjectResource(api.ObjectResource):
                     namespace = cursor.fetchone()[1]
 
                 # Jump up PIDs if needed.
-                if pid_id.isdigit():
-                    pid_id = int(pid_id)
-                    object_reader.namespace_info(namespace, cursor=cursor)
-                    highest_pid = cursor.fetchone()['highest_id']
-                    if highest_pid < pid_id:
-                        object_writer.get_pid_ids(raw_namespace,
-                                                  highest_pid - pid_id,
-                                                  cursor=cursor)
+                object_writer.jump_pids(namespace, pid_id, cursor=cursor)
 
             # Figure out the owner's DB ID.
             owner = self._resolve_owner(req, cursor)
@@ -262,14 +260,12 @@ class ObjectResource(api.ObjectResource):
                     cursor=cursor
                 )
             except IntegrityError:
-                # Object exists return 500; @XXX it's what Fedora does.
-                logger.info('Did not ingest %s as it already existed.', pid)
-                raise falcon.HTTPError('500 Internal Server Error')
-
+                self._send_500()
+            if log is not None:
+                logger.info('Ingested %s with log: "%s".', pid, log)
             foxml.create_default_dc_ds(cursor.fetchone()[0], pid)
 
         resp.body = 'Ingested {}'.format(pid)
-        logger.info('Ingested %s with log: "%s".', pid, log)
         return
 
     def on_get(self, req, resp, pid):
@@ -416,7 +412,8 @@ class ObjectResource(api.ObjectResource):
         raw_owner = req.get_param('ownerId')
         if raw_owner:
             source_writer.upsert_user(
-                {'name': raw_owner, 'source': req.identity.source_id},
+                {'name': raw_owner,
+                 'source': req.env['wsgi.identity'].source_id},
                 cursor=cursor
             )
             owner = cursor.fetchone()[0]
