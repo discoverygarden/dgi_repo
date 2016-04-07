@@ -215,6 +215,7 @@ class ObjectResource(api.ObjectResource):
                 pid = foxml.import_foxml(xml.file,
                                          req.env['wsgi.identity'].source_id)
                 logger.info('Imported %s', pid)
+            # @todo raise and catch a more specific exception here.
             except TypeError:
                 self._send_500(pid, resp)
         else:

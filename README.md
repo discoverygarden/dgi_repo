@@ -18,6 +18,7 @@ This module requires the following:
 * [simplejson](https://pypi.python.org/pypi/simplejson/)
 * [python-dateutil](https://pypi.python.org/pypi/python-dateutil/)
 * [pytz](https://pypi.python.org/pypi/pytz)
+* [requests](https://pypi.python.org/pypi/requests)
 * [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation

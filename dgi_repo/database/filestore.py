@@ -184,7 +184,7 @@ def create_datastream_from_data(datastream_data, data, mime=None,
     if checksums is not None:
         for checksum in checksums:
             checksum['resource'] = datastream_data['resource']
-            datastream_writer.upsert_checksum(checksum)
+            datastream_writer.upsert_checksum(checksum, cursor=cursor)
 
     _create_datastream_from_filestore(datastream_data, old, cursor)
 

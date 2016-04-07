@@ -4,9 +4,11 @@ Functions to help with FOXML.
 import base64
 from io import BytesIO
 
+import requests
 from lxml import etree
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
+import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
@@ -14,7 +16,6 @@ import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.database.write.sources import upsert_user
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
@@ -295,8 +296,6 @@ def internalize_rels_ext(relations_file, cursor=None):
 class FoxmlTarget(object):
     """
     Parser target for incremental reading/ingest of FOXML.
-    @todo: handle redirects (contentLocation).
-    @todo: handle uploaded files and internal ids.
     """
 
     def __init__(self, source, cursor=None):
@@ -327,7 +326,10 @@ class FoxmlTarget(object):
 
         if tag == '{{{0}}}binaryContent'.format(FOXML_NAMESPACE):
             self.in_content = True
-            self.ds_file = SpooledTemporaryFile()
+            self.ds_file = utils.SpooledTemporaryFile()
+
+        if tag == '{{{0}}}contentLocation'.format(FOXML_NAMESPACE):
+            self.ds_info[self.dsid]['versions'][-1]['data_ref'] = attributes
 
         # Record current DSID.
         if tag == '{{{0}}}datastream'.format(FOXML_NAMESPACE):
@@ -341,6 +343,7 @@ class FoxmlTarget(object):
         if (tag == '{{{0}}}datastreamVersion'.format(FOXML_NAMESPACE) and
                 self.dsid != 'AUDIT'):
             attributes['data'] = None
+            attributes['data_ref'] = None
             attributes['checksums'] = []
             self.ds_info[self.dsid]['versions'].append(attributes)
 
@@ -463,37 +466,21 @@ class FoxmlTarget(object):
             self.cursor.fetchall()
 
             # Write DS.
-            if last_ds['data'] is not None:
-                filestore.create_datastream_from_data(
-                    self._prep_ds(last_ds),
-                    last_ds['data'],
-                    mime=last_ds['MIMETYPE'],
-                    checksums=last_ds['checksums'],
-                    cursor=self.cursor
-                )
-                ds_db_id = self.cursor.fetchone()['id']
+            ds_db_id = self._create_ds(last_ds)
 
             # Write old DSs.
             for ds_version in self.ds_info[self.dsid]['versions']:
                 ds_version.update(self.ds_info[self.dsid])
                 ds_version['datastream'] = ds_db_id
                 ds_version['actualy_created'] = None
-                if ds_version['data'] is not None:
-                    filestore.create_datastream_from_data(
-                        self._prep_ds(ds_version),
-                        ds_version['data'],
-                        mime=ds_version['MIMETYPE'],
-                        checksums=ds_version['checksums'],
-                        old=True,
-                        cursor=self.cursor
-                    )
+                ds_db_id = self._create_ds(ds_version, old=True)
 
             # Reset current datastream.
             self.dsid = None
 
-    def _prep_ds(self, ds):
+    def _create_ds(self, ds, old=False):
         """
-        Get a datastream dictionary to pass to the DB helpers (base and old).
+        Create a datastream on the current object.
         """
         prepared_ds = ds.copy()
         prepared_ds.update({
@@ -507,7 +494,65 @@ class FoxmlTarget(object):
             'created': ds['actualy_created'],
             'committed': ds['CREATED'],
         })
-        return prepared_ds
+        if prepared_ds['data'] is not None:
+            # We already have data.
+            filestore.create_datastream_from_data(
+                prepared_ds,
+                prepared_ds['data'],
+                mime=prepared_ds['MIMETYPE'],
+                checksums=prepared_ds['checksums'],
+                old=old,
+                cursor=self.cursor
+            )
+        elif prepared_ds['data_ref'] is not None:
+            if prepared_ds['data_ref']['TYPE'] == 'URL':
+                # Data will remain external.
+                if prepared_ds['CONTROL_GROUP'] == 'R':
+                    datastream_writer.upsert_mime(prepared_ds['MIMETYPE'],
+                                                  cursor=self.cursor)
+                    datastream_writer.upsert_resource(
+                        {
+                            'uri': prepared_ds['data_ref']['REF'],
+                            'mime': self.cursor.fetchone()['id'],
+                        },
+                        cursor=self.cursor)
+                    prepared_ds['resource'] = self.cursor.fetchone()['id']
+                    datastream_writer.upsert_datastream(prepared_ds,
+                                                        cursor=self.cursor)
+                else:
+                    # Data has been uploaded.
+                    filestore.create_datastream_from_upload(
+                        prepared_ds,
+                        prepared_ds['data_ref']['REF'],
+                        mime=prepared_ds['MIMETYPE'],
+                        checksums=prepared_ds['checksums'],
+                        old=old,
+                        cursor=self.cursor
+                    )
+            elif prepared_ds['data_ref']['TYPE'] == 'INTERNAL_ID':
+                # We need to fetch data.
+                ds_resp = requests.get(
+                    prepared_ds['data_ref']['REF'], stream=True
+                )
+                # @XXX: we should be able to avoid creating this file by
+                # wrapping the raw attribute on the response to decode on read.
+                ds_file = utils.SpooledTemporaryFile()
+                for chunk in ds_resp.iter_content(1024):
+                    ds_file.write(chunk)
+                ds_file.seek(0)
+
+                filestore.create_datastream_from_data(
+                    prepared_ds,
+                    ds_file,
+                    mime=prepared_ds['MIMETYPE'],
+                    checksums=prepared_ds['checksums'],
+                    old=old,
+                    cursor=self.cursor
+                )
+
+        ds_db_id = self.cursor.fetchone()['id']
+
+        return ds_db_id
 
     def data(self, data):
         """
