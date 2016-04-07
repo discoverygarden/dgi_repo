@@ -140,14 +140,14 @@ def upsert_checksum(data, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO checksums (checksum, uri, type)
-        VALUES (%(checksum)s, %(uri)s, %(type)s)
-        ON CONFLICT (uri, type) DO UPDATE
+        INSERT INTO checksums (checksum, resource, type)
+        VALUES (%(checksum)s, %(resource)s, %(type)s)
+        ON CONFLICT (resource, type) DO UPDATE
         SET (checksum) = (%(checksum)s)
         RETURNING id
     ''', data)
 
-    logger.debug('Upserted checksum for URI: %(uri)s.', data)
+    logger.debug('Upserted checksum for resource: %(resource)s.', data)
 
     return cursor
 

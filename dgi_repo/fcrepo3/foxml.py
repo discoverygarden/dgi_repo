@@ -289,14 +289,16 @@ def internalize_rels_ext(relations_file, cursor=None):
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
+    import logging
+    logging.info(etree.tostring(relation_tree))
     return cursor
 
 
 class FoxmlTarget(object):
     """
     Parser target for incremental reading/ingest of FOXML.
-    @todo: handle external/redirects (contentLocation).
-    @todo: handle uploaded files.
+    @todo: handle redirects (contentLocation).
+    @todo: handle uploaded files and internal ids.
     @todo: checksums (contentDigest)
     """
 
@@ -335,7 +337,7 @@ class FoxmlTarget(object):
             self.dsid = attributes['ID']
             self.ds_info[attributes['ID']] = {'versions': []}
 
-        # Store DS info
+        # Store DS info.
         if (tag == '{{{0}}}datastream'.format(FOXML_NAMESPACE) and
                 self.dsid != 'AUDIT'):
             self.ds_info[self.dsid].update(attributes)
@@ -343,6 +345,14 @@ class FoxmlTarget(object):
                 self.dsid != 'AUDIT'):
             attributes['data'] = None
             self.ds_info[self.dsid]['versions'].append(attributes)
+
+        # Store checksum info.
+        if tag == '{{{0}}}contentDigest'.format(FOXML_NAMESPACE):
+            checksum = {
+                'type': attributes['TYPE'],
+                'checksum': attributes['DIGEST'],
+            }
+            self.ds_info[self.dsid]['versions'][-1]['checksum'] = checksum
 
         # Store object info.
         if tag == '{{{0}}}property'.format(FOXML_NAMESPACE):
