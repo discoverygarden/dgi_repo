@@ -172,23 +172,27 @@ def uri_size(uri):
     return os.path.getsize(resolve_uri(uri))
 
 
-def create_datastream_from_data(datastream_data, data, mime=None, old=False,
-                                cursor=None):
+def create_datastream_from_data(datastream_data, data, mime=None,
+                                checksums=None, old=False, cursor=None):
     """
     Create a datastream from bytes, file or string.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
 
-    datastream_data['resource'] = stash(
-        data, DATASTREAM_SCHEME, mime)[0]
+    datastream_data['resource'] = stash(data, DATASTREAM_SCHEME, mime)[0]
+
+    if checksums is not None:
+        for checksum in checksums:
+            checksum['resource'] = datastream_data['resource']
+            datastream_writer.upsert_checksum(checksum)
 
     _create_datastream_from_filestore(datastream_data, old, cursor)
 
     return cursor
 
 
-def create_datastream_from_upload(datastream_data, upload_uri, old=False,
-                                  cursor=None):
+def create_datastream_from_upload(datastream_data, upload_uri, checksums=None,
+                                  old=False, cursor=None):
     """
     Create a datastream from a resource.
     """
@@ -200,7 +204,8 @@ def create_datastream_from_upload(datastream_data, upload_uri, old=False,
     mime = cursor.fetchone()['mime']
 
     with open(resolve_uri(upload_uri), 'rb') as data:
-        create_datastream_from_data(datastream_data, data, mime, old, cursor)
+        create_datastream_from_data(datastream_data, data, mime, checksums,
+                                    old, cursor)
 
     return cursor
 

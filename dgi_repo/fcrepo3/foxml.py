@@ -289,8 +289,6 @@ def internalize_rels_ext(relations_file, cursor=None):
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
-    import logging
-    logging.info(etree.tostring(relation_tree))
     return cursor
 
 
@@ -299,7 +297,6 @@ class FoxmlTarget(object):
     Parser target for incremental reading/ingest of FOXML.
     @todo: handle redirects (contentLocation).
     @todo: handle uploaded files and internal ids.
-    @todo: checksums (contentDigest)
     """
 
     def __init__(self, source, cursor=None):
@@ -344,6 +341,7 @@ class FoxmlTarget(object):
         if (tag == '{{{0}}}datastreamVersion'.format(FOXML_NAMESPACE) and
                 self.dsid != 'AUDIT'):
             attributes['data'] = None
+            attributes['checksums'] = []
             self.ds_info[self.dsid]['versions'].append(attributes)
 
         # Store checksum info.
@@ -352,7 +350,9 @@ class FoxmlTarget(object):
                 'type': attributes['TYPE'],
                 'checksum': attributes['DIGEST'],
             }
-            self.ds_info[self.dsid]['versions'][-1]['checksum'] = checksum
+            self.ds_info[self.dsid]['versions'][-1]['checksums'].append(
+                checksum
+            )
 
         # Store object info.
         if tag == '{{{0}}}property'.format(FOXML_NAMESPACE):
@@ -463,7 +463,8 @@ class FoxmlTarget(object):
                 filestore.create_datastream_from_data(
                     self._prep_ds(last_ds),
                     last_ds['data'],
-                    last_ds['MIMETYPE'],
+                    mime=last_ds['MIMETYPE'],
+                    checksums=last_ds['checksums'],
                     cursor=self.cursor
                 )
                 ds_db_id = self.cursor.fetchone()['id']
@@ -477,8 +478,9 @@ class FoxmlTarget(object):
                     filestore.create_datastream_from_data(
                         self._prep_ds(ds_version),
                         ds_version['data'],
-                        ds_version['MIMETYPE'],
-                        True,
+                        mime=ds_version['MIMETYPE'],
+                        checksums=ds_version['checksums'],
+                        old=True,
                         cursor=self.cursor
                     )
 

@@ -457,12 +457,12 @@ class DatastreamListResource(api.DatastreamListResource):
 class DatastreamResource(api.DatastreamResource):
     def on_post(self, req, resp, pid, dsid):
         super().on_post(req, resp, pid, dsid)
-        # TODO: Persist the new object.
+        # TODO: Persist the new datastream.
         pass
 
     def on_put(self, req, resp, pid, dsid):
         super().on_put(req, resp, pid, dsid)
-        # TODO: Commit the modification to the object.
+        # TODO: Commit the modification to the datastream.
         pass
 
     def on_delete(self, req, resp, pid, dsid):
