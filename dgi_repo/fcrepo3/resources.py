@@ -19,6 +19,7 @@ import dgi_repo.database.write.sources as source_writer
 import dgi_repo.database.read.sources as source_reader
 import dgi_repo.database.write.log as log_writer
 from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.database import filestore
@@ -215,9 +216,8 @@ class ObjectResource(api.ObjectResource):
                 pid = foxml.import_foxml(xml.file,
                                          req.env['wsgi.identity'].source_id)
                 logger.info('Imported %s', pid)
-            # @todo raise and catch a more specific exception here.
-            except TypeError:
-                self._send_500(pid, resp)
+            except ObjectExistsError as e:
+                self._send_500(e.args[0], resp)
         else:
             if not pid or pid == 'new':
                 # Generate PID.

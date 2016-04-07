@@ -6,6 +6,7 @@ from io import BytesIO
 
 import requests
 from lxml import etree
+from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.write.datastreams as datastream_writer
@@ -14,6 +15,7 @@ import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
+from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.database.write.sources import upsert_user
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.write.log import upsert_log
@@ -411,19 +413,22 @@ class FoxmlTarget(object):
             )]
 
             object_writer.jump_pids(namespace, pid_id, cursor=self.cursor)
-            object_writer.write_object(
-                {
-                    'namespace': namespace,
-                    'state': state,
-                    'label': label,
-                    'log': log,
-                    'pid_id': pid_id,
-                    'owner': owner,
-                    'created': created,
-                    'modified': modified,
-                },
-                cursor=self.cursor
-            )
+            try:
+                object_writer.write_object(
+                    {
+                        'namespace': namespace,
+                        'state': state,
+                        'label': label,
+                        'log': log,
+                        'pid_id': pid_id,
+                        'owner': owner,
+                        'created': created,
+                        'modified': modified,
+                    },
+                    cursor=self.cursor
+                )
+            except IntegrityError:
+                raise ObjectExistsError(self.object_info['PID'])
             self.object_id = self.cursor.fetchone()[0]
 
         # Stash content.
