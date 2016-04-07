@@ -435,8 +435,12 @@ class FoxmlTarget(object):
 
         if tag == '{{{0}}}binaryContent'.format(FOXML_NAMESPACE):
             self.ds_file.seek(0)
-            self.ds_info[self.dsid]['versions'][-1]['data'] = self.ds_file
+            decoded_file = utils.SpooledTemporaryFile()
+            base64.decode(self.ds_file, decoded_file)
+            self.ds_file.close()
             self.ds_file = None
+            decoded_file.seek(0)
+            self.ds_info[self.dsid]['versions'][-1]['data'] = decoded_file
 
         # Store old and current DSs, passing off RELS/DC.
         if (tag == '{{{0}}}datastream'.format(FOXML_NAMESPACE) and

@@ -3914,14 +3914,6 @@ ALTER TABLE ONLY sources
 
 
 --
--- Name: unique_checksums; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY checksums
-    ADD CONSTRAINT unique_checksums UNIQUE (checksum);
-
-
---
 -- Name: unique_checksums_per_resource; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
