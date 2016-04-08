@@ -146,7 +146,7 @@ def jump_pids(namespace_id, pid_id, cursor=None):
     """
     Raise the namespace's highest pid_id to the indicated point.
     """
-    if pid_id.isdigit():
+    if pid_id.isdecimal():
         pid_id = int(pid_id)
         namespace_info(namespace_id, cursor=cursor)
         namespace = cursor.fetchone()
