@@ -28,7 +28,7 @@ _URI_MAP = {
     UPLOAD_SCHEME: {
         'dir': os.path.join(_configuration['data_directory'], 'uploads'),
     },
-    'datastream': {
+    DATASTREAM_SCHEME: {
         'dir': os.path.join(_configuration['data_directory'], 'datastreams'),
         'prefix': 'ds'
     }
