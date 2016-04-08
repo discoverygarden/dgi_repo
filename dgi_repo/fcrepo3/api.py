@@ -203,7 +203,7 @@ class ObjectResource(ABC):
         """
         Build up object profile XML.
         """
-        tree = etree.fromstring(('''<?xml version="1.0"?>
+        tree = etree.fromstring('''<?xml version="1.0"?>
         <objectProfile
           xmlns="http://www.fedora.info/definitions/1/0/access/"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -214,7 +214,7 @@ class ObjectResource(ABC):
             <model>info:fedora/fedora-system:FedoraObject-3.0</model>
           </objModels>
           </objectProfile>
-        '''))
+        ''')
 
         model_xpath = etree.ETXPath(
          '//{{{}}}objModels'.format(FEDORA_ACCESS_URI)
