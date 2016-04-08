@@ -105,6 +105,9 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
 
                 logger.debug('Stashing data as %s.', dest.name)
                 copyfileobj(src, dest)
+                # This is our Raison d'etre, make sure the file is out.
+                dest.flush()
+                os.fsync(dest.fileno())
         except:
             logger.exception('Attempting to delete %s (%s) due to exception.',
                              uri, dest.name)
