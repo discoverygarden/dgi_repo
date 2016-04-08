@@ -321,13 +321,11 @@ class FoxmlTarget(object):
         # Start up a file for content.
         if (tag == '{{{0}}}xmlContent'.format(FOXML_NAMESPACE) and
                 self.dsid != 'AUDIT'):
-            self.ds_file = utils.SpooledTemporaryFile()
             self.tree_builder = etree.TreeBuilder()
         elif self.tree_builder is not None:
             self.tree_builder.start(tag, attributes)
 
         if tag == '{{{0}}}binaryContent'.format(FOXML_NAMESPACE):
-            self.in_content = True
             self.ds_file = utils.SpooledTemporaryFile()
 
         if tag == '{{{0}}}contentLocation'.format(FOXML_NAMESPACE):
