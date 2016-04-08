@@ -350,6 +350,8 @@ class ObjectResource(api.ObjectResource):
                                 object_info['modified'].isoformat(),
                                 modified_date.isoformat()
                 ))
+                # @XXX Raising HTTPError over HTTPConflict because we don't
+                # have a title and description as HTTPConflict requires.
                 raise falcon.HTTPError('409 Conflict')
 
         # Create old version of object.
