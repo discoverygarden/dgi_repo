@@ -419,7 +419,7 @@ CREATE TABLE datastreams (
     object_id bigint NOT NULL,
     label text,
     dsid character varying(255) NOT NULL,
-    resource_id bigint,
+    resource bigint,
     versioned boolean DEFAULT false NOT NULL,
     archival boolean DEFAULT false NOT NULL,
     control_group datastream_control_group NOT NULL,
@@ -466,10 +466,10 @@ COMMENT ON COLUMN datastreams.dsid IS 'Machine name for the datastream.';
 
 
 --
--- Name: COLUMN datastreams.resource_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastreams.resource; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastreams.resource_id IS 'The URI to the datastream content.';
+COMMENT ON COLUMN datastreams.resource IS 'The resource that is the datastream content.';
 
 
 --
@@ -2696,7 +2696,7 @@ CREATE TABLE old_datastreams (
     log bigint,
     state state NOT NULL,
     label text,
-    resource_id bigint,
+    resource bigint,
     committed timestamp with time zone NOT NULL
 );
 
@@ -2744,10 +2744,10 @@ COMMENT ON COLUMN old_datastreams.label IS 'Label of the datastream at the versi
 
 
 --
--- Name: COLUMN old_datastreams.resource_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN old_datastreams.resource; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN old_datastreams.resource_id IS 'URI to the resource at the version.';
+COMMENT ON COLUMN old_datastreams.resource IS 'The resource that is the datastream content at the version.';
 
 
 --
@@ -4563,7 +4563,7 @@ CREATE INDEX fki_old_datastream_log_link ON old_datastreams USING btree (log);
 -- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (resource_id);
+CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (resource);
 
 
 --
@@ -4605,7 +4605,7 @@ CREATE INDEX fki_resource_checksum_link ON checksums USING btree (resource);
 -- Name: fki_resource_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_resource_link ON datastreams USING btree (resource_id);
+CREATE INDEX fki_resource_link ON datastreams USING btree (resource);
 
 
 --
@@ -5596,7 +5596,7 @@ COMMENT ON CONSTRAINT old_datastream_log_link ON old_datastreams IS 'Old datastr
 --
 
 ALTER TABLE ONLY old_datastreams
-    ADD CONSTRAINT old_datastreams_uri_link FOREIGN KEY (resource_id) REFERENCES resources(id);
+    ADD CONSTRAINT old_datastreams_uri_link FOREIGN KEY (resource) REFERENCES resources(id);
 
 
 --
@@ -5694,7 +5694,7 @@ COMMENT ON CONSTRAINT resource_checksum_link ON checksums IS 'Checksums belong t
 --
 
 ALTER TABLE ONLY datastreams
-    ADD CONSTRAINT uri_datastream_link FOREIGN KEY (resource_id) REFERENCES resources(id);
+    ADD CONSTRAINT uri_datastream_link FOREIGN KEY (resource) REFERENCES resources(id);
 
 
 --

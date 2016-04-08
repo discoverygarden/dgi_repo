@@ -38,7 +38,7 @@ def upsert_datastream(data, cursor=None):
             object_id,
             label,
             dsid,
-            resource_id,
+            resource,
             versioned,
             archival,
             control_group,
@@ -65,7 +65,7 @@ def upsert_datastream(data, cursor=None):
                 object_id,
                 label,
                 dsid,
-                resource_id,
+                resource,
                 versioned,
                 archival,
                 control_group,
@@ -167,7 +167,7 @@ def upsert_old_datastream(data, cursor=None):
             log,
             state,
             label,
-            resource_id,
+            resource,
             committed
         )
         VALUES (

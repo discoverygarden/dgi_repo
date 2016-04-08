@@ -192,7 +192,7 @@ def populate_foxml_datastream(foxml, pid, datastream,
         versions.append(datastream)
 
         for index, version in enumerate(versions):
-            datastream_reader.resource(version['resource_id'], cursor=cursor)
+            datastream_reader.resource(version['resource'], cursor=cursor)
             resource_info = cursor.fetchone()
             datastream_reader.mime(resource_info['mime'], cursor=cursor)
             mime_info = cursor.fetchone()
@@ -214,7 +214,7 @@ def populate_foxml_datastream(foxml, pid, datastream,
             with foxml.element('{{{0}}}datastreamVersion'.format(
                     FOXML_NAMESPACE), version_attributes):
 
-                datastream_reader.checksums(version['resource_id'],
+                datastream_reader.checksums(version['resource'],
                                             cursor=cursor)
                 checksums = cursor.fetchall()
                 for checksum in checksums:
