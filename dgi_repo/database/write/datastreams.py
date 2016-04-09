@@ -19,19 +19,12 @@ def upsert_datastream(data, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    # Set some defaults.
-    if 'state' not in data:
-        data['state'] = 'A'
-    if 'label' not in data:
-        data['label'] = None
-    if 'resource' not in data:
-        data['resource'] = None
-    if 'versioned' not in data:
-        data['versioned'] = False
-    if 'archival' not in data:
-        data['archival'] = False
-    if 'log' not in data:
-        data['log'] = None
+    data.setdefault('log')
+    data.setdefault('label')
+    data.setdefault('resource')
+    data.setdefault('state', 'A')
+    data.setdefault('archival', False)
+    data.setdefault('versioned', False)
 
     cursor.execute('''
         INSERT INTO datastreams (

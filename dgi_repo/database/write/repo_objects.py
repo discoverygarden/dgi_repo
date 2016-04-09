@@ -104,16 +104,11 @@ def _set_object_defaults(data):
     """
     Populate defaults if not provided in the data.
     """
-    if 'namespace' not in data:
-        data['namespace'] = _configuration['default_namespace']
-    if 'state' not in data:
-        data['state'] = 'A'
-    if 'label' not in data:
-        data['label'] = None
-    if 'versioned' not in data:
-        data['versioned'] = True
-    if 'log' not in data:
-        data['log'] = None
+    data.setdefault('log')
+    data.setdefault('label')
+    data.setdefault('state', 'A')
+    data.setdefault('versioned', True)
+    data.setdefault('namespace', _configuration['default_namespace'])
 
     return data
 
