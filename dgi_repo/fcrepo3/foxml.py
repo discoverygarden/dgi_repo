@@ -15,6 +15,7 @@ import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.database.write.sources import upsert_user
 from dgi_repo.database.utilities import check_cursor
@@ -540,7 +541,7 @@ class FoxmlTarget(object):
                 # @XXX: we should be able to avoid creating this file by
                 # wrapping the raw attribute on the response to decode on read.
                 ds_file = utils.SpooledTemporaryFile()
-                for chunk in ds_resp.iter_content(1024):
+                for chunk in ds_resp.iter_content(_config['download_chunk_size']):
                     ds_file.write(chunk)
                 ds_file.seek(0)
 
