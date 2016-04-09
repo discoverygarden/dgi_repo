@@ -5,7 +5,7 @@ from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
 
-from dgi_repo.configuration import configuration
+from dgi_repo.configuration import configuration as _config
 import dgi_repo.fcrepo3.relations as rels
 
 RELATION_MAP = {
@@ -235,10 +235,10 @@ def get_connection(isolation_level=ISOLATION_LEVEL_REPEATABLE_READ):
         isolation_level = ISOLATION_LEVEL_REPEATABLE_READ
 
     connection_string = 'dbname={} user={} password={} host={}'.format(
-        configuration['database']['name'],
-        configuration['database']['username'],
-        configuration['database']['password'],
-        configuration['database']['host']
+        _config['database']['name'],
+        _config['database']['username'],
+        _config['database']['password'],
+        _config['database']['host']
     )
 
     connection = connect(connection_string, cursor_factory=DictCursor)
