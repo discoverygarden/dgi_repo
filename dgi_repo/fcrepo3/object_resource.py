@@ -44,7 +44,7 @@ class ObjectResource(api.ObjectResource):
                                          req.env['wsgi.identity'].source_id)
                 logger.info('Imported %s', pid)
             except ObjectExistsError as e:
-                self._send_500(e.args[0], resp)
+                self._send_500(e.pid, resp)
         else:
             if not pid or pid == 'new':
                 # Generate PID.
