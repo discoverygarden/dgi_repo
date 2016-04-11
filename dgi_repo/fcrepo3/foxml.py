@@ -455,10 +455,10 @@ class FoxmlTarget(object):
             last_ds = self.ds_info[self.dsid]['versions'].pop()
             last_ds.update(self.ds_info[self.dsid])
             try:
-                last_ds['actualy_created'] = (self.ds_info[self.dsid]
-                                              ['versions'][0]['CREATED'])
+                last_ds['actually_created'] = (self.ds_info[self.dsid]
+                                               ['versions'][0]['CREATED'])
             except IndexError:
-                last_ds['actualy_created'] = last_ds['CREATED']
+                last_ds['actually_created'] = last_ds['CREATED']
 
             # Populate relations.
             if self.dsid == 'DC':
@@ -476,7 +476,7 @@ class FoxmlTarget(object):
             for ds_version in self.ds_info[self.dsid]['versions']:
                 ds_version.update(self.ds_info[self.dsid])
                 ds_version['datastream'] = ds_db_id
-                ds_version['actualy_created'] = None
+                ds_version['actually_created'] = None
                 ds_db_id = self._create_ds(ds_version, old=True)
 
             # Reset current datastream.
@@ -495,7 +495,7 @@ class FoxmlTarget(object):
             'control_group': ds['CONTROL_GROUP'],
             'state': ds['STATE'],
             'modified': ds['CREATED'],
-            'created': ds['actualy_created'],
+            'created': ds['actually_created'],
             'committed': ds['CREATED'],
         })
         if prepared_ds['data'] is not None:
