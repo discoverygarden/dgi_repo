@@ -541,7 +541,8 @@ class FoxmlTarget(object):
                 # @XXX: we should be able to avoid creating this file by
                 # wrapping the raw attribute on the response to decode on read.
                 ds_file = utils.SpooledTemporaryFile()
-                for chunk in ds_resp.iter_content(_config['download_chunk_size']):
+                for chunk in ds_resp.iter_content(
+                        _config['download_chunk_size']):
                     ds_file.write(chunk)
                 ds_file.seek(0)
 
