@@ -2,6 +2,8 @@
 Authorize actions.
 """
 
+from dgi_repo.auth import authorization
+
 
 def authorize(identity, action):
     """

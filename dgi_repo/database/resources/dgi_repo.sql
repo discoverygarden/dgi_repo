@@ -81,7 +81,7 @@ SET default_with_oids = false;
 CREATE TABLE checksums (
     checksum character(128) NOT NULL,
     id bigint NOT NULL,
-    uri bigint NOT NULL,
+    resource bigint NOT NULL,
     type checksum_algorithims NOT NULL
 );
 
@@ -108,10 +108,10 @@ COMMENT ON COLUMN checksums.id IS 'The database ID for the checksum';
 
 
 --
--- Name: COLUMN checksums.uri; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN checksums.resource; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN checksums.uri IS 'The database id of the URI that the checksum belongs to.';
+COMMENT ON COLUMN checksums.resource IS 'The database id of the resource that the checksum belongs to.';
 
 
 --
@@ -419,7 +419,7 @@ CREATE TABLE datastreams (
     object_id bigint NOT NULL,
     label text,
     dsid character varying(255) NOT NULL,
-    resource_id bigint,
+    resource bigint,
     versioned boolean DEFAULT false NOT NULL,
     archival boolean DEFAULT false NOT NULL,
     control_group datastream_control_group NOT NULL,
@@ -466,10 +466,10 @@ COMMENT ON COLUMN datastreams.dsid IS 'Machine name for the datastream.';
 
 
 --
--- Name: COLUMN datastreams.resource_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastreams.resource; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastreams.resource_id IS 'The URI to the datastream content.';
+COMMENT ON COLUMN datastreams.resource IS 'The resource that is the datastream content.';
 
 
 --
@@ -2696,7 +2696,7 @@ CREATE TABLE old_datastreams (
     log bigint,
     state state NOT NULL,
     label text,
-    resource_id bigint,
+    resource bigint,
     committed timestamp with time zone NOT NULL
 );
 
@@ -2744,10 +2744,10 @@ COMMENT ON COLUMN old_datastreams.label IS 'Label of the datastream at the versi
 
 
 --
--- Name: COLUMN old_datastreams.resource_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN old_datastreams.resource; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN old_datastreams.resource_id IS 'URI to the resource at the version.';
+COMMENT ON COLUMN old_datastreams.resource IS 'The resource that is the datastream content at the version.';
 
 
 --
@@ -3914,26 +3914,18 @@ ALTER TABLE ONLY sources
 
 
 --
--- Name: unique_checksums; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: unique_checksums_per_resource; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY checksums
-    ADD CONSTRAINT unique_checksums UNIQUE (checksum);
+    ADD CONSTRAINT unique_checksums_per_resource UNIQUE (resource, type);
 
 
 --
--- Name: unique_checksums_per_uri; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: CONSTRAINT unique_checksums_per_resource ON checksums; Type: COMMENT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY checksums
-    ADD CONSTRAINT unique_checksums_per_uri UNIQUE (uri, type);
-
-
---
--- Name: CONSTRAINT unique_checksums_per_uri ON checksums; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON CONSTRAINT unique_checksums_per_uri ON checksums IS 'Each URI should only have one checksum of a given type.';
+COMMENT ON CONSTRAINT unique_checksums_per_resource ON checksums IS 'Each resource should only have one checksum of a given type.';
 
 
 --
@@ -4571,7 +4563,7 @@ CREATE INDEX fki_old_datastream_log_link ON old_datastreams USING btree (log);
 -- Name: fki_old_datastreams_uri_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (resource_id);
+CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (resource);
 
 
 --
@@ -4603,24 +4595,24 @@ CREATE INDEX fki_predicate_rdf_namespace_link ON predicates USING btree (rdf_nam
 
 
 --
--- Name: fki_uri_checksum_link; Type: INDEX; Schema: public; Owner: -
+-- Name: fki_resource_checksum_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_uri_checksum_link ON checksums USING btree (uri);
-
-
---
--- Name: fki_uri_link; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_uri_link ON datastreams USING btree (resource_id);
+CREATE INDEX fki_resource_checksum_link ON checksums USING btree (resource);
 
 
 --
--- Name: fki_uri_mime_link; Type: INDEX; Schema: public; Owner: -
+-- Name: fki_resource_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_uri_mime_link ON resources USING btree (mime);
+CREATE INDEX fki_resource_link ON datastreams USING btree (resource);
+
+
+--
+-- Name: fki_resource_mime_link; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fki_resource_mime_link ON resources USING btree (mime);
 
 
 --
@@ -5604,7 +5596,7 @@ COMMENT ON CONSTRAINT old_datastream_log_link ON old_datastreams IS 'Old datastr
 --
 
 ALTER TABLE ONLY old_datastreams
-    ADD CONSTRAINT old_datastreams_uri_link FOREIGN KEY (resource_id) REFERENCES resources(id);
+    ADD CONSTRAINT old_datastreams_uri_link FOREIGN KEY (resource) REFERENCES resources(id);
 
 
 --
@@ -5683,18 +5675,18 @@ ALTER TABLE ONLY user_roles
 
 
 --
--- Name: uri_checksum_link; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: resource_checksum_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY checksums
-    ADD CONSTRAINT uri_checksum_link FOREIGN KEY (uri) REFERENCES resources(id);
+    ADD CONSTRAINT resource_checksum_link FOREIGN KEY (resource) REFERENCES resources(id);
 
 
 --
--- Name: CONSTRAINT uri_checksum_link ON checksums; Type: COMMENT; Schema: public; Owner: -
+-- Name: CONSTRAINT resource_checksum_link ON checksums; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON CONSTRAINT uri_checksum_link ON checksums IS 'Checksums belong to URIs.';
+COMMENT ON CONSTRAINT resource_checksum_link ON checksums IS 'Checksums belong to resources.';
 
 
 --
@@ -5702,7 +5694,7 @@ COMMENT ON CONSTRAINT uri_checksum_link ON checksums IS 'Checksums belong to URI
 --
 
 ALTER TABLE ONLY datastreams
-    ADD CONSTRAINT uri_datastream_link FOREIGN KEY (resource_id) REFERENCES resources(id);
+    ADD CONSTRAINT uri_datastream_link FOREIGN KEY (resource) REFERENCES resources(id);
 
 
 --

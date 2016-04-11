@@ -6,11 +6,11 @@ import base64
 import logging
 import io
 
+import dgi_repo.database.write.repo_objects as object_writer
+from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api
-from dgi_repo.configuration import configuration as _configuration
-from dgi_repo.database.write.repo_objects import get_pid_ids
-from dgi_repo.database import filestore
+from dgi_repo.configuration import configuration as _config
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,10 @@ def route(*routes):
 @route('/services/access')
 class SoapAccessResource(api.FakeSoapResource):
     def _respond(self, xf, method, kwargs):
-        if method == '{{{0}}}getDatastreamDissemination'.format(api.FEDORA_TYPES_URI):
-            with xf.element('{{{0}}}getDatastreamDisseminationResponse'.format(api.FEDORA_TYPES_URI)):
+        if method == '{{{0}}}getDatastreamDissemination'.format(
+                api.FEDORA_TYPES_URI):
+            with xf.element('{{{0}}}getDatastreamDisseminationResponse'.format(
+                    api.FEDORA_TYPES_URI)):
                 with xf.element('MIMEType'):
                     # TODO: Write the "real" MIME-type.
                     xf.write('application/octet-stream')
@@ -64,7 +66,8 @@ class SoapAccessResource(api.FakeSoapResource):
 class SoapManagementResource(api.FakeSoapResource):
     def _respond(self, xf, method, kwargs):
         if method == '{{{0}}}export'.format(api.FEDORA_TYPES_URI):
-            with xf.element('{{{0}}}exportResponse'.format(api.FEDORA_TYPES_URI)):
+            with xf.element('{{{0}}}exportResponse'.format(
+                    api.FEDORA_TYPES_URI)):
                 with xf.element('objectXML'):
                     foxml = io.BytesIO(b"""<?xml version="1.0" encoding="UTF-8"?>
 <foxml:digitalObject VERSION="1.1" PID="islandora:root" FEDORA_URI="info:fedora/islandora:root"
@@ -162,9 +165,9 @@ class PidResource(api.PidResource):
         Get a set number of PIDs from a namespace.
         """
         if namespace is None:
-            namespace = _configuration['default_namespace']
+            namespace = _config['default_namespace']
 
-        namespace_info = get_pid_ids(namespace, numPIDs)
+        namespace_info = object_writer.get_pid_ids(namespace, numPIDs)
         highest_id = namespace_info.fetchone()['highest_id']
         pids = []
 
@@ -178,29 +181,6 @@ class PidResource(api.PidResource):
         logger.info('Getting new PID(s): %s.', pids_to_log)
 
         return pids
-
-
-@route('/objects/{pid}')
-class ObjectResource(api.ObjectResource):
-    def on_post(self, req, resp, pid):
-        super().on_post(req, resp, pid)
-        # TODO: Create the new object.
-        pass
-
-    def on_get(self, req, resp, pid):
-        super().on_get(req, resp, pid)
-        # TODO: Generate the object profile XML.
-        pass
-
-    def on_put(self, req, resp, pid):
-        super().on_put(req, resp, pid)
-        # TODO: Commit the object modification.
-        pass
-
-    def on_delete(self, req, resp, pid):
-        super().on_delete(req, resp, pid)
-        # TODO: Purge the object.
-        pass
 
 
 @route('/objects/{pid}/export', '/objects/{pid}/objectXML')
@@ -226,12 +206,12 @@ class DatastreamListResource(api.DatastreamListResource):
 class DatastreamResource(api.DatastreamResource):
     def on_post(self, req, resp, pid, dsid):
         super().on_post(req, resp, pid, dsid)
-        # TODO: Persist the new object.
+        # TODO: Persist the new datastream.
         pass
 
     def on_put(self, req, resp, pid, dsid):
         super().on_put(req, resp, pid, dsid)
-        # TODO: Commit the modification to the object.
+        # TODO: Commit the modification to the datastream.
         pass
 
     def on_delete(self, req, resp, pid, dsid):

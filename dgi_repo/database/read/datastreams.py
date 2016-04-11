@@ -65,6 +65,21 @@ def resource_id(uri, cursor=None):
     return cursor
 
 
+def resource_from_uri(uri, cursor=None):
+    """
+    Query for a resource from the repository using the URI.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM resources
+        WHERE uri = %s
+    ''', (uri,))
+
+    return cursor
+
+
 def resource(id, cursor=None):
     """
     Query for resource information from the repository.
@@ -134,7 +149,7 @@ def checksum_id(resource_id, cursor=None):
     cursor.execute('''
         SELECT id
         FROM checksums
-        WHERE uri = %s
+        WHERE resource = %s
     ''', (resource_id,))
 
     return cursor
@@ -149,7 +164,7 @@ def checksums(resource_id, cursor=None):
     cursor.execute('''
         SELECT *
         FROM checksums
-        WHERE uri = %s
+        WHERE resource = %s
     ''', (resource_id,))
 
     return cursor

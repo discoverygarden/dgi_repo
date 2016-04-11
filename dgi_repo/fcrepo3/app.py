@@ -1,13 +1,18 @@
+"""
+Setup for the Falcon application.
+"""
 import falcon
 from falcon_multipart.middleware import MultipartMiddleware
 from talons.auth import middleware
 from talons.auth.external import Authenticator, Authorizer
-from dgi_repo.utilities import bootstrap
+
 from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier
 from dgi_repo.auth.drupal import authenticate
-from dgi_repo.fcrepo3.authorize import authorize
-from dgi_repo.fcrepo3 import resources
 from dgi_repo.database.proxy import ProxyResource
+from dgi_repo.utilities import bootstrap
+from dgi_repo.fcrepo3 import resources
+from dgi_repo.fcrepo3.object_resource import ObjectResource
+from dgi_repo.fcrepo3.authorize import authorize
 
 bootstrap()
 
@@ -27,6 +32,9 @@ app = falcon.API(
     ]
 )
 
+# Dynamically add resources from the main file.
 for route, resource_class in resources.route_map.items():
     app.add_route(route, resource_class())
+
 app.add_route('/query_proxy', ProxyResource())
+app.add_route('/objects/{pid}', ObjectResource())

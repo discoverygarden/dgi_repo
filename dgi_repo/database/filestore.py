@@ -7,15 +7,19 @@ from io import BytesIO
 from shutil import copyfileobj
 from tempfile import NamedTemporaryFile
 
+from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
+
+import dgi_repo.database.write.datastreams as datastream_writer
+import dgi_repo.database.read.datastreams as datastream_reader
+from dgi_repo.database.utilities import get_connection, check_cursor
 from dgi_repo.configuration import configuration as _configuration
-from dgi_repo.database.utilities import get_connection
-from dgi_repo.database.write.datastreams import upsert_resource, upsert_mime
-from dgi_repo.database.read.datastreams import resource_uri
 from dgi_repo.database.delete.datastreams import delete_resource
+from dgi_repo.database.read.datastreams import resource_uri
 
 logger = logging.getLogger(__name__)
 
 UPLOAD_SCHEME = 'uploaded'
+DATASTREAM_SCHEME = 'datastream'
 '''
 A mapping of URI schemes to dictionaries of parameters to pass to
 NamedTemporaryFile.
@@ -24,7 +28,7 @@ _URI_MAP = {
     UPLOAD_SCHEME: {
         'dir': os.path.join(_configuration['data_directory'], 'uploads'),
     },
-    'datastream': {
+    DATASTREAM_SCHEME: {
         'dir': os.path.join(_configuration['data_directory'], 'datastreams'),
         'prefix': 'ds'
     }
@@ -55,6 +59,9 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
 
     Args:
         data: Either a file-like object or a (byte)string to dump into a file.
+            Please make all use of it before passing to stash as the stashed
+            copy will not be updated. If data is a file-like object it will be
+            closed.
         destination_scheme: One of URI_MAP's keys. Defaults to UPLOADED_URI.
         mimetype: The MIME-type of the file.
 
@@ -75,38 +82,42 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
             logger.debug('Unknown data type: attempting to wrap in a BytesIO.')
             return BytesIO(data)
 
-    try:
-        destination = _URI_MAP[destination_scheme]
-        connection = get_connection()
-        with streamify() as src, NamedTemporaryFile(delete=False,
-                                                    **destination) as dest:
+    destination = _URI_MAP[destination_scheme]
+    connection = get_connection()
+    with NamedTemporaryFile(delete=False, **destination) as dest:
+        try:
             name = os.path.relpath(dest.name, destination['dir'])
             uri = '{}://{}'.format(destination_scheme, name)
+            with streamify() as src:
+                with connection:
+                    # XXX: This _must_ happen as a separate transaction, so we
+                    # know that the resource is tracked when it is present in
+                    # the relevant directory (and so might be garbage
+                    # collected).
+                    cursor = connection.cursor()
+                    cursor = datastream_writer.upsert_mime(mimetype, cursor)
+                    mime_id = cursor.fetchone()[0]
 
-            with connection:
-                # XXX: This _must_ happen as a separate transaction, so we know
-                # that the resource is tracked when it is present in the
-                # relevant directory (and so might be garbage collected).
-                cursor = connection.cursor()
-                cursor = upsert_mime(mimetype, cursor)
-                mime_id = cursor.fetchone()[0]
+                    datastream_writer.upsert_resource({
+                        'uri': uri,
+                        'mime': mime_id,
+                    }, cursor=cursor)
 
-                upsert_resource({
-                  'uri': uri,
-                  'mime': mime_id,
-                }, cursor=cursor)
-
-            logger.debug('Stashing data as %s.', dest.name)
-            copyfileobj(src, dest)
-    except:
-        logger.exception('Attempting to delete %s (%s) due to exception.',
-                         uri, dest.name)
-        os.remove(dest.name)
-        raise
-    else:
-        resource_id = cursor.fetchone()[0]
-        logger.debug('%s got resource id %s', uri, resource_id)
-        return resource_id, uri
+                logger.debug('Stashing data as %s.', dest.name)
+                copyfileobj(src, dest)
+                # This is our Raison d'etre, make sure the file is out.
+                dest.flush()
+                os.fsync(dest.fileno())
+        except:
+            logger.exception('Attempting to delete %s (%s) due to exception.',
+                             uri, dest.name)
+            os.remove(dest.name)
+            raise
+        else:
+            resource_id = cursor.fetchone()[0]
+            logger.debug('%s got resource id %s', uri, resource_id)
+            return resource_id, uri
+    return
 
 
 def purge(*resource_ids):
@@ -117,7 +128,8 @@ def purge(*resource_ids):
     for resource_id in resource_ids:
         cursor = connection.cursor()
         with connection:
-            uri = resource_uri(resource_id, cursor).fetchone()[0]
+            uri = datastream_reader.resource_uri(resource_id,
+                                                 cursor).fetchone()[0]
             path = resolve_uri(uri)
             if not os.path.exists(path):
                 logger.warning(
@@ -161,3 +173,57 @@ def uri_size(uri):
         The file size.
     """
     return os.path.getsize(resolve_uri(uri))
+
+
+def create_datastream_from_data(datastream_data, data, mime=None,
+                                checksums=None, old=False, cursor=None):
+    """
+    Create a datastream from bytes, file or string.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    datastream_data['resource'] = stash(data, DATASTREAM_SCHEME, mime)[0]
+
+    if checksums is not None:
+        for checksum in checksums:
+            checksum['resource'] = datastream_data['resource']
+            datastream_writer.upsert_checksum(checksum, cursor=cursor)
+
+    _create_datastream_from_filestore(datastream_data, old, cursor)
+
+    return cursor
+
+
+def create_datastream_from_upload(datastream_data, upload_uri, checksums=None,
+                                  old=False, cursor=None):
+    """
+    Create a datastream from a resource.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    datastream_reader.resource_from_uri(upload_uri, cursor)
+    mime_id = cursor.fetchone()['mime_id']
+    datastream_reader.mime(mime_id, cursor)
+    mime = cursor.fetchone()['mime']
+
+    with open(resolve_uri(upload_uri), 'rb') as data:
+        create_datastream_from_data(datastream_data, data, mime, checksums,
+                                    old, cursor)
+
+    return cursor
+
+
+def _create_datastream_from_filestore(datastream_data, old=False, cursor=None):
+    """
+    Create datastream removing the file if something goes wrong.
+    """
+    cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    try:
+        if old:
+            datastream_writer.upsert_old_datastream(datastream_data, cursor)
+        else:
+            datastream_writer.upsert_datastream(datastream_data, cursor)
+    except Exception as e:
+        purge(datastream_data['resource'])
+        raise e

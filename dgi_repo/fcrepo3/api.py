@@ -1,8 +1,15 @@
+"""
+Falcon resource abstract base classes.
+"""
+import logging
 from abc import ABC, abstractmethod
+from time import strptime
+
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
-from time import strptime
+
+logger = logging.getLogger(__name__)
 
 FEDORA_ACCESS_URI = 'http://www.fedora.info/definitions/1/0/access/'
 FEDORA_MANAGEMENT_URI = 'http://www.fedora.info/definitions/1/0/management/'
@@ -65,11 +72,13 @@ class FakeSoapResource(ABC):
         - the method name in "{namespace://URI}method-name" form, and
         - a dictionary of parameters passed to the method.
         """
-        for method_el in req._params['envelope'].xpath('/s:Envelope/s:Body/t:*', namespaces={
-            's': self.__class__.SOAP_NS,
-            't': FEDORA_TYPES_URI
-        }):
-            yield (method_el.tag, {child.tag: child.text for child in method_el.getchildren()})
+        for method_el in req._params['envelope'].xpath(
+            '/s:Envelope/s:Body/t:*', namespaces={'s': self.__class__.SOAP_NS,
+                                                  't': FEDORA_TYPES_URI}):
+            yield (
+                method_el.tag,
+                {child.tag: child.text for child in method_el.getchildren()}
+            )
 
 
 class UploadResource(ABC):
@@ -152,7 +161,7 @@ class ObjectResource(ABC):
         """
         Ingest a new object.
         """
-        pass
+        resp.content_type = 'text/plain'
 
     def on_get(self, req, resp, pid):
         """
@@ -170,7 +179,88 @@ class ObjectResource(ABC):
         """
         Purge an object.
         """
-        pass
+        resp.content_type = 'text/plain'
+
+    def _send_404(self, pid, resp):
+        """
+        Send a Fedora like 404 when objects don't exist.
+        """
+        resp.content_type = 'text/plain'
+        logger.info('Object not found in low-level storage: %s', pid)
+        resp.body = 'Object not found in low-level storage: {}'.format(pid)
+        raise falcon.HTTPNotFound()
+
+    def _send_500(self, pid, resp):
+        """
+        Send a Fedora like 500 when objects exist.
+        # Object exists return 500; @XXX it's what Fedora does.
+        """
+        logger.info('Did not ingest %s as it already existed.', pid)
+        raise falcon.HTTPError('500 Internal Server Error')
+
+    def _get_object_profile(self, pid, label, models, created,
+                            modified, state, owner):
+        """
+        Build up object profile XML.
+        """
+        tree = etree.fromstring('''<?xml version="1.0"?>
+        <objectProfile
+          xmlns="http://www.fedora.info/definitions/1/0/access/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/
+                  http://www.fedora.info/definitions/1/0/objectProfile.xsd">
+          <objModels>
+            <model>info:fedora/fedora-system:FedoraObject-3.0</model>
+          </objModels>
+          </objectProfile>
+        ''')
+
+        model_xpath = etree.ETXPath(
+         '//{{{}}}objModels'.format(FEDORA_ACCESS_URI)
+        )
+        models_element = model_xpath(tree)[0]
+        for model in models:
+            model_element = etree.SubElement(
+                models_element,
+                '{{{}}}model'.format(FEDORA_ACCESS_URI)
+            )
+            model_element.text = model
+
+        tree.attrib['pid'] = pid
+
+        if label:
+            label_element = etree.SubElement(
+                tree,
+                '{{{}}}objLabel'.format(FEDORA_ACCESS_URI)
+            )
+            label_element.text = label
+
+        state_element = etree.SubElement(
+            tree,
+            '{{{}}}objState'.format(FEDORA_ACCESS_URI)
+        )
+        state_element.text = state
+
+        owner_element = etree.SubElement(
+            tree,
+            '{{{}}}objOwnerId'.format(FEDORA_ACCESS_URI)
+        )
+        owner_element.text = owner
+
+        created_element = etree.SubElement(
+            tree,
+            '{{{}}}objCreateDate'.format(FEDORA_ACCESS_URI)
+        )
+        created_element.text = created.isoformat()
+
+        modified_element = etree.SubElement(
+            tree,
+            '{{{}}}objLastModDate'.format(FEDORA_ACCESS_URI)
+        )
+        modified_element.text = modified.isoformat()
+
+        return etree.tostring(tree, xml_declaration=True, encoding="UTF-8")
 
 
 class ObjectResourceExport(ABC):
@@ -196,9 +286,11 @@ class DatastreamListResource(ABC):
 
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            with xf.element('{{{0}}}objectDatastreams'.format(FEDORA_ACCESS_URI)):
+            with xf.element('{{{0}}}objectDatastreams'.format(
+                    FEDORA_ACCESS_URI)):
                 for datastream in self._get_datastreams(**params):
-                    with xf.element('{{{0}}}datastream'.format(FEDORA_ACCESS_URI), attrib=datastream):
+                    with xf.element('{{{0}}}datastream'.format(
+                            FEDORA_ACCESS_URI), attrib=datastream):
                         pass
         length = xml_out.tell()
         xml_out.seek(0)
@@ -233,7 +325,9 @@ def parseDateTime(req, field, params):
         try:
             params[field] = strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
         except ValueError:
-            raise falcon.HTTPBadRequest('Failed to parse {0} date: {1}'.format(field, value))
+            raise falcon.HTTPBadRequest(
+                'Failed to parse {0} date: {1}'.format(field, value)
+            )
 
 
 class DatastreamResource(ABC):
@@ -252,7 +346,8 @@ class DatastreamResource(ABC):
         """
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            datastream_info = self._get_datastream_info(pid, dsid, **req.params)
+            datastream_info = self._get_datastream_info(pid, dsid,
+                                                        **req.params)
             _writeDatastreamProfile(xf, datastream_info)
         length = xml_out.tell()
         xml_out.seek(0)
@@ -301,8 +396,10 @@ class DatastreamHistoryResource(ABC):
         """
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            with xf.element('{{0}}datastreamHistory'.format(FEDORA_MANAGEMENT_URI)):
-                for datastream in self._get_datastream_versions(pid, dsid, **req.params):
+            with xf.element('{{0}}datastreamHistory'.format(
+                    FEDORA_MANAGEMENT_URI)):
+                for datastream in self._get_datastream_versions(pid, dsid,
+                                                                **req.params):
                     _writeDatastreamProfile(xf, datastream)
         length = xml_out.tell()
         xml_out.seek(0)
@@ -310,7 +407,8 @@ class DatastreamHistoryResource(ABC):
         resp.content_type = 'application/xml'
 
     @abstractmethod
-    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None, **kwargs):
+    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None,
+                                 **kwargs):
         """
         Get an iterable of datastream versions.
         """

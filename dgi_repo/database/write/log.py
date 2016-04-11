@@ -29,6 +29,6 @@ def upsert_log(log, cursor=None):
     if not cursor.rowcount:
         cursor = log_id(log, cursor)
 
-    logger.debug('Upserted log: %s.', log)
+    logger.debug('Upserted log: "%s".', log)
 
     return cursor

@@ -9,7 +9,7 @@ import logging
 
 from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.read.repo_objects import old_object_id
+from dgi_repo.database.read.repo_objects import old_object_id, namespace_info
 
 logger = logging.getLogger(__name__)
 
@@ -55,18 +55,7 @@ def upsert_object(data, cursor=None):
     Upsert an object in the repository.
     """
     cursor = check_cursor(cursor)
-
-    # Set some defaults.
-    if 'namespace' not in data:
-        data['namespace'] = _configuration['default_namespace']
-    if 'state' not in data:
-        data['state'] = 'A'
-    if 'label' not in data:
-        data['label'] = None
-    if 'versioned' not in data:
-        data['versioned'] = True
-    if 'log' not in data:
-        data['log'] = None
+    data = _set_object_defaults(data)
 
     cursor.execute('''
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
@@ -81,11 +70,47 @@ def upsert_object(data, cursor=None):
     ''', data)
 
     logger.debug(
-        "Upserted into namespace: %s with PID: %s.", data['namespace'],
+        "Upserted into namespace: %s with PID ID: %s.", data['namespace'],
         data['pid_id']
     )
 
     return cursor
+
+
+def write_object(data, cursor=None):
+    """
+    Write an object in the repository.
+    """
+    cursor = check_cursor(cursor)
+    data = _set_object_defaults(data)
+
+    cursor.execute('''
+        INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
+                             log, created, modified)
+        VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s,
+                %(versioned)s, %(log)s, now(), now())
+        RETURNING id
+    ''', data)
+
+    logger.debug(
+        "Wrote into namespace: %s with PID ID: %s.", data['namespace'],
+        data['pid_id']
+    )
+
+    return cursor
+
+
+def _set_object_defaults(data):
+    """
+    Populate defaults if not provided in the data.
+    """
+    data.setdefault('log')
+    data.setdefault('label')
+    data.setdefault('state', 'A')
+    data.setdefault('versioned', True)
+    data.setdefault('namespace', _configuration['default_namespace'])
+
+    return data
 
 
 def upsert_old_object(data, cursor=None):
@@ -109,4 +134,19 @@ def upsert_old_object(data, cursor=None):
         data
     )
 
+    return cursor
+
+
+def jump_pids(namespace_id, pid_id, cursor=None):
+    """
+    Raise the namespace's highest pid_id to the indicated point.
+    """
+    if pid_id.isdecimal():
+        pid_id = int(pid_id)
+        namespace_info(namespace_id, cursor=cursor)
+        namespace = cursor.fetchone()
+        if namespace['highest_id'] < pid_id:
+            get_pid_ids(namespace['namespace'],
+                        namespace['highest_id'] - pid_id,
+                        cursor=cursor)
     return cursor

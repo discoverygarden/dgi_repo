@@ -39,7 +39,7 @@ def delete_user(user_id, cursor=None):
         WHERE id = %s
     ''', (user_id,))
 
-    logger.debug('Deleted user with ID: %()s', user_id)
+    logger.debug('Deleted user with ID: %s', user_id)
 
     return cursor
 
@@ -55,6 +55,6 @@ def delete_role(role_id, cursor=None):
         WHERE id = %s
     ''', (role_id,))
 
-    logger.debug('Deleted user role with ID: %()s', role_id)
+    logger.debug('Deleted user role with ID: %s', role_id)
 
     return cursor

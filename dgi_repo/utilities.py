@@ -3,9 +3,11 @@ Utility functions.
 """
 from tempfile import SpooledTemporaryFile as _SpooledTemporaryFile
 
+from pytz import timezone
+
 import dgi_repo.logger
 import dgi_repo.database.install as db_install
-from dgi_repo.configuration import configuration
+from dgi_repo.configuration import configuration as _configuration
 
 PID_SEPARATOR = ':'
 
@@ -70,8 +72,18 @@ def SpooledTemporaryFile(*args, **kwargs):
         spooled_file = _SpooledTemporaryFile(**kwargs)
     else:
         spooled_file = _SpooledTemporaryFile(
-            configuration['spooled_temp_file_size'],
+            _configuration['spooled_temp_file_size'],
             **kwargs
         )
 
     return spooled_file
+
+
+def check_datetime_timezone(check):
+    """
+    If the datetime is timezone unaware apply the configured timezone.
+    """
+    if check.tzinfo is None or check.tzinfo.utcoffset is None:
+        our_timezone = timezone(_configuration['timezone'])
+        check = our_timezone.localize(check)
+    return check

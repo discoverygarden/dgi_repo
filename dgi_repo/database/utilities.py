@@ -1,14 +1,11 @@
 """
 Database utility functions.
 """
-
-from os.path import join
-
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
 
-from dgi_repo.configuration import configuration
+from dgi_repo.configuration import configuration as _config
 import dgi_repo.fcrepo3.relations as rels
 
 RELATION_MAP = {
@@ -227,30 +224,36 @@ OBJECT_RELATION_MAP.update({
 })
 
 
-def get_connection():
+def get_connection(isolation_level=ISOLATION_LEVEL_REPEATABLE_READ):
     """
     Get a connection to the application database.
+
+    In general isolation level doesn't need to be changed unless you are
+    stashing files, so as your transaction can be aware of them.
     """
+    if isolation_level is None:
+        isolation_level = ISOLATION_LEVEL_REPEATABLE_READ
+
     connection_string = 'dbname={} user={} password={} host={}'.format(
-        configuration['database']['name'],
-        configuration['database']['username'],
-        configuration['database']['password'],
-        configuration['database']['host']
+        _config['database']['name'],
+        _config['database']['username'],
+        _config['database']['password'],
+        _config['database']['host']
     )
 
     connection = connect(connection_string, cursor_factory=DictCursor)
 
-    connection.set_isolation_level(ISOLATION_LEVEL_REPEATABLE_READ)
+    connection.set_isolation_level(isolation_level)
 
     return connection
 
 
-def check_cursor(cursor=None):
+def check_cursor(cursor=None, isolation_level=None):
     """
     Check if a cursor is valid, receiving it or a valid one.
     """
     if cursor is None:
-        db_connection = get_connection()
+        db_connection = get_connection(isolation_level)
         db_connection.autocommit = True
         return db_connection.cursor()
     else:

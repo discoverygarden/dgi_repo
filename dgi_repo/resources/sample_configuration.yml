@@ -1,6 +1,6 @@
 # dgi_repo sample configuration.
 data_directory: /var/lib/dgi_repo
-
+timezone: UTC
 default_namespace: islandora
 
 database:
@@ -77,3 +77,6 @@ logging:
 
 # Can be used to balance between memory usage and disk IO.
 spooled_temp_file_size: 4096
+# When in control of download buffering the chunk size to request. Has the same
+# trade offs as spooled_temp_file_size, but can also effect packet size.
+download_chunk_size: 4096

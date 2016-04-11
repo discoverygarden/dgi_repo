@@ -8,8 +8,7 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.read.datastreams import old_datastream_id
-from dgi_repo.database.read.datastreams import mime_id
+from dgi_repo.database.read.datastreams import mime_id, old_datastream_id
 
 logger = logging.getLogger(__name__)
 
@@ -20,26 +19,19 @@ def upsert_datastream(data, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    # Set some defaults.
-    if 'state' not in data:
-        data['state'] = 'A'
-    if 'label' not in data:
-        data['label'] = None
-    if 'resource' not in data:
-        data['resource'] = None
-    if 'versioned' not in data:
-        data['versioned'] = False
-    if 'archival' not in data:
-        data['archival'] = False
-    if 'log' not in data:
-        data['log'] = None
+    data.setdefault('log')
+    data.setdefault('label')
+    data.setdefault('resource')
+    data.setdefault('state', 'A')
+    data.setdefault('archival', False)
+    data.setdefault('versioned', False)
 
     cursor.execute('''
         INSERT INTO datastreams (
             object_id,
             label,
             dsid,
-            resource_id,
+            resource,
             versioned,
             archival,
             control_group,
@@ -66,7 +58,7 @@ def upsert_datastream(data, cursor=None):
                 object_id,
                 label,
                 dsid,
-                resource_id,
+                resource,
                 versioned,
                 archival,
                 control_group,
@@ -141,14 +133,14 @@ def upsert_checksum(data, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO checksums (checksum, uri, type)
-        VALUES (%(checksum)s, %(uri)s, %(type)s)
-        ON CONFLICT (uri, type) DO UPDATE
+        INSERT INTO checksums (checksum, resource, type)
+        VALUES (%(checksum)s, %(resource)s, %(type)s)
+        ON CONFLICT (resource, type) DO UPDATE
         SET (checksum) = (%(checksum)s)
         RETURNING id
     ''', data)
 
-    logger.debug('Upserted checksum for URI: %(uri)s.', data)
+    logger.debug('Upserted checksum for resource: %(resource)s.', data)
 
     return cursor
 
@@ -159,13 +151,15 @@ def upsert_old_datastream(data, cursor=None):
     """
     cursor = check_cursor(cursor)
 
+    data.setdefault('log')
+
     cursor.execute('''
         INSERT INTO old_datastreams (
             current_datastream,
             log,
             state,
             label,
-            resource_id,
+            resource,
             committed
         )
         VALUES (
