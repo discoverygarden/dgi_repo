@@ -1,5 +1,5 @@
 """
-This will test API functionality.
+Tests API functionality.
 """
 
 import unittest
@@ -12,7 +12,7 @@ from dgi_repo.fcrepo3 import api
 
 class GetObjectProfileTestCase(unittest.TestCase):
     """
-    For testing the get object profile endpoint.
+    Tests the get object profile endpoint.
     """
 
     def test_value(self):

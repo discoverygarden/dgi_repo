@@ -27,12 +27,57 @@ from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import relations
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
+RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 SCHEMA_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance'
 SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
 
 OBJECT_STATE_MAP = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
 OBJECT_STATE_LABEL_MAP = {'Active': 'A', 'Inactive': 'I', 'Deleted': 'D'}
+
+FEDORA_URI_PREFIX = 'info:fedora/'
+
+
+def is_fedora_uri(candidate):
+    """
+    Check if a string is a Fedora URI.
+
+    @XXX the check is incomplete; it may have false positives.
+    """
+    return candidate.startswith(FEDORA_URI_PREFIX)
+
+
+def cut_fedora_prefix(uri):
+    """
+    Cut the Fedora URI prefix from a URI.
+    """
+    return uri[len(FEDORA_URI_PREFIX):]
+
+
+def pid_from_fedora_uri(uri):
+    """
+    Retrieve a PID from a Fedora URI.
+    """
+    if not is_fedora_uri:
+        return None
+    stripped_uri = cut_fedora_prefix(uri)
+    try:
+        return stripped_uri[:stripped_uri.index('/')]
+    except ValueError:
+        return stripped_uri
+
+
+def dsid_from_fedora_uri(uri):
+    """
+    Retrieve a PID from a Fedora URI.
+    """
+    if not is_fedora_uri:
+        return None
+    stripped_uri = cut_fedora_prefix(uri)
+    if '/' in stripped_uri:
+        return stripped_uri[stripped_uri.find('/') + 1:]
+    else:
+        return False
 
 
 def import_foxml(xml, source, cursor=None):
@@ -274,9 +319,11 @@ def internalize_rels_int(relation_tree, object_id, purge=True, cursor=None):
     @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
-    # Purge existing relations.
+
     if purge:
+        # Purge existing relations.
         pass
+
     cursor.fetchall()
     return cursor
 
@@ -287,8 +334,9 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
-    # Purge existing relations.
+
     if purge:
+        # Purge existing relations.
         object_relations_purger.delete_dc_relations(object_id)
     # Ingest new relations.
     for relation in relation_tree.getroot():
@@ -299,20 +347,50 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
             relation.text
         )
     cursor.fetchall()
+
     return cursor
 
 
 def internalize_rels_ext(relations_file, object_id, purge=True, cursor=None):
     """
     Store the RELS_EXT information in the DB.
-    @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
-    # Purge existing relations.
+
     if purge:
-        object_relations_purger.delete_dc_relations(object_id)
-    cursor.fetchall()
+        # Purge existing relations.
+        object_relations_purger.delete_object_relations(object_id)
+    for relation in relation_tree.getroot()[0]:
+        # Sort out the object of the relation.
+        if relation.text:
+            rdf_object = relation.text
+        else:
+            resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
+            pid = pid_from_fedora_uri(resource)
+            dsid = dsid_from_fedora_uri(resource)
+            if dsid:
+                object_reader.object_info_from_raw(pid, cursor=cursor)
+                object_id = cursor.fetchone()['id']
+                datastream_reader.datastream_id(
+                    {'object_id': object_id, 'dsid': dsid}
+                )
+                rdf_object = cursor.fetchone()['id']
+            elif pid:
+                object_reader.object_info_from_raw(pid, cursor=cursor)
+                rdf_object = cursor.fetchone()['id']
+            else:
+                rdf_object = resource
+
+        # Ingest new relations.
+        object_relations_writer.write_relationship(
+            etree.QName(relation).namespace,
+            etree.QName(relation).localname,
+            object_id,
+            rdf_object
+        )
+        cursor.fetchone()
+
     return cursor
 
 
@@ -482,12 +560,12 @@ class FoxmlTarget(object):
 
             # Populate relations.
             if self.dsid == 'DC':
-                internalize_rels_dc(last_ds['data'], self.object_id, False,
-                                    cursor=self.cursor)
+                internalize_rels_dc(last_ds['data'], self.object_id,
+                                    purge=False, cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-EXT':
-                internalize_rels_ext(last_ds['data'], self.object_id, False,
-                                     cursor=self.cursor)
+                internalize_rels_ext(last_ds['data'], self.object_id,
+                                     purge=False, cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-INT':
                 self.rels_int = etree.parse(last_ds['data'])
@@ -614,7 +692,7 @@ class FoxmlTarget(object):
                 create_default_dc_ds(self.object_id, self.object_info['PID'])
         # Create RELS-INT relations once all DSs are made.
         if self.rels_int is not None:
-            internalize_rels_int(self.rels_int, self.object_id, False,
+            internalize_rels_int(self.rels_int, self.object_id, purge=False,
                                  cursor=self.cursor)
             self.cursor.fetchall()
         # Reset for next use.
