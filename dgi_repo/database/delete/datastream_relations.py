@@ -15,6 +15,16 @@ from dgi_repo.database.delete.relations import (
 logger = logging.getLogger(__name__)
 
 
+def delete_datastream_relations(datastream_id, cursor=None):
+    """
+    Purge all relations on a datastream.
+    todo: implement
+    """
+    cursor = check_cursor(cursor)
+
+    return cursor
+
+
 def delete_relationship(namespace, predicate, db_id, cursor=None):
     """
     Delete a datastream relation from the repository.

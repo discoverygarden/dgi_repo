@@ -9,6 +9,8 @@ from lxml import etree
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
+import dgi_repo.database.delete.object_relations as object_relations_purger
+import dgi_repo.database.write.object_relations as object_relations_writer
 import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
@@ -266,32 +268,51 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
-def internalize_rels_int(relation_tree, cursor=None):
+def internalize_rels_int(relation_tree, object_id, purge=True, cursor=None):
     """
     Store the RELS_INT information in the DB.
     @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+    # Purge existing relations.
+    if purge:
+        pass
+    cursor.fetchall()
     return cursor
 
 
-def internalize_rels_dc(relations_file, cursor=None):
+def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
     """
     Store the DC relation information in the DB.
-    @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
+    # Purge existing relations.
+    if purge:
+        object_relations_purger.delete_dc_relations(object_id)
+    # Ingest new relations.
+    for relation in relation_tree.getroot():
+        object_relations_writer.write_relationship(
+            relations.DC_NAMESPACE,
+            etree.QName(relation).localname,
+            object_id,
+            relation.text
+        )
+    cursor.fetchall()
     return cursor
 
 
-def internalize_rels_ext(relations_file, cursor=None):
+def internalize_rels_ext(relations_file, object_id, purge=True, cursor=None):
     """
     Store the RELS_EXT information in the DB.
     @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
+    # Purge existing relations.
+    if purge:
+        object_relations_purger.delete_dc_relations(object_id)
+    cursor.fetchall()
     return cursor
 
 
@@ -461,10 +482,12 @@ class FoxmlTarget(object):
 
             # Populate relations.
             if self.dsid == 'DC':
-                internalize_rels_dc(last_ds['data'], cursor=self.cursor)
+                internalize_rels_dc(last_ds['data'], self.object_id, False,
+                                    cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-EXT':
-                internalize_rels_ext(last_ds['data'], cursor=self.cursor)
+                internalize_rels_ext(last_ds['data'], self.object_id, False,
+                                     cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-INT':
                 self.rels_int = etree.parse(last_ds['data'])
@@ -591,7 +614,8 @@ class FoxmlTarget(object):
                 create_default_dc_ds(self.object_id, self.object_info['PID'])
         # Create RELS-INT relations once all DSs are made.
         if self.rels_int is not None:
-            internalize_rels_int(self.rels_int, cursor=self.cursor)
+            internalize_rels_int(self.rels_int, self.object_id, False,
+                                 cursor=self.cursor)
             self.cursor.fetchall()
         # Reset for next use.
         pid = self.object_info['PID']
