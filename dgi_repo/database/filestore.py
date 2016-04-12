@@ -188,8 +188,9 @@ def create_datastream_from_data(datastream_data, data, mime=None,
         for checksum in checksums:
             checksum['resource'] = datastream_data['resource']
             datastream_writer.upsert_checksum(checksum, cursor=cursor)
+            cursor.fetchone()
 
-    _create_datastream_from_filestore(datastream_data, old, cursor)
+    _create_datastream_from_filestore(datastream_data, old, cursor=cursor)
 
     return cursor
 
@@ -201,14 +202,14 @@ def create_datastream_from_upload(datastream_data, upload_uri, checksums=None,
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
 
-    datastream_reader.resource_from_uri(upload_uri, cursor)
+    datastream_reader.resource_from_uri(upload_uri, cursor=cursor)
     mime_id = cursor.fetchone()['mime_id']
     datastream_reader.mime(mime_id, cursor)
     mime = cursor.fetchone()['mime']
 
     with open(resolve_uri(upload_uri), 'rb') as data:
         create_datastream_from_data(datastream_data, data, mime, checksums,
-                                    old, cursor)
+                                    old, cursor=cursor)
 
     return cursor
 
@@ -221,9 +222,13 @@ def _create_datastream_from_filestore(datastream_data, old=False, cursor=None):
 
     try:
         if old:
-            datastream_writer.upsert_old_datastream(datastream_data, cursor)
+            datastream_writer.upsert_old_datastream(datastream_data,
+                                                    cursor=cursor)
         else:
-            datastream_writer.upsert_datastream(datastream_data, cursor)
+            datastream_writer.upsert_datastream(datastream_data,
+                                                cursor=cursor)
     except Exception as e:
         purge(datastream_data['resource'])
         raise e
+
+    return cursor

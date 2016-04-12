@@ -266,13 +266,12 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
-def internalize_rels_int(relations_file, cursor=None):
+def internalize_rels_int(relation_tree, cursor=None):
     """
     Store the RELS_INT information in the DB.
     @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
-    relation_tree = etree.parse(relations_file)
     return cursor
 
 
@@ -463,11 +462,13 @@ class FoxmlTarget(object):
             # Populate relations.
             if self.dsid == 'DC':
                 internalize_rels_dc(last_ds['data'], cursor=self.cursor)
+                self.cursor.fetchall()
             if self.dsid == 'RELS-EXT':
                 internalize_rels_ext(last_ds['data'], cursor=self.cursor)
+                self.cursor.fetchall()
             if self.dsid == 'RELS-INT':
-                self.rels_int = last_ds['data']
-            self.cursor.fetchall()
+                self.rels_int = etree.parse(last_ds['data'])
+                last_ds['data'].seek(0)
 
             # Write DS.
             ds_db_id = self._create_ds(last_ds)
@@ -477,7 +478,7 @@ class FoxmlTarget(object):
                 ds_version.update(self.ds_info[self.dsid])
                 ds_version['datastream'] = ds_db_id
                 ds_version['actually_created'] = None
-                ds_db_id = self._create_ds(ds_version, old=True)
+                self._create_ds(ds_version, old=True)
 
             # Reset current datastream.
             self.dsid = None
