@@ -79,7 +79,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE checksums (
-    checksum character(128) NOT NULL,
+    checksum character varying(128) NOT NULL,
     id bigint NOT NULL,
     resource bigint NOT NULL,
     type checksum_algorithims NOT NULL
