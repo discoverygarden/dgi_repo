@@ -21,7 +21,7 @@ def delete_datastream_relations(ds_db_id, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    for _, relation_db_info in DATASTREAM_RELATION_MAP.items():
+    for relation_db_info in DATASTREAM_RELATION_MAP.values():
         # Delete from specific tables.
         cursor.execute('''
             DELETE FROM {}

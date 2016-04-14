@@ -22,7 +22,7 @@ def delete_object_relations(object_id, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    for _, relation_db_info in OBJECT_RELATION_MAP.items():
+    for relation_db_info in OBJECT_RELATION_MAP.values():
         # Delete from specific tables.
         cursor.execute('''
             DELETE FROM {}
