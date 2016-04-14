@@ -9,6 +9,8 @@ from lxml import etree
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
+import dgi_repo.database.delete.datastream_relations as ds_relations_purger
+import dgi_repo.database.write.datastream_relations as ds_relations_writer
 import dgi_repo.database.delete.object_relations as object_relations_purger
 import dgi_repo.database.write.object_relations as object_relations_writer
 import dgi_repo.database.write.datastreams as datastream_writer
@@ -19,7 +21,7 @@ import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
-from dgi_repo.database.write.sources import upsert_user
+from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
@@ -313,18 +315,95 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
-def internalize_rels_int(relation_tree, object_id, purge=True, cursor=None):
+def _rdf_object_from_element(relation, source, cursor):
+    """
+    Pull out an RDF object form an RDF XML element.
+    """
+    user_tags = [
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_USER_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_USER_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_USER_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_USER_PREDICATE),
+    ]
+    role_tags = [
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_ROLE_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_ROLE_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
+    ]
+    if relation.text:
+        if relation.tag in user_tags:
+            upsert_user({'name': relation.text, 'source': source},
+                        cursor=cursor)
+            rdf_object = cursor.fetchone()['id']
+        elif relation.tag in role_tags:
+            upsert_role({'role': relation.text, 'source': source},
+                        cursor=cursor)
+            rdf_object = cursor.fetchone()['id']
+        else:
+            rdf_object = relation.text
+    else:
+        resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
+        pid = pid_from_fedora_uri(resource)
+        dsid = dsid_from_fedora_uri(resource)
+        if dsid:
+            object_reader.object_info_from_raw(pid, cursor=cursor)
+            object_id = cursor.fetchone()['id']
+            datastream_reader.datastream_id(
+                {'object_id': object_id, 'dsid': dsid},
+                cursor=cursor
+            )
+            rdf_object = cursor.fetchone()['id']
+        elif pid:
+            object_reader.object_info_from_raw(pid, cursor=cursor)
+            rdf_object = cursor.fetchone()['id']
+        else:
+            rdf_object = resource
+    return rdf_object
+
+
+def internalize_rels_int(relation_tree, object_id, source, purge=True,
+                         cursor=None):
     """
     Store the RELS_INT information in the DB.
-    @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
 
-    if purge:
-        # Purge existing relations.
-        pass
+    datastream_reader.datastreams(object_id, cursor=cursor)
+    ds_db_ids = {row['dsid']: row['id'] for row in cursor}
 
-    cursor.fetchall()
+    if purge:
+        for dsid, ds_db_id in ds_db_ids.items():
+            # Purge existing relations.
+            ds_relations_purger.delete_datastream_relations(
+                ds_db_id,
+                cursor=cursor
+            )
+    # Ingest new relations.
+    for description in relation_tree.getroot():
+        dsid = dsid_from_fedora_uri(description.attrib['{{{}}}about'.format(
+            RDF_NAMESPACE
+        )])
+        for relation in description:
+            rdf_object = _rdf_object_from_element(relation, source, cursor)
+            relation_qname = etree.QName(relation)
+            ds_relations_writer.write_relationship(
+                relation_qname.namespace,
+                relation_qname.localname,
+                ds_db_ids[dsid],
+                rdf_object,
+                cursor=cursor
+            )
+            cursor.fetchone()
+
     return cursor
 
 
@@ -337,21 +416,23 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
 
     if purge:
         # Purge existing relations.
-        object_relations_purger.delete_dc_relations(object_id)
+        object_relations_purger.delete_dc_relations(object_id, cursor=cursor)
     # Ingest new relations.
     for relation in relation_tree.getroot():
         object_relations_writer.write_relationship(
             relations.DC_NAMESPACE,
             etree.QName(relation).localname,
             object_id,
-            relation.text
+            relation.text,
+            cursor=cursor
         )
     cursor.fetchall()
 
     return cursor
 
 
-def internalize_rels_ext(relations_file, object_id, purge=True, cursor=None):
+def internalize_rels_ext(relations_file, object_id, source, purge=True,
+                         cursor=None):
     """
     Store the RELS_EXT information in the DB.
     """
@@ -360,34 +441,20 @@ def internalize_rels_ext(relations_file, object_id, purge=True, cursor=None):
 
     if purge:
         # Purge existing relations.
-        object_relations_purger.delete_object_relations(object_id)
-    for relation in relation_tree.getroot()[0]:
-        # Sort out the object of the relation.
-        if relation.text:
-            rdf_object = relation.text
-        else:
-            resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
-            pid = pid_from_fedora_uri(resource)
-            dsid = dsid_from_fedora_uri(resource)
-            if dsid:
-                object_reader.object_info_from_raw(pid, cursor=cursor)
-                object_id = cursor.fetchone()['id']
-                datastream_reader.datastream_id(
-                    {'object_id': object_id, 'dsid': dsid}
-                )
-                rdf_object = cursor.fetchone()['id']
-            elif pid:
-                object_reader.object_info_from_raw(pid, cursor=cursor)
-                rdf_object = cursor.fetchone()['id']
-            else:
-                rdf_object = resource
-
-        # Ingest new relations.
-        object_relations_writer.write_relationship(
-            etree.QName(relation).namespace,
-            etree.QName(relation).localname,
+        object_relations_purger.delete_object_relations(
             object_id,
-            rdf_object
+            cursor=cursor
+        )
+    # Ingest new relations.
+    for relation in relation_tree.getroot()[0]:
+        rdf_object = _rdf_object_from_element(relation, source, cursor)
+        relation_qname = etree.QName(relation)
+        object_relations_writer.write_relationship(
+            relation_qname.namespace,
+            relation_qname.localname,
+            object_id,
+            rdf_object,
+            cursor=cursor
         )
         cursor.fetchone()
 
@@ -565,7 +632,8 @@ class FoxmlTarget(object):
                 self.cursor.fetchall()
             if self.dsid == 'RELS-EXT':
                 internalize_rels_ext(last_ds['data'], self.object_id,
-                                     purge=False, cursor=self.cursor)
+                                     self.source, purge=False,
+                                     cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-INT':
                 self.rels_int = etree.parse(last_ds['data'])
@@ -692,8 +760,8 @@ class FoxmlTarget(object):
                 create_default_dc_ds(self.object_id, self.object_info['PID'])
         # Create RELS-INT relations once all DSs are made.
         if self.rels_int is not None:
-            internalize_rels_int(self.rels_int, self.object_id, purge=False,
-                                 cursor=self.cursor)
+            internalize_rels_int(self.rels_int, self.object_id, self.source,
+                                 purge=False, cursor=self.cursor)
             self.cursor.fetchall()
         # Reset for next use.
         pid = self.object_info['PID']

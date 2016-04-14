@@ -89,12 +89,12 @@ WHERE u.name=%s AND u.pass=%s'''
 
             cursor = None
             cursor = sources.upsert_source(identity.site, cursor=cursor)
-            identity.source_id = cursor.fetchone()[0]
+            identity.source_id = cursor.fetchone()['id']
             cursor = sources.upsert_user(
                 {'name': identity.login, 'source': identity.source_id},
                 cursor=cursor
             )
-            identity.user_id = cursor.fetchone()[0]
+            identity.user_id = cursor.fetchone()['id']
 
             return True
         else:

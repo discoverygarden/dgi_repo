@@ -157,7 +157,7 @@ RELATION_MAP = {
 
 DATASTREAM_RELATION_MAP = RELATION_MAP.copy()
 DATASTREAM_RELATION_MAP.update({
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE,
+    (rels.ISLANDORA_RELS_INT_NAMESPACE,
      rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
         'table': 'datastream_is_manageable_by_role',
         'upsert message': ('Added a datastream is manageable by role'
@@ -165,7 +165,7 @@ DATASTREAM_RELATION_MAP.update({
         'delete message': ('Deleted a datastream is manageable by role'
                            ' permission with ID: %s.'),
     },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE,
+    (rels.ISLANDORA_RELS_INT_NAMESPACE,
      rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
         'table': 'datastream_is_manageable_by_user',
         'upsert message': ('Added a datastream is manageable by user'
@@ -173,14 +173,14 @@ DATASTREAM_RELATION_MAP.update({
         'delete message': ('Deleted a datastream is manageable by user'
                            ' permission with ID: %s.'),
     },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_VIEWABLE_BY_ROLE_PREDICATE): {
+    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IS_VIEWABLE_BY_ROLE_PREDICATE): {
         'table': 'datastream_is_viewable_by_role',
         'upsert message': ('Added a datastream is viewable by role permission'
                            ' from %s to %s.'),
         'delete message': ('Deleted a datastream is viewable by role'
                            ' permission with ID: %s.'),
     },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_VIEWABLE_BY_USER_PREDICATE): {
+    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IS_VIEWABLE_BY_USER_PREDICATE): {
         'table': 'datastream_is_viewable_by_user',
         'upsert message': ('Added a datastream is viewable by user permission'
                            ' from %s to %s.'),
