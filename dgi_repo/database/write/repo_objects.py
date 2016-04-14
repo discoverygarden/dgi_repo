@@ -147,6 +147,6 @@ def jump_pids(namespace_id, pid_id, cursor=None):
         namespace = cursor.fetchone()
         if namespace['highest_id'] < pid_id:
             get_pid_ids(namespace['namespace'],
-                        namespace['highest_id'] - pid_id,
+                        pid_id - namespace['highest_id'],
                         cursor=cursor)
     return cursor

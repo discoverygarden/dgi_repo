@@ -86,7 +86,8 @@ def import_foxml(xml, source, cursor=None):
     """
     Create a repo object out of a FOXML file.
     """
-    foxml_importer = etree.XMLParser(target=FoxmlTarget(source, cursor=cursor))
+    foxml_importer = etree.XMLParser(target=FoxmlTarget(source, cursor=cursor),
+                                     huge_tree=True)
     return etree.parse(xml, foxml_importer)
 
 

@@ -8,9 +8,12 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.read.relations import predicate_id_from_raw
 from dgi_repo.database.utilities import OBJECT_RELATION_MAP
-from dgi_repo.database.write.relations import write_to_standard_relation_table
+from dgi_repo.database.write.relations import (
+    write_to_standard_relation_table,
+    upsert_namespace,
+    upsert_predicate
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +32,15 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
             cursor
         )
     except KeyError:
-        cursor = predicate_id_from_raw(namespace, predicate, cursor)
-        predicate_id = cursor.fetchone()[0]
+        cursor = upsert_namespace(namespace, cursor=cursor)
+        namespace_id = cursor.fetchone()['id']
+        cursor = upsert_predicate(
+            {'namespace': namespace_id, 'predicate': predicate},
+            cursor=cursor
+        )
+        predicate_id = cursor.fetchone()['id']
         cursor = write_to_general_rdf_table(predicate_id, subject, rdf_object,
-                                            cursor)
+                                            cursor=cursor)
 
     return cursor
 
