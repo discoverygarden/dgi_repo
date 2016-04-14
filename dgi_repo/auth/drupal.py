@@ -50,6 +50,10 @@ def authenticate(identity):
         # Quick anonymous check...
         identity.drupal_user_id = 0
         identity.roles.add('anonymous user')
+        cursor = sources.upsert_source(identity.site)
+        identity.source_id = cursor.fetchone()['id']
+        cursor.connection.commit()
+        cursor.close()
         logger.debug('Anonymous user logged in from %s.', identity.site)
         return True
 
@@ -71,15 +75,15 @@ WHERE u.name=%s AND u.pass=%s'''
     try:
         # Get a DB connection and cursor for the selected site.
         conn = get_connection(identity.site)
-        cursor = conn.cursor()
+        auth_cursor = conn.cursor()
 
         # Check the credentials against the selected site (using provided
         # query or a default).
-        cursor.execute(query, (identity.login, identity.key))
+        auth_cursor.execute(query, (identity.login, identity.key))
 
-        if cursor.rowcount > 0:
+        if auth_cursor.rowcount > 0:
             identity.drupal_user_id = None
-            for uid, role in cursor:
+            for uid, role in auth_cursor:
                 if identity.drupal_user_id is None:
                     identity.drupal_user_id = uid
                 identity.roles.add(role)
@@ -87,14 +91,15 @@ WHERE u.name=%s AND u.pass=%s'''
             logger.info('Authenticated %s:%s with roles: %s', identity.site,
                         identity.login, identity.roles)
 
-            cursor = None
-            cursor = sources.upsert_source(identity.site, cursor=cursor)
+            cursor = sources.upsert_source(identity.site)
             identity.source_id = cursor.fetchone()['id']
-            cursor = sources.upsert_user(
+            sources.upsert_user(
                 {'name': identity.login, 'source': identity.source_id},
                 cursor=cursor
             )
             identity.user_id = cursor.fetchone()['id']
+            cursor.connection.commit()
+            cursor.close()
 
             return True
         else:
@@ -105,7 +110,7 @@ WHERE u.name=%s AND u.pass=%s'''
         logger.exception('Error while authenticating with Drupal credentials.')
     finally:
         try:
-            cursor.close()
+            auth_cursor.close()
         except UnboundLocalError:
             logger.debug('Failed before allocating DB cursor.')
         try:
