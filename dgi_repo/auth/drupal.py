@@ -12,6 +12,7 @@ import logging
 import talons.auth.basicauth
 
 from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.database.utilities import get_connection
 from dgi_repo.database.write import sources
 
 """
@@ -52,7 +53,6 @@ def authenticate(identity):
         identity.roles.add('anonymous user')
         cursor = sources.upsert_source(identity.site)
         identity.source_id = cursor.fetchone()['id']
-        cursor.connection.commit()
         cursor.close()
         logger.debug('Anonymous user logged in from %s.', identity.site)
         return True
@@ -74,7 +74,7 @@ WHERE u.name=%s AND u.pass=%s'''
 
     try:
         # Get a DB connection and cursor for the selected site.
-        conn = get_connection(identity.site)
+        conn = get_auth_connection(identity.site)
         auth_cursor = conn.cursor()
 
         # Check the credentials against the selected site (using provided
@@ -90,16 +90,15 @@ WHERE u.name=%s AND u.pass=%s'''
             identity.roles.add('authenticated user')
             logger.info('Authenticated %s:%s with roles: %s', identity.site,
                         identity.login, identity.roles)
-
-            cursor = sources.upsert_source(identity.site)
-            identity.source_id = cursor.fetchone()['id']
-            sources.upsert_user(
-                {'name': identity.login, 'source': identity.source_id},
-                cursor=cursor
-            )
-            identity.user_id = cursor.fetchone()['id']
-            cursor.connection.commit()
-            cursor.close()
+            with get_connection() as connection:
+                with connection.cursor() as cursor:
+                    sources.upsert_source(identity.site, cursor=cursor)
+                    identity.source_id = cursor.fetchone()['id']
+                    sources.upsert_user(
+                        {'name': identity.login, 'source': identity.source_id},
+                        cursor=cursor
+                    )
+                    identity.user_id = cursor.fetchone()['id']
 
             return True
         else:
@@ -140,7 +139,7 @@ class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
         return result
 
 
-def get_connection(site):
+def get_auth_connection(site):
     """
     Get a connection for the given site.
     """

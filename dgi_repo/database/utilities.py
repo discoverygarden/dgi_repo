@@ -250,7 +250,7 @@ def get_connection(isolation_level=ISOLATION_LEVEL_REPEATABLE_READ):
 
 def check_cursor(cursor=None, isolation_level=None):
     """
-    Check if a cursor is valid, receiving it or a valid one.
+    Check if a cursor is valid, receiving it or a valid one in autocommit mode.
     """
     if cursor is None:
         db_connection = get_connection(isolation_level)
