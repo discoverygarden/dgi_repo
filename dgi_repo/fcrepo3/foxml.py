@@ -60,7 +60,7 @@ def pid_from_fedora_uri(uri):
     """
     Retrieve a PID from a Fedora URI.
     """
-    if not is_fedora_uri:
+    if not is_fedora_uri(uri):
         return None
     stripped_uri = cut_fedora_prefix(uri)
     try:
@@ -73,7 +73,7 @@ def dsid_from_fedora_uri(uri):
     """
     Retrieve a PID from a Fedora URI.
     """
-    if not is_fedora_uri:
+    if not is_fedora_uri(uri):
         return None
     stripped_uri = cut_fedora_prefix(uri)
     if '/' in stripped_uri:
