@@ -15,6 +15,33 @@ from dgi_repo.database.delete.relations import (
 logger = logging.getLogger(__name__)
 
 
+def delete_datastream_relations(ds_db_id, cursor=None):
+    """
+    Purge all relations on a datastream.
+    """
+    cursor = check_cursor(cursor)
+
+    for relation_db_info in DATASTREAM_RELATION_MAP.values():
+        # Delete from specific tables.
+        cursor.execute('''
+            DELETE FROM {}
+            WHERE rdf_subject = %s
+        '''.format(relation_db_info['table']), (ds_db_id,))
+
+        logger.debug('Deleted any RDF relations in %s about datastream %s.',
+                     relation_db_info['table'], ds_db_id)
+    # Delete from general table.
+    cursor.execute('''
+        DELETE FROM datastream_relationships
+        WHERE subject = %s
+    ''', (ds_db_id,))
+
+    logger.debug(('Deleted any RDF relation about datastream: %s from the '
+                  'general table.'), ds_db_id)
+
+    return cursor
+
+
 def delete_relationship(namespace, predicate, db_id, cursor=None):
     """
     Delete a datastream relation from the repository.

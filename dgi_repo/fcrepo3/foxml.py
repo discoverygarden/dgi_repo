@@ -9,6 +9,10 @@ from lxml import etree
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
+import dgi_repo.database.delete.datastream_relations as ds_relations_purger
+import dgi_repo.database.write.datastream_relations as ds_relations_writer
+import dgi_repo.database.delete.object_relations as object_relations_purger
+import dgi_repo.database.write.object_relations as object_relations_writer
 import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
@@ -17,7 +21,7 @@ import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
-from dgi_repo.database.write.sources import upsert_user
+from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
@@ -25,6 +29,7 @@ from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import relations
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
+RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 SCHEMA_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance'
 SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
@@ -32,12 +37,57 @@ SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
 OBJECT_STATE_MAP = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
 OBJECT_STATE_LABEL_MAP = {'Active': 'A', 'Inactive': 'I', 'Deleted': 'D'}
 
+FEDORA_URI_PREFIX = 'info:fedora/'
+
+
+def is_fedora_uri(candidate):
+    """
+    Check if a string is a Fedora URI.
+
+    @XXX the check is incomplete; it may have false positives.
+    """
+    return candidate.startswith(FEDORA_URI_PREFIX)
+
+
+def cut_fedora_prefix(uri):
+    """
+    Cut the Fedora URI prefix from a URI.
+    """
+    return uri[len(FEDORA_URI_PREFIX):]
+
+
+def pid_from_fedora_uri(uri):
+    """
+    Retrieve a PID from a Fedora URI.
+    """
+    if not is_fedora_uri(uri):
+        return None
+    stripped_uri = cut_fedora_prefix(uri)
+    try:
+        return stripped_uri[:stripped_uri.index('/')]
+    except ValueError:
+        return stripped_uri
+
+
+def dsid_from_fedora_uri(uri):
+    """
+    Retrieve a PID from a Fedora URI.
+    """
+    if not is_fedora_uri(uri):
+        return None
+    stripped_uri = cut_fedora_prefix(uri)
+    if '/' in stripped_uri:
+        return stripped_uri[stripped_uri.find('/') + 1:]
+    else:
+        return False
+
 
 def import_foxml(xml, source, cursor=None):
     """
     Create a repo object out of a FOXML file.
     """
-    foxml_importer = etree.XMLParser(target=FoxmlTarget(source, cursor=cursor))
+    foxml_importer = etree.XMLParser(target=FoxmlTarget(source, cursor=cursor),
+                                     huge_tree=True)
     return etree.parse(xml, foxml_importer)
 
 
@@ -266,32 +316,149 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
-def internalize_rels_int(relation_tree, cursor=None):
+def _rdf_object_from_element(relation, source, cursor):
+    """
+    Pull out an RDF object form an RDF XML element.
+    """
+    user_tags = [
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_USER_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_USER_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_USER_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_USER_PREDICATE),
+    ]
+    role_tags = [
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_ROLE_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_VIEWABLE_BY_ROLE_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
+        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
+                          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
+    ]
+    if relation.text:
+        if relation.tag in user_tags:
+            upsert_user({'name': relation.text, 'source': source},
+                        cursor=cursor)
+            rdf_object = cursor.fetchone()['id']
+        elif relation.tag in role_tags:
+            upsert_role({'role': relation.text, 'source': source},
+                        cursor=cursor)
+            rdf_object = cursor.fetchone()['id']
+        else:
+            rdf_object = relation.text
+    else:
+        resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
+        pid = pid_from_fedora_uri(resource)
+        dsid = dsid_from_fedora_uri(resource)
+        if dsid:
+            object_reader.object_info_from_raw(pid, cursor=cursor)
+            object_id = cursor.fetchone()['id']
+            datastream_reader.datastream_id(
+                {'object_id': object_id, 'dsid': dsid},
+                cursor=cursor
+            )
+            rdf_object = cursor.fetchone()['id']
+        elif pid:
+            object_reader.object_info_from_raw(pid, cursor=cursor)
+            rdf_object = cursor.fetchone()['id']
+        else:
+            rdf_object = resource
+    return rdf_object
+
+
+def internalize_rels_int(relation_tree, object_id, source, purge=True,
+                         cursor=None):
     """
     Store the RELS_INT information in the DB.
-    @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
+
+    datastream_reader.datastreams(object_id, cursor=cursor)
+    ds_db_ids = {row['dsid']: row['id'] for row in cursor}
+
+    if purge:
+        for ds_db_id in ds_db_ids.values():
+            # Purge existing relations.
+            ds_relations_purger.delete_datastream_relations(
+                ds_db_id,
+                cursor=cursor
+            )
+    # Ingest new relations.
+    for description in relation_tree.getroot():
+        dsid = dsid_from_fedora_uri(description.attrib['{{{}}}about'.format(
+            RDF_NAMESPACE
+        )])
+        for relation in description:
+            rdf_object = _rdf_object_from_element(relation, source, cursor)
+            relation_qname = etree.QName(relation)
+            ds_relations_writer.write_relationship(
+                relation_qname.namespace,
+                relation_qname.localname,
+                ds_db_ids[dsid],
+                rdf_object,
+                cursor=cursor
+            )
+            cursor.fetchone()
+
     return cursor
 
 
-def internalize_rels_dc(relations_file, cursor=None):
+def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
     """
     Store the DC relation information in the DB.
-    @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
+
+    if purge:
+        # Purge existing relations.
+        object_relations_purger.delete_dc_relations(object_id, cursor=cursor)
+    # Ingest new relations.
+    for relation in relation_tree.getroot():
+        object_relations_writer.write_relationship(
+            relations.DC_NAMESPACE,
+            etree.QName(relation).localname,
+            object_id,
+            relation.text,
+            cursor=cursor
+        )
+    cursor.fetchall()
+
     return cursor
 
 
-def internalize_rels_ext(relations_file, cursor=None):
+def internalize_rels_ext(relations_file, object_id, source, purge=True,
+                         cursor=None):
     """
     Store the RELS_EXT information in the DB.
-    @todo implement.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
     relation_tree = etree.parse(relations_file)
+
+    if purge:
+        # Purge existing relations.
+        object_relations_purger.delete_object_relations(
+            object_id,
+            cursor=cursor
+        )
+    # Ingest new relations.
+    for relation in relation_tree.getroot()[0]:
+        rdf_object = _rdf_object_from_element(relation, source, cursor)
+        relation_qname = etree.QName(relation)
+        object_relations_writer.write_relationship(
+            relation_qname.namespace,
+            relation_qname.localname,
+            object_id,
+            rdf_object,
+            cursor=cursor
+        )
+        cursor.fetchone()
+
     return cursor
 
 
@@ -461,10 +628,13 @@ class FoxmlTarget(object):
 
             # Populate relations.
             if self.dsid == 'DC':
-                internalize_rels_dc(last_ds['data'], cursor=self.cursor)
+                internalize_rels_dc(last_ds['data'], self.object_id,
+                                    purge=False, cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-EXT':
-                internalize_rels_ext(last_ds['data'], cursor=self.cursor)
+                internalize_rels_ext(last_ds['data'], self.object_id,
+                                     self.source, purge=False,
+                                     cursor=self.cursor)
                 self.cursor.fetchall()
             if self.dsid == 'RELS-INT':
                 self.rels_int = etree.parse(last_ds['data'])
@@ -591,7 +761,8 @@ class FoxmlTarget(object):
                 create_default_dc_ds(self.object_id, self.object_info['PID'])
         # Create RELS-INT relations once all DSs are made.
         if self.rels_int is not None:
-            internalize_rels_int(self.rels_int, cursor=self.cursor)
+            internalize_rels_int(self.rels_int, self.object_id, self.source,
+                                 purge=False, cursor=self.cursor)
             self.cursor.fetchall()
         # Reset for next use.
         pid = self.object_info['PID']

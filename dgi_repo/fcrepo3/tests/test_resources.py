@@ -1,5 +1,5 @@
 """
-This will test resources functionality.
+Tests resources functionality.
 """
 
 import unittest
@@ -12,7 +12,7 @@ from dgi_repo.configuration import configuration as _configuration
 
 class GetNextPidTestCase(unittest.TestCase):
     """
-    This class is for testing the get next PID endpoint.
+    Tests the get next PID endpoint.
     """
 
     @unittest.mock.patch(
