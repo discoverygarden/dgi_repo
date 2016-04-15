@@ -197,7 +197,7 @@ class ObjectResource(api.ObjectResource):
                     old_object_info = object_info
                     old_object_info['committed'] = object_info['modified']
                     old_object_info['object'] = object_info['id']
-                    del(old_object_info['id'])
+                    del old_object_info['id']
                     object_writer.upsert_old_object(
                         old_object_info,
                         cursor=cursor
@@ -225,7 +225,7 @@ class ObjectResource(api.ObjectResource):
                         default=object_info['modified']
                     )
                 else:
-                    del(new_object_info['modified'])
+                    del new_object_info['modified']
                 object_writer.upsert_object(
                     new_object_info,
                     cursor=cursor
