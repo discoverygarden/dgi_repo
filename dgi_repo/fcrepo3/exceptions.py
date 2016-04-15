@@ -1,6 +1,7 @@
 """
-Custom exceptions.
+Custom exceptions and handlers.
 """
+import falcon
 
 
 class ObjectExistsError(Exception):
@@ -14,3 +15,10 @@ class ObjectExistsError(Exception):
         """
         self.pid = pid
         super().__init__(pid)
+
+
+def handle_exception(ex, req, resp, params):
+    """
+    Custom Falcon exception handler that ensures we send 500s.
+    """
+    raise falcon.HTTPError('500 Internal Server Error')
