@@ -86,7 +86,7 @@ class UploadResource(ABC):
     Abstract Falcon "Resource" to handle file uploads.
     """
     def on_post(self, req, resp):
-        uploaded_file = req.get_param('file', required=True)
+        uploaded_file = req.get_param('file', required=True).file
         resp.body = self._store(uploaded_file)
         resp.status = falcon.HTTP_202
 
