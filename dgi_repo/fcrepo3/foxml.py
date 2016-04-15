@@ -382,7 +382,7 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
     ds_db_ids = {row['dsid']: row['id'] for row in cursor}
 
     if purge:
-        for dsid, ds_db_id in ds_db_ids.items():
+        for ds_db_id in ds_db_ids.values():
             # Purge existing relations.
             ds_relations_purger.delete_datastream_relations(
                 ds_db_id,
