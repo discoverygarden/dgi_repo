@@ -9,7 +9,7 @@ import io
 import dgi_repo.database.write.repo_objects as object_writer
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
-from dgi_repo.fcrepo3 import api
+from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.configuration import configuration as _config
 
 logger = logging.getLogger(__name__)
@@ -69,75 +69,8 @@ class SoapManagementResource(api.FakeSoapResource):
             with xf.element('{{{0}}}exportResponse'.format(
                     api.FEDORA_TYPES_URI)):
                 with xf.element('objectXML'):
-                    foxml = io.BytesIO(b"""<?xml version="1.0" encoding="UTF-8"?>
-<foxml:digitalObject VERSION="1.1" PID="islandora:root" FEDORA_URI="info:fedora/islandora:root"
-xmlns:foxml="info:fedora/fedora-system:def/foxml#"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
-<foxml:objectProperties>
-<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Top-level Collection"/>
-<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
-<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2013-07-23T19:19:35.600Z"/>
-<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2013-07-23T19:19:35.600Z"/>
-</foxml:objectProperties>
-<foxml:datastream ID="RELS-EXT" FEDORA_URI="info:fedora/islandora:root/RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
-<foxml:datastreamVersion ID="RELS-EXT.0" LABEL="Fedora Object to Object Relationship Metadata." CREATED="2013-07-23T19:19:35.600Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="443">
-<foxml:xmlContent>
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:islandora="http://islandora.ca/ontology/relsext#">
-  <rdf:Description rdf:about="info:fedora/islandora:root">
-    <fedora-model:hasModel rdf:resource="info:fedora/islandora:collectionCModel"></fedora-model:hasModel>
-  </rdf:Description>
-</rdf:RDF>
-</foxml:xmlContent>
-</foxml:datastreamVersion>
-</foxml:datastream>
-<foxml:datastream ID="COLLECTION_POLICY" FEDORA_URI="info:fedora/islandora:root/COLLECTION_POLICY" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
-<foxml:datastreamVersion ID="COLLECTION_POLICY.0" LABEL="Collection policy" CREATED="2013-07-23T19:19:35.600Z" MIMETYPE="text/xml" SIZE="1226">
-<foxml:xmlContent>
-<collection_policy xmlns="http://www.islandora.ca" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="" xsi:schemaLocation="http://www.islandora.ca http://syn.lib.umanitoba.ca/collection_policy.xsd">
-    <content_models>
-        <content_model dsid="ISLANDORACM" name="Collection" namespace="islandora:collection" pid="islandora:collectionCModel"></content_model>
-    </content_models>
-    <search_terms>
-        <term field="dc.title">dc.title</term>
-        <term field="dc.creator">dc.creator</term>
-        <term default="true" field="dc.description">dc.description</term>
-        <term field="dc.date">dc.date</term>
-        <term field="dc.identifier">dc.identifier</term>
-        <term field="dc.language">dc.language</term>
-        <term field="dc.publisher">dc.publisher</term>
-        <term field="dc.rights">dc.rights</term>
-        <term field="dc.subject">dc.subject</term>
-        <term field="dc.relation">dc.relation</term>
-        <term field="dcterms.temporal">dcterms.temporal</term>
-        <term field="dcterms.spatial">dcterms.spatial</term>
-        <term field="fgs.DS.first.text">Full text</term>
-    </search_terms>
-    <relationship>isMemberOfCollection</relationship>
-</collection_policy>
-</foxml:xmlContent>
-</foxml:datastreamVersion>
-</foxml:datastream>
-<foxml:datastream ID="TN" FEDORA_URI="info:fedora/islandora:root/TN" STATE="A" CONTROL_GROUP="M" VERSIONABLE="true">
-<foxml:datastreamVersion ID="TN.0" LABEL="Thumbnail" CREATED="2013-07-23T19:19:35.600Z" MIMETYPE="image/png" SIZE="5137">
-<foxml:contentLocation TYPE="INTERNAL_ID" REF="http://localhost:8080/fedora/get/islandora:root/TN/2013-07-23T19:19:35.600Z"/>
-</foxml:datastreamVersion>
-</foxml:datastream>
-<foxml:datastream ID="DC" FEDORA_URI="info:fedora/islandora:root/DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
-<foxml:datastreamVersion ID="DC1.0" LABEL="Dublin Core Record for this object" CREATED="2013-07-23T19:19:35.600Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="387">
-<foxml:xmlContent>
-<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-  <dc:title>Top-level Collection</dc:title>
-  <dc:identifier>islandora:root</dc:identifier>
-</oai_dc:dc>
-</foxml:xmlContent>
-</foxml:datastreamVersion>
-</foxml:datastream>
-</foxml:digitalObject>""")
-                    # TODO: Replace "foxml" with correct file-like
-                    # object.
-                    base64.encode(foxml, xf)
+                    base64.encode(foxml.generate_foxml(kwargs['pid']), xf)
+            logger.info('Exporting: %s.', kwargs['pid'])
 
 
 @route('/upload')

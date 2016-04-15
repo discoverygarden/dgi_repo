@@ -136,6 +136,7 @@ def generate_foxml(pid, base_url='http://localhost:8080/fedora',
         populate_foxml_etree(foxml, pid, base_url=base_url, archival=archival,
                              inline_to_managed=inline_to_managed,
                              cursor=cursor)
+        foxml_file.seek(0)
         return foxml_file
     return None
 
