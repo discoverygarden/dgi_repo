@@ -97,7 +97,7 @@ class ObjectResource(api.ObjectResource):
                         self._send_500()
                     if log is not None:
                         logger.info('Ingested %s with log: "%s".', pid, log)
-                    foxml.create_default_dc_ds(cursor.fetchone()[0], pid)
+                    foxml.create_default_dc_ds(cursor.fetchone()[0], pid, cursor=cursor)
 
                 resp.body = 'Ingested {}'.format(pid)
         return
