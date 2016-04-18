@@ -121,10 +121,7 @@ class PidResource(api.PidResource):
 class ObjectResourceExport(api.ObjectResourceExport):
     def on_get(self, req, resp, pid):
         super().on_get(req, resp, pid)
-        if req.get_param('context') == 'archive':
-            archival = True
-        else:
-            archival = False
+        archival = req.get_param('context') == 'archive'
         with get_connection() as conn:
             with conn.cursor() as cursor:
                 resp.stream = foxml.generate_foxml(pid, archival=archival,
