@@ -11,6 +11,7 @@ from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.configuration import configuration as _config
+from dgi_repo.database.utilities import get_connection
 
 logger = logging.getLogger(__name__)
 
@@ -120,8 +121,12 @@ class PidResource(api.PidResource):
 class ObjectResourceExport(api.ObjectResourceExport):
     def on_get(self, req, resp, pid):
         super().on_get(req, resp, pid)
-        # TODO: Generate and dump the FOXML.
-        pass
+        archival = req.get_param('context') == 'archive'
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                resp.stream = foxml.generate_foxml(pid, archival=archival,
+                                                   cursor=cursor)
+                logger.info('Exporting: %s.', pid)
 
 
 @route('/objects/{pid}/datastreams')
