@@ -86,14 +86,22 @@ def object_info_from_raw(pid, cursor=None):
     Get object info from a PID.
     """
     cursor = check_cursor(cursor)
+
+    object_id_from_raw(pid, cursor=cursor)
+    object_info(cursor.fetchone()['id'], cursor=cursor)
+
+    return cursor
+
+
+def object_id_from_raw(pid, cursor=None):
+    """
+    Get the object database ID from a PID.
+    """
+    cursor = check_cursor(cursor)
     namespace, pid_id = utilities.break_pid(pid)
-
     namespace_id(namespace, cursor=cursor)
-    namespace_db_id = cursor.fetchone()[0]
 
-    object_id({'namespace': namespace_db_id, 'pid_id': pid_id}, cursor=cursor)
-    object_db_id = cursor.fetchone()[0]
-
-    object_info(object_db_id, cursor=cursor)
+    object_id({'namespace': cursor.fetchone()['id'], 'pid_id': pid_id},
+              cursor=cursor)
 
     return cursor

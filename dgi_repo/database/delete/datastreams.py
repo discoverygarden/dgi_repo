@@ -8,6 +8,8 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
+import dgi_repo.database.read.datastreams as datastream_reader
+import dgi_repo.database.read.repo_objects as object_reader
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +29,25 @@ def delete_old_datastream(old_datastream_id, cursor=None):
         'Deleted old datastream version information with ID: %s',
         old_datastream_id
     )
+
+    return cursor
+
+
+def delete_datastream_from_raw(pid, dsid, cursor=None):
+    """
+    Delete a datastream from the repository given a PID and DSID.
+    """
+    cursor = check_cursor(cursor)
+
+    object_reader.object_id_from_raw(pid, cursor=cursor)
+    datastream_reader.datastream_id(
+        {
+            'object': cursor.fetchone()['id'],
+            'dsid': dsid,
+        },
+        cursor=cursor
+    )
+    delete_datastream(cursor.fetchone()['id'], cursor=cursor)
 
     return cursor
 

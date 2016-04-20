@@ -1,5 +1,7 @@
 """
 Falcon resource abstract base classes.
+
+@TODO: move API level logging/responses from implementations to here.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -345,14 +347,16 @@ class DatastreamResource(ABC):
         Get datastream info.
         """
         xml_out = SpooledTemporaryFile()
-        with etree.xmlfile(xml_out) as xf:
-            datastream_info = self._get_datastream_info(pid, dsid,
-                                                        **req.params)
-            _writeDatastreamProfile(xf, datastream_info)
-        length = xml_out.tell()
-        xml_out.seek(0)
-        resp.set_stream(xml_out, length)
-        resp.content_type = 'application/xml'
+        datastream_info = self._get_datastream_info(pid, dsid, **req.params)
+        if datastream_info is None:
+            self._send_208(pid, dsid, resp)
+        else:
+            with etree.xmlfile(xml_out) as xf:
+                _writeDatastreamProfile(xf, datastream_info)
+            length = xml_out.tell()
+            xml_out.seek(0)
+            resp.set_stream(xml_out, length)
+            resp.content_type = 'application/xml'
 
     def on_put(self, req, resp, pid, dsid):
         """
@@ -365,6 +369,15 @@ class DatastreamResource(ABC):
         Purge datastream.
         """
         pass
+
+    def _send_208(self, pid, dsid, resp):
+        """
+        Send a Fedora like 208 when datastreams don't exist.
+        """
+        resp.content_type = 'text/plain'
+        logger.info('Datastream %s not found on %s.', dsid, pid)
+        resp.body = 'Datastream {} not found on {}.'.format(dsid, pid)
+        resp.status = '208'
 
     @abstractmethod
     def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
@@ -405,6 +418,7 @@ class DatastreamHistoryResource(ABC):
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
+        logger.info('Retrieved DS info for %s on %s', dsid, pid)
 
     @abstractmethod
     def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None,
@@ -422,10 +436,40 @@ def _writeDatastreamProfile(xf, datastream_info):
     Args:
         xf: A lxml incremental XML generator instance.
         datastream_info: A dict representing the datastream profile, mapping
-            element names to values.
+        element names to values. For example:
+        {
+            'dsLabel': 'DC Record',
+            'dsVersionID': 'DC1.0',
+            'dsCreateDate': '2016-02-19T08:02.5000Z',
+            'dsState': 'A',
+            'dsMime': 'application/xml',
+            'dsFormatURI': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+            'dsConrolGroup': 'X',
+            'dsSize': '387',
+            'dsVersionable': 'true',
+            'dsInfoType': '',
+            'dsLocation': 'islandora:root+DC+DC1.0',
+            'dsLocationType': 'INTERNAL_ID',
+            'dsChecksumType': 'DISABLED',
+            'dsChecksum': 'none',
+        }
+        and minimally:
+        {
+            'dsLabel': 'DC Record',
+            'dsCreateDate': '2016-02-19T08:02.5000Z',
+            'dsState': 'A',
+            'dsMime': 'application/xml',
+            'dsConrolGroup': 'X',
+            'dsSize': '387',
+            'dsVersionable': 'true',
+            'dsLocation': 'islandora:root+DC+DC1.0',
+            'dsLocationType': 'INTERNAL_ID',
+            'dsChecksumType': 'DISABLED',
+            'dsChecksum': 'none',
+        }
     """
-    with xf.element('{{{0}}}datastreamProfile'.format(FEDORA_MANAGEMENT_URI)):
-        # TODO: Probably some mapping require here.
+    with xf.element('{{{}}}datastreamProfile'.format(FEDORA_MANAGEMENT_URI)):
         for key, value in datastream_info.items():
-            with xf.element('{{{0}}}{1}'.format(FEDORA_MANAGEMENT_URI, key)):
-                xf.write(value)
+            if value is not None:
+                with xf.element('{{{}}}{}'.format(FEDORA_MANAGEMENT_URI, key)):
+                    xf.write(str(value))

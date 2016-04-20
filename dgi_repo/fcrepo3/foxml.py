@@ -4,7 +4,6 @@ Functions to help with FOXML.
 import base64
 from io import BytesIO
 
-import requests
 from lxml import etree
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
@@ -13,14 +12,13 @@ import dgi_repo.database.delete.datastream_relations as ds_relations_purger
 import dgi_repo.database.write.datastream_relations as ds_relations_writer
 import dgi_repo.database.delete.object_relations as object_relations_purger
 import dgi_repo.database.write.object_relations as object_relations_writer
-import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
-from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.utilities import create_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.write.log import upsert_log
@@ -669,67 +667,11 @@ class FoxmlTarget(object):
             'modified': ds['CREATED'],
             'created': ds['actually_created'],
             'committed': ds['CREATED'],
+            'mimetype': ds['MIMETYPE'],
         })
-        if prepared_ds['data'] is not None:
-            # We already have data.
-            filestore.create_datastream_from_data(
-                prepared_ds,
-                prepared_ds['data'],
-                mime=prepared_ds['MIMETYPE'],
-                checksums=prepared_ds['checksums'],
-                old=old,
-                cursor=self.cursor
-            )
-        elif prepared_ds['data_ref'] is not None:
-            if prepared_ds['data_ref']['TYPE'] == 'URL':
-                # Data will remain external.
-                if prepared_ds['CONTROL_GROUP'] == 'R':
-                    datastream_writer.upsert_mime(prepared_ds['MIMETYPE'],
-                                                  cursor=self.cursor)
-                    datastream_writer.upsert_resource(
-                        {
-                            'uri': prepared_ds['data_ref']['REF'],
-                            'mime': self.cursor.fetchone()['id'],
-                        },
-                        cursor=self.cursor)
-                    prepared_ds['resource'] = self.cursor.fetchone()['id']
-                    datastream_writer.upsert_datastream(prepared_ds,
-                                                        cursor=self.cursor)
-                else:
-                    # Data has been uploaded.
-                    filestore.create_datastream_from_upload(
-                        prepared_ds,
-                        prepared_ds['data_ref']['REF'],
-                        mime=prepared_ds['MIMETYPE'],
-                        checksums=prepared_ds['checksums'],
-                        old=old,
-                        cursor=self.cursor
-                    )
-            elif prepared_ds['data_ref']['TYPE'] == 'INTERNAL_ID':
-                # We need to fetch data.
-                ds_resp = requests.get(
-                    prepared_ds['data_ref']['REF'], stream=True
-                )
-                # @XXX: we should be able to avoid creating this file by
-                # wrapping the raw attribute on the response to decode on read.
-                ds_file = utils.SpooledTemporaryFile()
-                for chunk in ds_resp.iter_content(
-                        _config['download_chunk_size']):
-                    ds_file.write(chunk)
-                ds_file.seek(0)
+        create_ds(prepared_ds, old=old, cursor=self.cursor)
 
-                filestore.create_datastream_from_data(
-                    prepared_ds,
-                    ds_file,
-                    mime=prepared_ds['MIMETYPE'],
-                    checksums=prepared_ds['checksums'],
-                    old=old,
-                    cursor=self.cursor
-                )
-
-        ds_db_id = self.cursor.fetchone()['id']
-
-        return ds_db_id
+        return self.cursor.fetchone()['id']
 
     def data(self, data):
         """

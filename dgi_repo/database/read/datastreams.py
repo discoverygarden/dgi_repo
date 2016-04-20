@@ -3,6 +3,7 @@ Database helpers relating to datastreams.
 """
 
 from dgi_repo.database.utilities import check_cursor
+import dgi_repo.database.read.repo_objects as object_reader
 
 
 def datastream(data, cursor=None):
@@ -16,6 +17,22 @@ def datastream(data, cursor=None):
         FROM datastreams
         WHERE object_id = %(object)s AND dsid = %(dsid)s
     ''', data)
+
+    return cursor
+
+
+def datastream_from_raw(pid, dsid, cursor=None):
+    """
+    Query for a datastream record from the repository given a PID and DSID.
+    """
+    cursor = check_cursor(cursor)
+
+    object_reader.object_id_from_raw(pid, cursor=cursor)
+    data = {
+        'object': cursor.fetchone()['id'],
+        'dsid': dsid,
+    }
+    datastream(data, cursor=cursor)
 
     return cursor
 
