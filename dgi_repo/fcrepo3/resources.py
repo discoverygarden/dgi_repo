@@ -213,7 +213,7 @@ class DatastreamResource(api.DatastreamResource):
                     },
                     cursor=cursor
                 )
-                logger.info('Created DS %s:%s', pid, dsid)
+                logger.info('Created DS %s on %s.', dsid, pid)
 
     def on_put(self, req, resp, pid, dsid):
         """
@@ -226,7 +226,7 @@ class DatastreamResource(api.DatastreamResource):
         with get_connection() as conn:
             with conn.cursor() as cursor:
                 log = resolve_log(req, cursor)
-                logger.info('Updated DS %s:%s', pid, dsid)
+                logger.info('Updated DS %s on %s.', dsid, pid)
 
     def on_delete(self, req, resp, pid, dsid):
         """
@@ -239,7 +239,7 @@ class DatastreamResource(api.DatastreamResource):
         with get_connection() as conn:
             with conn.cursor() as cursor:
                 ds_purger.delete_datastream_from_raw(pid, dsid, cursor=cursor)
-                logger.info('Purged DS %s:%s', pid, dsid)
+                logger.info('Purged DS %s on %s.', dsid, pid)
 
     def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
         """
