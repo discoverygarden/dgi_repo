@@ -18,7 +18,7 @@ import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
-from dgi_repo.fcrepo3.utilities import create_ds
+from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.write.log import upsert_log
@@ -669,7 +669,7 @@ class FoxmlTarget(object):
             'committed': ds['CREATED'],
             'mimetype': ds['MIMETYPE'],
         })
-        create_ds(prepared_ds, old=old, cursor=self.cursor)
+        write_ds(prepared_ds, old=old, cursor=self.cursor)
 
         return self.cursor.fetchone()['id']
 

@@ -25,7 +25,7 @@ def resolve_log(req, cursor):
     return log
 
 
-def create_ds(ds, old=False, cursor=None):
+def write_ds(ds, old=False, cursor=None):
     """
     Create a datastream on the current object.
     """
@@ -46,7 +46,7 @@ def create_ds(ds, old=False, cursor=None):
             # Data will remain external.
             if ds['control_group'] == 'R':
                 datastream_writer.upsert_mime(ds['mimetype'],
-                                                cursor=cursor)
+                                              cursor=cursor)
                 datastream_writer.upsert_resource(
                     {
                         'uri': ds['data_ref']['REF'],
