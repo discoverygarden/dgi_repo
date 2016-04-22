@@ -3,12 +3,14 @@ Class file for the implementation of the datastream resource.
 """
 import logging
 
+import falcon
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.read.datastreams as ds_reader
 import dgi_repo.database.write.datastreams as ds_writer
 import dgi_repo.database.delete.datastreams as ds_purger
+import dgi_repo.utilities as utils
 from dgi_repo.fcrepo3.utilities import resolve_log, write_ds
 from dgi_repo.fcrepo3 import api
 from dgi_repo.database.utilities import get_connection
@@ -30,6 +32,7 @@ class DatastreamResource(api.DatastreamResource):
         with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
             with conn.cursor() as cursor:
                 self._upsert_ds(req, pid, dsid, cursor)
+                resp.status = falcon.HTTP_201
                 logger.info('Created DS %s on %s.', dsid, pid)
 
     def on_put(self, req, resp, pid, dsid):
@@ -40,14 +43,19 @@ class DatastreamResource(api.DatastreamResource):
         with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
             with conn.cursor() as cursor:
                 ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
-                ds = dict(cursor.fetchone())
-                ds['committed'] = ds['modified']
-                ds['datastream'] = ds['id']
-                del ds['id']
-                ds_writer.upsert_old_datastream(ds, cursor=cursor)
+                ds_info = cursor.fetchone()
+                if ds_info is not None:
+                    ds = dict(ds_info)
+                    ds['committed'] = ds['modified']
+                    ds['datastream'] = ds['id']
+                    del ds['id']
+                    ds_writer.upsert_old_datastream(ds, cursor=cursor)
+                    resp.status = falcon.HTTP_404
+                    return
 
                 self._upsert_ds(req, pid, dsid, cursor)
                 logger.info('Updated DS %s on %s.', dsid, pid)
+        return
 
     def on_delete(self, req, resp, pid, dsid):
         """
@@ -57,10 +65,14 @@ class DatastreamResource(api.DatastreamResource):
         @TODO: handle logMessage when audit is dealt with.
         """
         super().on_delete(req, resp, pid, dsid)
+        start = utils.iso8601_to_datetime(req.get_param('startDT'))
+        end = utils.iso8601_to_datetime(req.get_param('endDT'))
         with get_connection() as conn:
             with conn.cursor() as cursor:
-                ds_purger.delete_datastream_from_raw(pid, dsid, cursor=cursor)
-                logger.info('Purged DS %s on %s.', dsid, pid)
+                if start is not None and end is not None:
+                    ds_purger.delete_datastream_from_raw(pid, dsid,
+                                                         cursor=cursor)
+                    logger.info('Purged DS %s on %s.', dsid, pid)
 
     def _upsert_ds(self, req, pid, dsid, cursor):
         """

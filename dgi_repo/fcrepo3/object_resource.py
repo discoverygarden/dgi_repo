@@ -3,7 +3,6 @@ Class file for the implementation of the object resource.
 """
 import logging
 
-import dateutil.parser
 import falcon
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
@@ -178,9 +177,7 @@ class ObjectResource(api.ObjectResource):
                 # Check modified date param, exiting if needed.
                 modified_date = req.get_param('lastModifiedDate')
                 if modified_date is not None:
-                    modified_date = utils.check_datetime_timezone(
-                        dateutil.parser.parse(modified_date)
-                    )
+                    modified_date = utils.iso8601_to_datetime(modified_date)
 
                     if object_info['modified'] > modified_date:
                         logger.info(('{} lastModifiedDate ({}) is more recent '
