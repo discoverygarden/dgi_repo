@@ -180,7 +180,7 @@ class DatastreamResource(api.DatastreamResource):
                     'dsCreateDate': ds_info['modified'].isoformat(),
                     'dsState': ds_info['state'],
                     'dsMime': mime,
-                    'dsConrolGroup': ds_info['control_group'],
+                    'dsControlGroup': ds_info['control_group'],
                     'dsVersionable': versionable,
                     'dsChecksumType': checksum_type,
                     'dsChecksum': checksum,
