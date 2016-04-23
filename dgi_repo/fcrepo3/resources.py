@@ -12,7 +12,6 @@ from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
-from dgi_repo.database.read.repo_objects import object_info_from_raw
 import dgi_repo.database.read.datastreams as datastream_reader
 
 logger = logging.getLogger(__name__)
@@ -73,15 +72,19 @@ class SoapAccessResource(api.FakeSoapResource):
             - the MIME type of the datastream's resource
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            object_info = object_info_from_raw(pid, cursor=cursor).fetchone()
-            datastream_info = datastream_reader.datastream({
-                'object': object_info['id'],
-                'dsid': dsid
-            }, cursor=cursor).fetchone()
+            datastream_info = datastream_reader.datastream_from_raw(
+                pid,
+                dsid,
+                cursor=cursor
+            ).fetchone()
             resource_info = datastream_reader.resource(
-                datastream_info['resource'], cursor=cursor).fetchone()
+                datastream_info['resource'],
+                cursor=cursor
+            ).fetchone()
             mime_info = datastream_reader.mime(
-                resource_info['mime'], cursor=cursor).fetchone()
+                resource_info['mime'],
+                cursor=cursor
+            ).fetchone()
 
             return (
                 datastream_info['control_group'],
