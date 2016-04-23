@@ -25,8 +25,8 @@ def upsert_datastream(data, cursor=None):
     data.setdefault('state', 'A')
     data.setdefault('archival', False)
     data.setdefault('versioned', False)
-    data.setdefault('modified', 'now()')
-    data.setdefault('created', 'now()')
+    data.setdefault('modified', 'now')
+    data.setdefault('created', 'now')
 
     cursor.execute('''
         INSERT INTO datastreams (
