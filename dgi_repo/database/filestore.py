@@ -167,7 +167,7 @@ def uri_size(uri):
     Get the size of a resource.
 
     Args:
-        uri: The URI to szie.
+        uri: The URI to size.
 
     Return:
         The file size.

@@ -65,7 +65,14 @@ class SoapAccessResource(api.FakeSoapResource):
 
 @route('/services/management')
 class SoapManagementResource(api.FakeSoapResource):
+    """
+    Provide the services/management endpoint.
+    """
+
     def _respond(self, xf, method, kwargs):
+        """
+        Set a base64 encoded FOXML export.
+        """
         if method == '{{{0}}}export'.format(api.FEDORA_TYPES_URI):
             with xf.element('{{{0}}}exportResponse'.format(
                     api.FEDORA_TYPES_URI)):
@@ -119,7 +126,13 @@ class PidResource(api.PidResource):
 
 @route('/objects/{pid}/export', '/objects/{pid}/objectXML')
 class ObjectResourceExport(api.ObjectResourceExport):
+    """
+    Provide export and objectXML endpoints.
+    """
     def on_get(self, req, resp, pid):
+        """
+        Provide a FOXML export.
+        """
         super().on_get(req, resp, pid)
         archival = req.get_param('context') == 'archive'
         with get_connection() as conn:
@@ -138,28 +151,6 @@ class DatastreamListResource(api.DatastreamListResource):
             'label': 'Stop looking!',
             'mimeType': 'application/octet-stream'
         }]
-
-
-@route('/objects/{pid}/datastreams/{dsid}')
-class DatastreamResource(api.DatastreamResource):
-    def on_post(self, req, resp, pid, dsid):
-        super().on_post(req, resp, pid, dsid)
-        # TODO: Persist the new datastream.
-        pass
-
-    def on_put(self, req, resp, pid, dsid):
-        super().on_put(req, resp, pid, dsid)
-        # TODO: Commit the modification to the datastream.
-        pass
-
-    def on_delete(self, req, resp, pid, dsid):
-        super().on_delete(req, resp, pid, dsid)
-        # TODO: Purge the datastream (or range of versions).
-        pass
-
-    def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
-        # TODO: Get the ds* values in a dict, to build the datastream profile.
-        pass
 
 
 @route('/objects/{pid}/datastreams/{dsid}/content')

@@ -416,7 +416,7 @@ ALTER SEQUENCE datastream_relationships_id_seq OWNED BY datastream_relationships
 
 CREATE TABLE datastreams (
     id bigint NOT NULL,
-    object_id bigint NOT NULL,
+    object bigint NOT NULL,
     label text,
     dsid character varying(255) NOT NULL,
     resource bigint,
@@ -445,10 +445,10 @@ COMMENT ON COLUMN datastreams.id IS 'Database id for datastreams.';
 
 
 --
--- Name: COLUMN datastreams.object_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastreams.object; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastreams.object_id IS 'The database ID of the object that the datastream belongs to.';
+COMMENT ON COLUMN datastreams.object IS 'The database ID of the object that the datastream belongs to.';
 
 
 --
@@ -3792,7 +3792,7 @@ ALTER TABLE ONLY pid_namespaces
 --
 
 ALTER TABLE ONLY datastreams
-    ADD CONSTRAINT object_dsid UNIQUE (object_id, dsid);
+    ADD CONSTRAINT object_dsid UNIQUE (object, dsid);
 
 
 --
@@ -4640,7 +4640,7 @@ COMMENT ON INDEX is_sequence_number_of_index IS 'Everything in an index.';
 -- Name: object_dsid_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX object_dsid_index ON datastreams USING btree (object_id, dsid);
+CREATE INDEX object_dsid_index ON datastreams USING btree (object, dsid);
 
 
 --
@@ -5440,18 +5440,18 @@ COMMENT ON CONSTRAINT mime_uri_link ON resources IS 'URIs have mimes.';
 
 
 --
--- Name: object_id_link; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY datastreams
-    ADD CONSTRAINT object_id_link FOREIGN KEY (object_id) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT object_link FOREIGN KEY (object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
--- Name: CONSTRAINT object_id_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
+-- Name: CONSTRAINT object_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON CONSTRAINT object_id_link ON datastreams IS 'Datastreams belong to objects.';
+COMMENT ON CONSTRAINT object_link ON datastreams IS 'Datastreams belong to objects.';
 
 
 --

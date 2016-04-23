@@ -4,7 +4,6 @@ Functions to help with FOXML.
 import base64
 from io import BytesIO
 
-import requests
 from lxml import etree
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
@@ -13,14 +12,13 @@ import dgi_repo.database.delete.datastream_relations as ds_relations_purger
 import dgi_repo.database.write.datastream_relations as ds_relations_writer
 import dgi_repo.database.delete.object_relations as object_relations_purger
 import dgi_repo.database.write.object_relations as object_relations_writer
-import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
-from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.write.log import upsert_log
@@ -372,6 +370,39 @@ def _rdf_object_from_element(relation, source, cursor):
     return rdf_object
 
 
+def internalize_rels(pid, dsid, source, cursor=None):
+    """
+    Internalize rels given a ds_db_id.
+    """
+    cursor = check_cursor(cursor)
+    if dsid not in ['DC', 'RELS-EXT', 'RELS-INT']:
+        return cursor
+    object_reader.object_id_from_raw(pid, cursor)
+    object_id = cursor.fetchone()['id']
+    datastream_reader.datastream({'object': object_id, 'dsid': dsid},
+                                 cursor=cursor)
+    ds_info = cursor.fetchone()
+    if ds_info is None:
+        return cursor
+    if ds_info['resource'] is None:
+        return cursor
+    datastream_reader.resource(ds_info['resource'], cursor=cursor)
+    resource_info = cursor.fetchone()
+    resource_path = filestore.resolve_uri(resource_info['uri'])
+
+    with open(resource_path, 'rb') as relations_file:
+        if dsid == 'DC':
+            internalize_rels_dc(relations_file, object_id, cursor=cursor)
+        elif dsid == 'RELS-INT':
+            internalize_rels_int(etree.parse(relations_file), object_id,
+                                 source, cursor=cursor)
+        elif dsid == 'RELS-EXT':
+            internalize_rels_ext(relations_file, object_id, source,
+                                 cursor=cursor)
+
+    return cursor
+
+
 def internalize_rels_int(relation_tree, object_id, source, purge=True,
                          cursor=None):
     """
@@ -632,12 +663,12 @@ class FoxmlTarget(object):
                 internalize_rels_dc(last_ds['data'], self.object_id,
                                     purge=False, cursor=self.cursor)
                 self.cursor.fetchall()
-            if self.dsid == 'RELS-EXT':
+            elif self.dsid == 'RELS-EXT':
                 internalize_rels_ext(last_ds['data'], self.object_id,
                                      self.source, purge=False,
                                      cursor=self.cursor)
                 self.cursor.fetchall()
-            if self.dsid == 'RELS-INT':
+            elif self.dsid == 'RELS-INT':
                 self.rels_int = etree.parse(last_ds['data'])
                 last_ds['data'].seek(0)
 
@@ -669,67 +700,11 @@ class FoxmlTarget(object):
             'modified': ds['CREATED'],
             'created': ds['actually_created'],
             'committed': ds['CREATED'],
+            'mimetype': ds['MIMETYPE'],
         })
-        if prepared_ds['data'] is not None:
-            # We already have data.
-            filestore.create_datastream_from_data(
-                prepared_ds,
-                prepared_ds['data'],
-                mime=prepared_ds['MIMETYPE'],
-                checksums=prepared_ds['checksums'],
-                old=old,
-                cursor=self.cursor
-            )
-        elif prepared_ds['data_ref'] is not None:
-            if prepared_ds['data_ref']['TYPE'] == 'URL':
-                # Data will remain external.
-                if prepared_ds['CONTROL_GROUP'] == 'R':
-                    datastream_writer.upsert_mime(prepared_ds['MIMETYPE'],
-                                                  cursor=self.cursor)
-                    datastream_writer.upsert_resource(
-                        {
-                            'uri': prepared_ds['data_ref']['REF'],
-                            'mime': self.cursor.fetchone()['id'],
-                        },
-                        cursor=self.cursor)
-                    prepared_ds['resource'] = self.cursor.fetchone()['id']
-                    datastream_writer.upsert_datastream(prepared_ds,
-                                                        cursor=self.cursor)
-                else:
-                    # Data has been uploaded.
-                    filestore.create_datastream_from_upload(
-                        prepared_ds,
-                        prepared_ds['data_ref']['REF'],
-                        mime=prepared_ds['MIMETYPE'],
-                        checksums=prepared_ds['checksums'],
-                        old=old,
-                        cursor=self.cursor
-                    )
-            elif prepared_ds['data_ref']['TYPE'] == 'INTERNAL_ID':
-                # We need to fetch data.
-                ds_resp = requests.get(
-                    prepared_ds['data_ref']['REF'], stream=True
-                )
-                # @XXX: we should be able to avoid creating this file by
-                # wrapping the raw attribute on the response to decode on read.
-                ds_file = utils.SpooledTemporaryFile()
-                for chunk in ds_resp.iter_content(
-                        _config['download_chunk_size']):
-                    ds_file.write(chunk)
-                ds_file.seek(0)
+        write_ds(prepared_ds, old=old, cursor=self.cursor)
 
-                filestore.create_datastream_from_data(
-                    prepared_ds,
-                    ds_file,
-                    mime=prepared_ds['MIMETYPE'],
-                    checksums=prepared_ds['checksums'],
-                    old=old,
-                    cursor=self.cursor
-                )
-
-        ds_db_id = self.cursor.fetchone()['id']
-
-        return ds_db_id
+        return self.cursor.fetchone()['id']
 
     def data(self, data):
         """

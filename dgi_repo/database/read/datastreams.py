@@ -3,6 +3,7 @@ Database helpers relating to datastreams.
 """
 
 from dgi_repo.database.utilities import check_cursor
+import dgi_repo.database.read.repo_objects as object_reader
 
 
 def datastream(data, cursor=None):
@@ -14,8 +15,39 @@ def datastream(data, cursor=None):
     cursor.execute('''
         SELECT *
         FROM datastreams
-        WHERE object_id = %(object)s AND dsid = %(dsid)s
+        WHERE object = %(object)s AND dsid = %(dsid)s
     ''', data)
+
+    return cursor
+
+
+def datastream_info(ds_db_id, cursor=None):
+    """
+    Query for a datastream record from the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM datastreams
+        WHERE id = %s
+    ''', (ds_db_id,))
+
+    return cursor
+
+
+def datastream_from_raw(pid, dsid, cursor=None):
+    """
+    Query for a datastream record from the repository given a PID and DSID.
+    """
+    cursor = check_cursor(cursor)
+
+    object_reader.object_id_from_raw(pid, cursor=cursor)
+    data = {
+        'object': cursor.fetchone()['id'],
+        'dsid': dsid,
+    }
+    datastream(data, cursor=cursor)
 
     return cursor
 
@@ -29,7 +61,7 @@ def datastreams(object_id, cursor=None):
     cursor.execute('''
         SELECT *
         FROM datastreams
-        WHERE object_id = %s
+        WHERE object = %s
     ''', (object_id,))
 
     return cursor
@@ -44,7 +76,7 @@ def datastream_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM datastreams
-        WHERE object_id = %(object)s AND dsid = %(dsid)s
+        WHERE object = %(object)s AND dsid = %(dsid)s
     ''', data)
 
     return cursor
@@ -199,3 +231,43 @@ def old_datastream_id(data, cursor=None):
     ''', data)
 
     return cursor
+
+
+def old_datastream_as_of_time(ds_db_id, time, cursor=None):
+    """
+    Query for an old datastream from the repository at a given time.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT *
+        FROM old_datastreams
+        WHERE current_datastream = %s AND committed <= %s
+        ORDER BY committed DESC
+        LIMIT 1
+    ''', (ds_db_id, time))
+
+    return cursor
+
+
+def datastream_as_of_time(ds_db_id, time, cursor, inclusive=True):
+    """
+    Get a datastream as it would have been at a time.
+    """
+
+    datastream_info(ds_db_id, cursor=cursor)
+    ds_info = cursor.fetchone()
+    # Fall out if current version is asked for.
+    if ds_info['modified'] <= time and inclusive:
+        return ds_info
+    old_datastream_as_of_time(ds_db_id, time, cursor=cursor)
+    old_ds_info = cursor.fetchone()
+    if old_ds_info is not None:
+        ds_replacement = ds_info.copy()
+        ds_replacement.update(old_ds_info)
+        ds_replacement['modified'] = old_ds_info['committed']
+        ds_replacement['id'] = ds_db_id
+        ds_replacement['object'] = ds_info['object']
+        return ds_replacement
+
+    return None

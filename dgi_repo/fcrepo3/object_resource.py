@@ -3,7 +3,6 @@ Class file for the implementation of the object resource.
 """
 import logging
 
-import dateutil.parser
 import falcon
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
@@ -14,12 +13,12 @@ import dgi_repo.database.delete.repo_objects as object_purger
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.write.sources as source_writer
 import dgi_repo.database.read.sources as source_reader
-import dgi_repo.database.write.log as log_writer
 from dgi_repo import utilities as utils
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.fcrepo3 import api, foxml, relations
+from dgi_repo.fcrepo3.utilities import resolve_log
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ class ObjectResource(api.ObjectResource):
                     owner = self._resolve_owner(req, cursor)
 
                     # Figure out the log's DB ID.
-                    log = self._resolve_log(req, cursor)
+                    log = resolve_log(req, cursor)
 
                     try:
                         object_writer.write_object(
@@ -111,7 +110,7 @@ class ObjectResource(api.ObjectResource):
         """
         super().on_get(req, resp, pid)
 
-        with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
+        with get_connection() as conn:
             with conn.cursor() as cursor:
                 try:
                     object_reader.object_info_from_raw(pid, cursor=cursor)
@@ -165,7 +164,7 @@ class ObjectResource(api.ObjectResource):
         Commit the object modification.
         """
         super().on_put(req, resp, pid)
-        with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
+        with get_connection() as conn:
             with conn.cursor() as cursor:
                 # Get current object info.
                 try:
@@ -178,9 +177,7 @@ class ObjectResource(api.ObjectResource):
                 # Check modified date param, exiting if needed.
                 modified_date = req.get_param('lastModifiedDate')
                 if modified_date is not None:
-                    modified_date = utils.check_datetime_timezone(
-                        dateutil.parser.parse(modified_date)
-                    )
+                    modified_date = utils.iso8601_to_datetime(modified_date)
 
                     if object_info['modified'] > modified_date:
                         logger.info(('{} lastModifiedDate ({}) is more recent '
@@ -218,7 +215,7 @@ class ObjectResource(api.ObjectResource):
                 if req.get_param('ownerId') is not None:
                     new_object_info['owner'] = self._resolve_owner(req, cursor)
                 if req.get_param('logMessage') is not None:
-                    new_object_info['log'] = self._resolve_log(req, cursor)
+                    new_object_info['log'] = resolve_log(req, cursor)
                 if modified_date is not None:
                     resp.body = modified_date.isoformat()
                     new_object_info['modified'] = req.get_param(
@@ -237,9 +234,11 @@ class ObjectResource(api.ObjectResource):
     def on_delete(self, req, resp, pid):
         """
         Purge the object.
+
+        @TODO: handle logMessage when audit is dealt with.
         """
         super().on_delete(req, resp, pid)
-        with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
+        with get_connection() as conn:
             with conn.cursor() as cursor:
                 try:
                     object_reader.object_info_from_raw(pid, cursor)
@@ -266,15 +265,3 @@ class ObjectResource(api.ObjectResource):
         else:
             owner = req.env['wsgi.identity'].user_id
         return owner
-
-    def _resolve_log(self, req, cursor):
-        """
-        Get the DB log from the req.
-        """
-        raw_log = req.get_param('logMessage')
-        if raw_log:
-            log_writer.upsert_log(raw_log, cursor=cursor)
-            log = cursor.fetchone()[0]
-        else:
-            log = None
-        return log

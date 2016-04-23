@@ -3,6 +3,7 @@ Utility functions.
 """
 from tempfile import SpooledTemporaryFile as _SpooledTemporaryFile
 
+import dateutil.parser
 from pytz import timezone
 
 import dgi_repo.logger
@@ -77,6 +78,18 @@ def SpooledTemporaryFile(*args, **kwargs):
         )
 
     return spooled_file
+
+
+def iso8601_to_datetime(time):
+    """
+    Process an ISO 8601 string into an aware datetime.
+    """
+    if time is not None:
+        dt = check_datetime_timezone(
+            dateutil.parser.parse(time)
+        )
+        return dt
+    return None
 
 
 def check_datetime_timezone(check):
