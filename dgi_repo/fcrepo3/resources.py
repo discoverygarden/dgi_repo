@@ -12,6 +12,7 @@ from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
+import dgi_repo.database.read.datastreams as datastream_reader
 
 logger = logging.getLogger(__name__)
 
@@ -39,28 +40,57 @@ class SoapAccessResource(api.FakeSoapResource):
                 api.FEDORA_TYPES_URI):
             with xf.element('{{{0}}}getDatastreamDisseminationResponse'.format(
                     api.FEDORA_TYPES_URI)):
+                control_group, uri, mime = self._get_info(
+                    kwargs['pid'],
+                    kwargs['dsID']
+                )
+                is_redirect = control_group == 'R'
+
                 with xf.element('MIMEType'):
-                    # TODO: Write the "real" MIME-type.
-                    xf.write('application/octet-stream')
-                if True:
-                    # TODO: Make condition: only if datastream is managed or
-                    # externally referenced.
-                    with xf.element('stream'):
-                        datastream = io.BytesIO(b"""<?xml version="1.0" encoding="UTF-8"?>
-<mods xmlns="http://www.loc.gov/mods/v3">
-    <titleInfo>
-        <title>lol title</title>
-    </titleInfo>
-</mods>
-""")
-                        # TODO: Replace "datastream" with correct file-like
-                        # object.
-                        base64.encode(datastream, xf)
+                    xf.write('application/fedora-redirect' if is_redirect
+                             else mime)
+                with xf.element('stream'):
+                    if is_redirect:
+                        xf.write(base64.encodebytes(uri.encode()))
+                    else:
+                        with open(filestore.resolve_uri(uri), 'rb') as ds_file:
+                            base64.encode(ds_file, xf)
                 with xf.element('header'):
                     # Element doesn't appear to be necessary, nor appear to
                     # contain anything necessary here... Unclear as to what
                     # _might_ be supposed to be here.
                     pass
+
+    def _get_info(self, pid, dsid):
+        """
+        Get the MIME-type and URI of the given datastream.
+
+        Returns:
+            A three-tuple comprising:
+            - the datastream control group
+            - the URI of the resource the datastream represents
+            - the MIME type of the datastream's resource
+        """
+        with get_connection() as conn, conn.cursor() as cursor:
+            datastream_info = datastream_reader.datastream_from_raw(
+                pid,
+                dsid,
+                cursor=cursor
+            ).fetchone()
+            resource_info = datastream_reader.resource(
+                datastream_info['resource'],
+                cursor=cursor
+            ).fetchone()
+            mime_info = datastream_reader.mime(
+                resource_info['mime'],
+                cursor=cursor
+            ).fetchone()
+
+            return (
+                datastream_info['control_group'],
+                resource_info['uri'],
+                mime_info['mime']
+            )
 
 
 @route('/services/management')
