@@ -1,6 +1,7 @@
 """
 Helpers for determining authorization rules.
-@todo: verify that there are restrictions before returning False.
+
+@TODO: verify that there are restrictions before returning False.
 """
 import dgi_repo.fcrepo3.relations as relations
 import dgi_repo.database.read.datastream_relations as datastream_relations

@@ -370,6 +370,39 @@ def _rdf_object_from_element(relation, source, cursor):
     return rdf_object
 
 
+def internalize_rels(pid, dsid, source, cursor=None):
+    """
+    Internalize rels given a ds_db_id.
+    """
+    cursor = check_cursor(cursor)
+    if dsid not in ['DC', 'RELS-EXT', 'RELS-INT']:
+        return cursor
+    object_reader.object_id_from_raw(pid, cursor)
+    object_id = cursor.fetchone()['id']
+    datastream_reader.datastream({'object': object_id, 'dsid': dsid},
+                                 cursor=cursor)
+    ds_info = cursor.fetchone()
+    if ds_info is None:
+        return cursor
+    if ds_info['resource'] is None:
+        return cursor
+    datastream_reader.resource(ds_info['resource'], cursor=cursor)
+    resource_info = cursor.fetchone()
+    resource_path = filestore.resolve_uri(resource_info['uri'])
+
+    with open(resource_path, 'rb') as relations_file:
+        if dsid == 'DC':
+            internalize_rels_dc(relations_file, object_id, cursor=cursor)
+        elif dsid == 'RELS-INT':
+            internalize_rels_int(etree.parse(relations_file), object_id,
+                                 source, cursor=cursor)
+        elif dsid == 'RELS-EXT':
+            internalize_rels_ext(relations_file, object_id, source,
+                                 cursor=cursor)
+
+    return cursor
+
+
 def internalize_rels_int(relation_tree, object_id, source, purge=True,
                          cursor=None):
     """
@@ -630,12 +663,12 @@ class FoxmlTarget(object):
                 internalize_rels_dc(last_ds['data'], self.object_id,
                                     purge=False, cursor=self.cursor)
                 self.cursor.fetchall()
-            if self.dsid == 'RELS-EXT':
+            elif self.dsid == 'RELS-EXT':
                 internalize_rels_ext(last_ds['data'], self.object_id,
                                      self.source, purge=False,
                                      cursor=self.cursor)
                 self.cursor.fetchall()
-            if self.dsid == 'RELS-INT':
+            elif self.dsid == 'RELS-INT':
                 self.rels_int = etree.parse(last_ds['data'])
                 last_ds['data'].seek(0)
 

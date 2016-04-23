@@ -12,7 +12,7 @@ import dgi_repo.database.write.datastreams as ds_writer
 import dgi_repo.database.delete.datastreams as ds_purger
 import dgi_repo.utilities as utils
 from dgi_repo.fcrepo3.utilities import resolve_log, write_ds
-from dgi_repo.fcrepo3 import api
+from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.database import filestore
 
@@ -50,6 +50,7 @@ class DatastreamResource(api.DatastreamResource):
                     ds['datastream'] = ds['id']
                     del ds['id']
                     ds_writer.upsert_old_datastream(ds, cursor=cursor)
+                else:
                     resp.status = falcon.HTTP_404
                     return
 
@@ -61,7 +62,6 @@ class DatastreamResource(api.DatastreamResource):
         """
         Purge the datastream (or range of versions).
 
-        @TODO: handle startDT/endDT
         @TODO: handle logMessage when audit is dealt with.
         """
         super().on_delete(req, resp, pid, dsid)
@@ -69,10 +69,18 @@ class DatastreamResource(api.DatastreamResource):
         end = utils.iso8601_to_datetime(req.get_param('endDT'))
         with get_connection() as conn:
             with conn.cursor() as cursor:
-                if start is not None and end is not None:
-                    ds_purger.delete_datastream_from_raw(pid, dsid,
-                                                         cursor=cursor)
-                    logger.info('Purged DS %s on %s.', dsid, pid)
+                ds_purger.delete_datastream_versions(
+                    pid,
+                    dsid,
+                    start=start,
+                    end=end,
+                    cursor=cursor
+                )
+                logger.info(('Deleted datastream versions for %s on %s between'
+                            ' %s and %s.'), dsid, pid, start, end)
+                foxml.internalize_rels(pid, dsid,
+                                       req.env['wsgi.identity'].source_id,
+                                       cursor=cursor)
 
     def _upsert_ds(self, req, pid, dsid, cursor):
         """
@@ -119,12 +127,13 @@ class DatastreamResource(api.DatastreamResource):
             },
             cursor=cursor
         )
+        foxml.internalize_rels(pid, dsid,
+                               req.env['wsgi.identity'].source_id,
+                               cursor=cursor)
 
     def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
         """
         Get the ds* values in a dict, to build the datastream profile.
-
-        @TODO: handle as of date time.
         """
         with get_connection() as conn:
             with conn.cursor() as cursor:
@@ -132,6 +141,14 @@ class DatastreamResource(api.DatastreamResource):
                 ds_info = cursor.fetchone()
                 if ds_info is None:
                     return None
+                if asOfDateTime is not None:
+                    ds_info = ds_reader.datastream_as_of_time(
+                        ds_info['id'],
+                        utils.iso8601_to_datetime(asOfDateTime),
+                        cursor=cursor
+                    )
+                    if ds_info is None:
+                        return None
                 versionable = 'true' if ds_info['versioned'] else 'false'
                 location = None
                 location_type = 'INTERNAL_ID'
