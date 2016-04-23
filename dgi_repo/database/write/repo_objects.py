@@ -61,11 +61,11 @@ def upsert_object(data, cursor=None):
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
                              log, created, modified)
         VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s,
-                %(versioned)s, %(log)s, now(), now())
+                %(versioned)s, %(log)s,  %(created)s, %(modified)s)
         ON CONFLICT (pid_id, namespace) DO UPDATE
         SET (pid_id, namespace, state, owner, label, versioned, log,
              modified) = (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s,
-             %(label)s, %(versioned)s, %(log)s, now())
+             %(label)s, %(versioned)s, %(log)s, %(modified)s)
         RETURNING id
     ''', data)
 
@@ -88,7 +88,7 @@ def write_object(data, cursor=None):
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
                              log, created, modified)
         VALUES (%(pid_id)s, %(namespace)s, %(state)s, %(owner)s, %(label)s,
-                %(versioned)s, %(log)s, now(), now())
+                %(versioned)s, %(log)s, %(created)s, %(modified)s)
         RETURNING id
     ''', data)
 
@@ -109,6 +109,8 @@ def _set_object_defaults(data):
     data.setdefault('state', 'A')
     data.setdefault('versioned', True)
     data.setdefault('namespace', _configuration['default_namespace'])
+    data.setdefault('created', 'now')
+    data.setdefault('modified', 'now')
 
     return data
 

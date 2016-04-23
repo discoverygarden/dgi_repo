@@ -25,10 +25,12 @@ def upsert_datastream(data, cursor=None):
     data.setdefault('state', 'A')
     data.setdefault('archival', False)
     data.setdefault('versioned', False)
+    data.setdefault('modified', 'now')
+    data.setdefault('created', 'now')
 
     cursor.execute('''
         INSERT INTO datastreams (
-            object_id,
+            object,
             label,
             dsid,
             resource,
@@ -50,12 +52,12 @@ def upsert_datastream(data, cursor=None):
             %(control_group)s,
             %(state)s,
             %(log)s,
-            now(),
-            now()
+            %(modified)s,
+            %(created)s
         )
-        ON CONFLICT (object_id, dsid) DO UPDATE
+        ON CONFLICT (object, dsid) DO UPDATE
         SET (
-                object_id,
+                object,
                 label,
                 dsid,
                 resource,
@@ -76,12 +78,12 @@ def upsert_datastream(data, cursor=None):
                 %(control_group)s,
                 %(state)s,
                 %(log)s,
-                now()
+                %(modified)s
             )
         RETURNING id
     ''', data)
 
-    logger.debug('Created DS %(dsid)s on %(object)s.', data)
+    logger.debug('Upserted DS %(dsid)s on %(object)s.', data)
 
     return cursor
 
