@@ -48,9 +48,7 @@ def delete_datastream_from_raw(pid, dsid, cursor=None):
         },
         cursor=cursor
     )
-    delete_datastream(cursor.fetchone()['id'], cursor=cursor)
-
-    return cursor
+    return delete_datastream(cursor.fetchone()['id'], cursor=cursor)
 
 
 def delete_datastream(datastream_id, cursor=None):
@@ -130,8 +128,7 @@ def delete_datastream_versions(pid, dsid, start=None, end=None, cursor=None):
 
     # Handle base datastream.
     if end is None and start is None:
-        delete_datastream(ds_info['id'], cursor=cursor)
-        return cursor
+        return delete_datastream(ds_info['id'], cursor=cursor)
     elif end is None or end > ds_info['modified']:
         # Find youngest surviving version and make it current.
         ds_replacement = datastream_reader.datastream_as_of_time(
@@ -168,7 +165,6 @@ def delete_datastream_versions(pid, dsid, start=None, end=None, cursor=None):
             WHERE current_datastream = %s AND committed <= %s AND
                 committed >= %s
         ''', (ds_info['id'], end, start))
-        pass
 
     logger.debug('Deleted datastream versions for %s on %s between %s and %s.',
                  dsid, pid, start, end)
