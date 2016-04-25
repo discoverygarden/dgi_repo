@@ -4,7 +4,6 @@ Falcon Resource implementations.
 
 import base64
 import logging
-import io
 
 import dgi_repo.database.write.repo_objects as object_writer
 from dgi_repo.database import filestore
@@ -13,6 +12,7 @@ from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 import dgi_repo.database.read.datastreams as datastream_reader
+import dgi_repo.database.read.repo_objects as object_reader
 
 logger = logging.getLogger(__name__)
 
@@ -174,13 +174,40 @@ class ObjectResourceExport(api.ObjectResourceExport):
 
 @route('/objects/{pid}/datastreams')
 class DatastreamListResource(api.DatastreamListResource):
+    """
+    Povide the list datastreams endpoint.
+    """
     def _get_datastreams(self, pid, asOfDateTime=None):
-        # TODO: Get actual datastreams from the object.
-        return [{
-            'dsid': 'NOT_A_DATASTREAM',
-            'label': 'Stop looking!',
-            'mimeType': 'application/octet-stream'
-        }]
+        """
+        Retrieve the list of datastreams.
+
+        @XXX: not respecting asOfDateTime as we don't use it.
+        """
+        datastreams = []
+        with get_connection() as conn, conn.cursor() as cursor:
+            object_info = object_reader.object_info_from_raw(
+                pid,
+                cursor=cursor
+            ).fetchone()
+            if object_info is not None:
+                object_id = object_info['id']
+            else:
+                return datastreams
+            raw_datastreams = datastream_reader.datastreams(
+                object_id,
+                cursor=cursor
+            ).fetchall()
+            for datastream in raw_datastreams:
+                mime = datastream_reader.mime_from_resource(
+                    datastream['resource'],
+                    cursor=cursor
+                ).fetchone()
+                datastreams.append({
+                    'dsid': datastream['dsid'],
+                    'label': datastream['label'],
+                    'mimeType': mime['mime'] if mime is not None else '',
+                })
+        return datastreams
 
 
 @route('/objects/{pid}/datastreams/{dsid}/content')

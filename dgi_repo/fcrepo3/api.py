@@ -287,10 +287,15 @@ class DatastreamListResource(ABC):
         parseDateTime(req, 'asOfDateTime', params)
 
         xml_out = SpooledTemporaryFile()
+        datastreams = self._get_datastreams(**params)
+        if not datastreams:
+            logger.info(('Datastream list not retrieved for %s as object did'
+                          ' not exist.'), pid)
+            raise falcon.HTTPNotFound()
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{{0}}}objectDatastreams'.format(
                     FEDORA_ACCESS_URI)):
-                for datastream in self._get_datastreams(**params):
+                for datastream in datastreams:
                     with xf.element('{{{0}}}datastream'.format(
                             FEDORA_ACCESS_URI), attrib=datastream):
                         pass
@@ -298,6 +303,8 @@ class DatastreamListResource(ABC):
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
+        logger.info('Datastream list retrieved for %s.', pid)
+        return
 
     @abstractmethod
     def _get_datastreams(self, pid, asOfDateTime=None):
