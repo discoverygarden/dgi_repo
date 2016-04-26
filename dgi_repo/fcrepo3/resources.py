@@ -9,6 +9,7 @@ import dgi_repo.database.write.repo_objects as object_writer
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
+from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 import dgi_repo.database.read.datastreams as datastream_reader
@@ -183,20 +184,20 @@ class DatastreamListResource(api.DatastreamListResource):
 
         @XXX: not respecting asOfDateTime as we don't use it.
         """
-        datastreams = []
         with get_connection() as conn, conn.cursor() as cursor:
             object_info = object_reader.object_info_from_raw(
                 pid,
                 cursor=cursor
             ).fetchone()
-            if object_info is not None:
+            try:
                 object_id = object_info['id']
-            else:
-                return datastreams
+            except TypeError as e:
+                raise ObjectExistsError(pid) from e
             raw_datastreams = datastream_reader.datastreams(
                 object_id,
                 cursor=cursor
             ).fetchall()
+            datastreams = []
             for datastream in raw_datastreams:
                 mime = datastream_reader.mime_from_resource(
                     datastream['resource'],
@@ -207,7 +208,7 @@ class DatastreamListResource(api.DatastreamListResource):
                     'label': datastream['label'],
                     'mimeType': mime['mime'] if mime is not None else '',
                 })
-        return datastreams
+            return datastreams
 
 
 @route('/objects/{pid}/datastreams/{dsid}/content')
