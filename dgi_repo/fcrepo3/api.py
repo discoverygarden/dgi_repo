@@ -288,19 +288,18 @@ class DatastreamListResource(ABC):
         parseDateTime(req, 'asOfDateTime', params)
 
         xml_out = SpooledTemporaryFile()
-        try:
-            datastreams = self._get_datastreams(**params)
-        except ObjectExistsError as e:
-            logger.info(('Datastream list not retrieved for %s as object did'
-                         ' not exist.'), e.pid)
-            raise falcon.HTTPNotFound()
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{{0}}}objectDatastreams'.format(
                     FEDORA_ACCESS_URI)):
-                for datastream in datastreams:
-                    with xf.element('{{{0}}}datastream'.format(
-                            FEDORA_ACCESS_URI), attrib=datastream):
-                        pass
+                try:
+                    for datastream in self._get_datastreams(**params):
+                        with xf.element('{{{0}}}datastream'.format(
+                                FEDORA_ACCESS_URI), attrib=datastream):
+                            pass
+                except ObjectExistsError as e:
+                    logger.info(('Datastream list not retrieved for %s as '
+                                'object did not exist.'), e.pid)
+                    raise falcon.HTTPNotFound()
         length = xml_out.tell()
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
@@ -318,7 +317,7 @@ class DatastreamListResource(ABC):
                 label: The datastream label, and
                 mimeType: The datastream MIME-type.
         Raises:
-            ObjectExistsException: The object doesn't exist.
+            ObjectExistsError: The object doesn't exist.
         """
         pass
 
