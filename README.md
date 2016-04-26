@@ -50,7 +50,7 @@ The package is well documented internally, a quick way to deploy docs is to run
 the command `pydoc3 -p 1234` and visit  `http://HOST:1234/dgi_repo`.
 
 One can run the entire test suit from the project directory with
-`python3 -m unittest discover -v`.
+`python3 -m unittest`.
 
 For quick dev setups to get the endpoint running, `gunicorn` works quite well
 (and is easily installed via `pip`). Something like:

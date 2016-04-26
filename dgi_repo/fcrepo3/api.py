@@ -10,6 +10,7 @@ from time import strptime
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
+from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 
 logger = logging.getLogger(__name__)
 
@@ -290,14 +291,20 @@ class DatastreamListResource(ABC):
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{{0}}}objectDatastreams'.format(
                     FEDORA_ACCESS_URI)):
-                for datastream in self._get_datastreams(**params):
-                    with xf.element('{{{0}}}datastream'.format(
-                            FEDORA_ACCESS_URI), attrib=datastream):
-                        pass
+                try:
+                    for datastream in self._get_datastreams(**params):
+                        with xf.element('{{{0}}}datastream'.format(
+                                FEDORA_ACCESS_URI), attrib=datastream):
+                            pass
+                except ObjectExistsError as e:
+                    logger.info(('Datastream list not retrieved for %s as '
+                                'object did not exist.'), e.pid)
+                    raise falcon.HTTPNotFound()
         length = xml_out.tell()
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
+        logger.info('Datastream list retrieved for %s.', pid)
 
     @abstractmethod
     def _get_datastreams(self, pid, asOfDateTime=None):
@@ -309,6 +316,8 @@ class DatastreamListResource(ABC):
                 dsid: The datastream ID,
                 label: The datastream label, and
                 mimeType: The datastream MIME-type.
+        Raises:
+            ObjectExistsError: The object doesn't exist.
         """
         pass
 
