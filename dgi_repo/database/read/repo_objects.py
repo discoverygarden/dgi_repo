@@ -87,8 +87,9 @@ def object_info_from_raw(pid, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    object_id_from_raw(pid, cursor=cursor)
-    object_info(cursor.fetchone()['id'], cursor=cursor)
+    object_id = object_id_from_raw(pid, cursor=cursor).fetchone()
+    if object_id is not None:
+        object_info(object_id['id'], cursor=cursor)
 
     return cursor
 

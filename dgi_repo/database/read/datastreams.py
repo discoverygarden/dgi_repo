@@ -271,3 +271,15 @@ def datastream_as_of_time(ds_db_id, time, cursor, inclusive=True):
         return ds_replacement
 
     return None
+
+
+def mime_from_resource(resource_id, cursor=None):
+    """
+    Get the mime info given a resource
+    """
+    cursor = check_cursor(cursor)
+
+    resource_info = resource(resource_id, cursor=cursor).fetchone()
+    if resource_info is not None:
+        return mime(resource_info['mime'], cursor=cursor)
+    return cursor
