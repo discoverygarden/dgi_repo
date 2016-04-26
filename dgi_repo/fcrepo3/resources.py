@@ -185,11 +185,14 @@ class DatastreamListResource(api.DatastreamListResource):
 
 @route('/objects/{pid}/datastreams/{dsid}/content')
 class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
+    """
+    Provide the datastream content endpoint.
+    """
     def on_get(self, req, resp, pid, dsid):
+        """
+        Provide datastream content.
+        """
         super().on_get(req, resp, pid, dsid)
-        # TODO: Dump, redirect or pipe datastream content, based on datastream
-        # "content group".
-        pass
 
 
 @route('/objects/{pid}/datastreams/{dsid}/history')
