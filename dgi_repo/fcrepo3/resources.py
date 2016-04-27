@@ -181,8 +181,6 @@ class DatastreamListResource(api.DatastreamListResource):
     def _get_datastreams(self, pid, asOfDateTime=None):
         """
         Retrieve the list of datastreams.
-
-        @XXX: not respecting asOfDateTime as we don't use it.
         """
         with get_connection() as conn, conn.cursor() as cursor:
             object_info = object_reader.object_info_from_raw(

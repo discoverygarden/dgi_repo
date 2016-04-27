@@ -5,7 +5,6 @@ Falcon resource abstract base classes.
 """
 import logging
 from abc import ABC, abstractmethod
-from time import strptime
 
 import falcon
 from lxml import etree
@@ -285,7 +284,6 @@ class DatastreamListResource(ABC):
         params = {
             'pid': pid
         }
-        parseDateTime(req, 'asOfDateTime', params)
 
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
@@ -311,6 +309,8 @@ class DatastreamListResource(ABC):
         """
         Get datastreams.
 
+        @XXX: not respecting asOfDateTime as we don't use it.
+
         Returns:
             An iterable of dicts, each containing:
                 dsid: The datastream ID,
@@ -320,25 +320,6 @@ class DatastreamListResource(ABC):
             ObjectExistsError: The object doesn't exist.
         """
         pass
-
-
-def parseDateTime(req, field, params):
-    """
-    Helper to parse ISO 8601 datetimes.
-
-    Args:
-        req: The request from which the value to parse should be grabbed.
-        field: The field to grab from the request (and to store in params)
-        params: A dictionary in which to store the parsed timestamp.
-    """
-    value = req.get_param(field)
-    if value is not None:
-        try:
-            params[field] = strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
-        except ValueError:
-            raise falcon.HTTPBadRequest(
-                'Failed to parse {0} date: {1}'.format(field, value)
-            )
 
 
 class DatastreamResource(ABC):
