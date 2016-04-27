@@ -2,6 +2,7 @@
 Falcon resource abstract base classes.
 
 @TODO: move API level logging/responses from implementations to here.
+@TODO: move passed vars to object attributes.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -401,18 +402,33 @@ class DatastreamHistoryResource(ABC):
         with etree.xmlfile(xml_out) as xf:
             with xf.element('{{0}}datastreamHistory'.format(
                     FEDORA_MANAGEMENT_URI)):
-                for datastream in self._get_datastream_versions(pid, dsid,
-                                                                **req.params):
-                    _writeDatastreamProfile(xf, datastream)
+                try:
+                    for datastream in self._get_datastream_versions(pid, dsid,
+                                                                    resp):
+                        _writeDatastreamProfile(xf, datastream)
+                except ObjectExistsError as e:
+                    logger.info(('Datastream history not retrieved for %s on '
+                                 '%s as object did not exist.'), dsid, e.pid)
+                    raise falcon.HTTPNotFound()
         length = xml_out.tell()
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
-        logger.info('Retrieved DS info for %s on %s', dsid, pid)
+        logger.info('Retrieved DS history for %s on %s', dsid, pid)
+
+    def _send_ds_404(self, pid, dsid, resp):
+        """
+        Send a 404 for the datastream not existing.
+        """
+        resp.content_type = 'text/xml'
+        logger.info(('Datastream history not retrieved for %s on %s as '
+                     'datastream did not exist.'), dsid, pid)
+        resp.body = ('Datastream history not retrieved for %s on %s as '
+                     'datastream did not exist.').format(dsid, pid)
+        raise falcon.HTTPNotFound()
 
     @abstractmethod
-    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None,
-                                 **kwargs):
+    def _get_datastream_versions(self, pid, dsid, resp):
         """
         Get an iterable of datastream versions.
         """
