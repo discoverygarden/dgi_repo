@@ -1,6 +1,9 @@
 """
 Utility functions to assist with the Fedora 3 spoofing.
 """
+import logging
+
+import falcon
 import requests
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
@@ -10,6 +13,8 @@ import dgi_repo.database.write.datastreams as datastream_writer
 from dgi_repo.configuration import configuration as _config
 import dgi_repo.database.filestore as filestore
 from dgi_repo import utilities as utils
+
+logger = logging.getLogger(__name__)
 
 
 def resolve_log(req, cursor):
@@ -89,3 +94,13 @@ def write_ds(ds, old=False, cursor=None):
             )
 
     return cursor
+
+
+def send_object_404(pid, resp):
+    """
+    Send a Fedora like 404 when objects don't exist.
+    """
+    resp.content_type = 'text/plain'
+    logger.info('Object not found in low-level storage: %s', pid)
+    resp.body = 'Object not found in low-level storage: {}'.format(pid)
+    raise falcon.HTTPNotFound()

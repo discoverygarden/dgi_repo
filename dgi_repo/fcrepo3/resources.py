@@ -1,18 +1,21 @@
 """
 Falcon Resource implementations.
 """
-
+import datetime
 import base64
 import logging
+
+import falcon
 
 import dgi_repo.database.write.repo_objects as object_writer
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.utilities import send_object_404
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
-import dgi_repo.database.read.datastreams as datastream_reader
+import dgi_repo.database.read.datastreams as ds_reader
 import dgi_repo.database.read.repo_objects as object_reader
 
 logger = logging.getLogger(__name__)
@@ -73,16 +76,16 @@ class SoapAccessResource(api.FakeSoapResource):
             - the MIME type of the datastream's resource
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            datastream_info = datastream_reader.datastream_from_raw(
+            datastream_info = ds_reader.datastream_from_raw(
                 pid,
                 dsid,
                 cursor=cursor
             ).fetchone()
-            resource_info = datastream_reader.resource(
+            resource_info = ds_reader.resource(
                 datastream_info['resource'],
                 cursor=cursor
             ).fetchone()
-            mime_info = datastream_reader.mime(
+            mime_info = ds_reader.mime(
                 resource_info['mime'],
                 cursor=cursor
             ).fetchone()
@@ -193,13 +196,13 @@ class DatastreamListResource(api.DatastreamListResource):
                 object_id = object_info['id']
             except TypeError as e:
                 raise ObjectExistsError(pid) from e
-            raw_datastreams = datastream_reader.datastreams(
+            raw_datastreams = ds_reader.datastreams(
                 object_id,
                 cursor=cursor
             ).fetchall()
             datastreams = []
             for datastream in raw_datastreams:
-                mime = datastream_reader.mime_from_resource(
+                mime = ds_reader.mime_from_resource(
                     datastream['resource'],
                     cursor=cursor
                 ).fetchone()
@@ -221,6 +224,48 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
         Provide datastream content.
         """
         super().on_get(req, resp, pid, dsid)
+        with get_connection() as conn, conn.cursor() as cursor:
+            object_info = object_reader.object_id_from_raw(
+                pid,
+                cursor=cursor
+            ).fetchone()
+            try:
+                object_id = object_info['id']
+            except TypeError:
+                send_object_404(pid, resp)
+                return
+
+            time = utils.iso8601_to_datetime(req.get_param('asOfDateTime'))
+            ds_info = ds_reader.datastream(
+                {'object': object_id, 'dsid': dsid},
+                cursor=cursor
+            ).fetchone()
+            self._check_ds(ds_info, dsid, resp, pid)
+            if time is not None:
+                ds_info = ds_reader.datastream_as_of_time(
+                    ds_info['id'],
+                    time,
+                    cursor
+                )
+            self._check_ds(ds_info, dsid, resp, pid, time=time)
+
+            try:
+                resource_info = ds_reader.resource(
+                    ds_info['resource']
+                ).fetchone()
+            except KeyError:
+                return
+
+            # Redirect if we are a redirect DS.
+            if ds_info['control_group'] == 'R':
+                resp.status = falcon.HTTP_307
+                resp.location = resource_info['uri']
+                return
+
+            # Send data if we are not a redirect DS.
+            file_path = filestore.resolve_uri(resource_info['uri'])
+            resp.stream = open(file_path, 'rb')
+            return
 
 
 @route('/objects/{pid}/datastreams/{dsid}/history')

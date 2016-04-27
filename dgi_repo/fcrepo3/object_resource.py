@@ -18,7 +18,7 @@ from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.fcrepo3 import api, foxml, relations
-from dgi_repo.fcrepo3.utilities import resolve_log
+from dgi_repo.fcrepo3.utilities import resolve_log, send_object_404
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ class ObjectResource(api.ObjectResource):
                 try:
                     object_reader.object_info_from_raw(pid, cursor=cursor)
                 except TypeError:
-                    self._send_404(pid, resp)
+                    send_object_404(pid, resp)
 
                 # Get object info.
                 object_info = cursor.fetchone()
@@ -170,7 +170,7 @@ class ObjectResource(api.ObjectResource):
                 try:
                     object_reader.object_info_from_raw(pid, cursor=cursor)
                 except TypeError:
-                    self._send_404(pid, resp)
+                    send_object_404(pid, resp)
 
                 object_info = dict(cursor.fetchone())
 
@@ -245,7 +245,7 @@ class ObjectResource(api.ObjectResource):
                     object_id = cursor.fetchone()['id']
                     object_purger.delete_object(object_id, cursor)
                 except TypeError:
-                    self._send_404(pid, resp)
+                    send_object_404(pid, resp)
 
                 resp.body = 'Purged {}'.format(pid)
                 logger.info('Purged %s', pid)
