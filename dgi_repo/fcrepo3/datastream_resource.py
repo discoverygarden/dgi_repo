@@ -11,10 +11,9 @@ import dgi_repo.database.read.datastreams as ds_reader
 import dgi_repo.database.write.datastreams as ds_writer
 import dgi_repo.database.delete.datastreams as ds_purger
 import dgi_repo.utilities as utils
-from dgi_repo.fcrepo3.utilities import resolve_log, write_ds
+import dgi_repo.fcrepo3.utilities as fedora_utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.database.utilities import get_connection
-from dgi_repo.database import filestore
 
 logger = logging.getLogger(__name__)
 
@@ -111,11 +110,11 @@ class DatastreamResource(api.DatastreamResource):
                 'type': req.get_param('checksumType'),
             }),
         object_reader.object_id_from_raw(pid, cursor=cursor)
-        write_ds(
+        fedora_utils.write_ds(
             {
                 'dsid': dsid,
                 'object': cursor.fetchone()['id'],
-                'log': resolve_log(req, cursor),
+                'log': fedora_utils.resolve_log(req, cursor),
                 'control_group': control_group,
                 'label': req.get_param('dsLabel'),
                 'versioned': req.get_param('versionable') != 'false',
@@ -149,42 +148,4 @@ class DatastreamResource(api.DatastreamResource):
                     )
                     if ds_info is None:
                         return None
-                versionable = 'true' if ds_info['versioned'] else 'false'
-                location = None
-                location_type = 'INTERNAL_ID'
-                mime = None
-                checksum = 'none'
-                checksum_type = 'DISABLED'
-                size = None
-                if ds_info['resource'] is not None:
-                    ds_reader.resource(ds_info['resource'], cursor=cursor)
-                    resource_info = cursor.fetchone()
-                    if resource_info is not None:
-                        location = resource_info['uri']
-                        if ds_info['control_group'] != 'R':
-                            size = filestore.uri_size(resource_info['uri'])
-                        else:
-                            location_type = 'URL'
-
-                        ds_reader.mime(resource_info['mime'], cursor=cursor)
-                        mime = cursor.fetchone()['mime']
-
-                        ds_reader.checksums(ds_info['resource'], cursor=cursor)
-                        checksum_info = cursor.fetchone()
-                        if checksum_info is not None:
-                            checksum = checksum_info['checksum']
-                            checksum_type = checksum_info['type']
-                            cursor.fetchall()
-                return {
-                    'dsLabel': ds_info['label'],
-                    'dsCreateDate': ds_info['modified'].isoformat(),
-                    'dsState': ds_info['state'],
-                    'dsMime': mime,
-                    'dsControlGroup': ds_info['control_group'],
-                    'dsVersionable': versionable,
-                    'dsChecksumType': checksum_type,
-                    'dsChecksum': checksum,
-                    'dsSize': size,
-                    'dsLocation': location,
-                    'dsLocationType': location_type,
-                }
+                return fedora_utils.datastream_to_profile(ds_info, cursor)
