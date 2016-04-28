@@ -184,15 +184,6 @@ class ObjectResource(ABC):
         """
         resp.content_type = 'text/plain'
 
-    def _send_404(self, pid, resp):
-        """
-        Send a Fedora like 404 when objects don't exist.
-        """
-        resp.content_type = 'text/plain'
-        logger.info('Object not found in low-level storage: %s', pid)
-        resp.body = 'Object not found in low-level storage: {}'.format(pid)
-        raise falcon.HTTPNotFound()
-
     def _send_500(self, pid, resp):
         """
         Send a Fedora like 500 when objects exist.
@@ -388,6 +379,20 @@ class DatastreamDisseminationResource(ABC):
         Dump datastream content.
         """
         pass
+
+    def _check_ds(self, ds_info, dsid, resp, pid, time=None):
+        """
+        Check if ds_info is populated or send 404.
+        """
+        time = time if time else 'now'
+        if ds_info is None:
+            resp.content_type = 'text/plain'
+            logger.info('Datastream %s not found on %s as of %s.',
+                        dsid, pid, time)
+            resp.body = 'Datastream {} not found on {} as of {}.'.format(dsid,
+                                                                         pid,
+                                                                         time)
+            raise falcon.HTTPNotFound()
 
 
 class DatastreamHistoryResource(ABC):

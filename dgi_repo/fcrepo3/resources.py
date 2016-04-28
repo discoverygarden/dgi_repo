@@ -1,9 +1,11 @@
 """
 Falcon Resource implementations.
 """
-
+import datetime
 import base64
 import logging
+
+import falcon
 
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.fcrepo3.utilities as fedora_utils
@@ -13,6 +15,7 @@ from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.utilities import send_object_404
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 
@@ -212,11 +215,61 @@ class DatastreamListResource(api.DatastreamListResource):
 
 @route('/objects/{pid}/datastreams/{dsid}/content')
 class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
+    """
+    Provide the datastream content endpoint.
+    """
     def on_get(self, req, resp, pid, dsid):
+        """
+        Provide datastream content.
+        """
         super().on_get(req, resp, pid, dsid)
-        # TODO: Dump, redirect or pipe datastream content, based on datastream
-        # "content group".
-        pass
+        with get_connection() as conn, conn.cursor() as cursor:
+            object_info = object_reader.object_id_from_raw(
+                pid,
+                cursor=cursor
+            ).fetchone()
+            try:
+                object_id = object_info['id']
+            except TypeError:
+                send_object_404(pid, resp)
+                return
+
+            time = utils.iso8601_to_datetime(req.get_param('asOfDateTime'))
+            ds_info = ds_reader.datastream(
+                {'object': object_id, 'dsid': dsid},
+                cursor=cursor
+            ).fetchone()
+            self._check_ds(ds_info, dsid, resp, pid)
+            if time is not None:
+                ds_info = ds_reader.datastream_as_of_time(
+                    ds_info['id'],
+                    time,
+                    cursor
+                )
+            self._check_ds(ds_info, dsid, resp, pid, time=time)
+
+            try:
+                resource_info = ds_reader.resource(
+                    ds_info['resource']
+                ).fetchone()
+            except KeyError:
+                return
+
+            mime_info = ds_reader.mime_from_resource(resource_info['id'],
+                                                     cursor=cursor).fetchone()
+            if mime_info:
+                resp.content_type = mime_info['mime']
+
+            # Redirect if we are a redirect DS.
+            if ds_info['control_group'] == 'R':
+                resp.status = falcon.HTTP_307
+                resp.location = resource_info['uri']
+                return
+
+            # Send data if we are not a redirect DS.
+            file_path = filestore.resolve_uri(resource_info['uri'])
+            resp.stream = open(file_path, 'rb')
+            return
 
 
 @route('/objects/{pid}/datastreams/{dsid}/history')
