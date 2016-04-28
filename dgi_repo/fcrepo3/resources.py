@@ -6,14 +6,15 @@ import base64
 import logging
 
 import dgi_repo.database.write.repo_objects as object_writer
+import dgi_repo.fcrepo3.utilities as fedora_utils
+import dgi_repo.database.read.datastreams as ds_reader
+import dgi_repo.database.read.repo_objects as object_reader
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
-import dgi_repo.database.read.datastreams as datastream_reader
-import dgi_repo.database.read.repo_objects as object_reader
 
 logger = logging.getLogger(__name__)
 
@@ -73,16 +74,16 @@ class SoapAccessResource(api.FakeSoapResource):
             - the MIME type of the datastream's resource
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            datastream_info = datastream_reader.datastream_from_raw(
+            datastream_info = ds_reader.datastream_from_raw(
                 pid,
                 dsid,
                 cursor=cursor
             ).fetchone()
-            resource_info = datastream_reader.resource(
+            resource_info = ds_reader.resource(
                 datastream_info['resource'],
                 cursor=cursor
             ).fetchone()
-            mime_info = datastream_reader.mime(
+            mime_info = ds_reader.mime(
                 resource_info['mime'],
                 cursor=cursor
             ).fetchone()
@@ -181,8 +182,6 @@ class DatastreamListResource(api.DatastreamListResource):
     def _get_datastreams(self, pid, asOfDateTime=None):
         """
         Retrieve the list of datastreams.
-
-        @XXX: not respecting asOfDateTime as we don't use it.
         """
         with get_connection() as conn, conn.cursor() as cursor:
             object_info = object_reader.object_info_from_raw(
@@ -193,13 +192,13 @@ class DatastreamListResource(api.DatastreamListResource):
                 object_id = object_info['id']
             except TypeError as e:
                 raise ObjectExistsError(pid) from e
-            raw_datastreams = datastream_reader.datastreams(
+            raw_datastreams = ds_reader.datastreams(
                 object_id,
                 cursor=cursor
             ).fetchall()
             datastreams = []
             for datastream in raw_datastreams:
-                mime = datastream_reader.mime_from_resource(
+                mime = ds_reader.mime_from_resource(
                     datastream['resource'],
                     cursor=cursor
                 ).fetchone()
@@ -222,6 +221,41 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
 
 @route('/objects/{pid}/datastreams/{dsid}/history')
 class DatastreamHistoryResource(api.DatastreamHistoryResource):
-    def _get_datastream_versions(self, pid, dsid, startDT=None, endDT=None):
-        # TODO: Get an iterable of datastream versions.
-        pass
+    """
+    Provide the datastream history endpoint.
+    """
+    def _get_datastream_versions(self, pid, dsid, resp):
+        """
+        Get an iterable of datastream versions.
+        """
+        with get_connection() as conn, conn.cursor() as cursor:
+            try:
+                ds_info = ds_reader.datastream_from_raw(
+                    pid,
+                    dsid,
+                    cursor=cursor
+                ).fetchone()
+            except TypeError as e:
+                raise ObjectExistsError(pid) from e
+            if ds_info is None:
+                self._send_ds_404(pid, dsid, resp)
+
+            datastream_versions = []
+            old_dss = ds_reader.old_datastreams(ds_info['id'],
+                                                cursor=cursor).fetchall()
+            temp_ds = ds_info.copy()
+            for version, old_ds in enumerate(old_dss):
+                temp_ds.update(old_ds)
+                temp_ds['modified'] = old_ds['committed']
+                datastream_versions.append(fedora_utils.datastream_to_profile(
+                    temp_ds,
+                    cursor,
+                    version=version
+                ))
+            datastream_versions.append(fedora_utils.datastream_to_profile(
+                ds_info,
+                cursor,
+                version=version + 1
+            ))
+
+            return datastream_versions
