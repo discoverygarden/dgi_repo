@@ -256,6 +256,11 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
             except KeyError:
                 return
 
+            mime_info = ds_reader.mime_from_resource(resource_info['id'],
+                                                     cursor=cursor).fetchone()
+            if mime_info:
+                resp.content_type = mime_info['mime']
+
             # Redirect if we are a redirect DS.
             if ds_info['control_group'] == 'R':
                 resp.status = falcon.HTTP_307
