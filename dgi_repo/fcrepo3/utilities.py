@@ -8,10 +8,11 @@ import requests
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.write.log as log_writer
-from dgi_repo.database.utilities import check_cursor
 import dgi_repo.database.write.datastreams as datastream_writer
-from dgi_repo.configuration import configuration as _config
+import dgi_repo.database.read.datastreams as ds_reader
 import dgi_repo.database.filestore as filestore
+from dgi_repo.database.utilities import check_cursor
+from dgi_repo.configuration import configuration as _config
 from dgi_repo import utilities as utils
 
 logger = logging.getLogger(__name__)
@@ -104,3 +105,49 @@ def send_object_404(pid, resp):
     logger.info('Object not found in low-level storage: %s', pid)
     resp.body = 'Object not found in low-level storage: {}'.format(pid)
     raise falcon.HTTPNotFound()
+
+
+def datastream_to_profile(ds_info, cursor, version=0):
+    """
+    Get a datastream profile dict from a DB DS dict.
+    """
+    versionable = 'true' if ds_info['versioned'] else 'false'
+    location = None
+    location_type = 'INTERNAL_ID'
+    mime = None
+    checksum = 'none'
+    checksum_type = 'DISABLED'
+    size = None
+    if ds_info['resource'] is not None:
+        ds_reader.resource(ds_info['resource'], cursor=cursor)
+        resource_info = cursor.fetchone()
+        if resource_info is not None:
+            location = resource_info['uri']
+            if ds_info['control_group'] != 'R':
+                size = filestore.uri_size(resource_info['uri'])
+            else:
+                location_type = 'URL'
+
+            ds_reader.mime(resource_info['mime'], cursor=cursor)
+            mime = cursor.fetchone()['mime']
+
+            ds_reader.checksums(ds_info['resource'], cursor=cursor)
+            checksum_info = cursor.fetchone()
+            if checksum_info is not None:
+                checksum = checksum_info['checksum']
+                checksum_type = checksum_info['type']
+                cursor.fetchall()
+    return {
+        'dsLabel': ds_info['label'],
+        'dsCreateDate': ds_info['modified'].isoformat(),
+        'dsState': ds_info['state'],
+        'dsMime': mime,
+        'dsControlGroup': ds_info['control_group'],
+        'dsVersionable': versionable,
+        'dsVersionID': '{}.{}'.format(ds_info['dsid'], version),
+        'dsChecksumType': checksum_type,
+        'dsChecksum': checksum,
+        'dsSize': size,
+        'dsLocation': location,
+        'dsLocationType': location_type,
+    }
