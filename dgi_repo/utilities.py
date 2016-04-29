@@ -7,8 +7,7 @@ import dateutil.parser
 from pytz import timezone
 
 import dgi_repo.logger
-import dgi_repo.database.install as db_install
-from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.configuration import configuration as _config
 
 PID_SEPARATOR = ':'
 
@@ -18,14 +17,6 @@ def bootstrap():
     Run code that should always be ran at the beginning of the application run.
     """
     dgi_repo.logger.configure_logging()
-
-
-def install():
-    """
-    Run code to finish installing the application.
-    """
-    db_install.install_schema()
-    db_install.install_base_data()
 
 
 def break_pid(pid):
@@ -73,7 +64,7 @@ def SpooledTemporaryFile(*args, **kwargs):
         spooled_file = _SpooledTemporaryFile(**kwargs)
     else:
         spooled_file = _SpooledTemporaryFile(
-            _configuration['spooled_temp_file_size'],
+            _config['spooled_temp_file_size'],
             **kwargs
         )
 
@@ -97,6 +88,6 @@ def check_datetime_timezone(check):
     If the datetime is timezone unaware apply the configured timezone.
     """
     if check.tzinfo is None or check.tzinfo.utcoffset is None:
-        our_timezone = timezone(_configuration['timezone'])
+        our_timezone = timezone(_config['timezone'])
         check = our_timezone.localize(check)
     return check

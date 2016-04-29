@@ -14,6 +14,10 @@ db_proxy:
     username: reduced_permissions_user
     password: that_pass
 
+# Data made by the system will be owned by this user.
+self:
+    source: dgi_repo
+    username: dgi_repo
 drupal_sites:
     # Site ID. User-Agent in inbound requests should match 'Tuque/{name}',
     # like 'Tuque/alpha' for this one
@@ -34,7 +38,7 @@ FROM (
   users u
     LEFT JOIN
   users_roles ON u.uid=users_roles.uid
-  )
+)
     LEFT JOIN role r ON r.rid=users_roles.rid
 WHERE u.name=%s AND u.pass=%s'
     bravo:
