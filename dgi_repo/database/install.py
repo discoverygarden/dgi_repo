@@ -88,7 +88,7 @@ def install_base_data():
                     },
                     cursor=cursor
                 ).fetchone()
-                # Add DC 'cause fedora.
+                # Add DC DS as Fedora objects have DC and Islandora expects it.
                 foxml.create_default_dc_ds(obj_info['id'], obj, cursor=cursor)
 
     db_connection.close()
