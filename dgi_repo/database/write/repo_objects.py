@@ -9,7 +9,7 @@ import logging
 
 from dgi_repo.configuration import configuration as _configuration
 from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.read.repo_objects import old_object_id, namespace_info
+import dgi_repo.database.read.repo_objects as object_reader
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,27 @@ def get_pid_ids(namespace=None, num_pids=1, cursor=None):
     return cursor
 
 
+def upsert_namespace(namespace, cursor=None):
+    """
+    Upsert a namespace in the repository.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        INSERT INTO pid_namespaces (namespace, highest_id)
+        VALUES (%s, 0)
+        ON CONFLICT (namespace) DO NOTHING
+        RETURNING id
+    ''', (namespace,))
+
+    if not cursor.rowcount:
+        cursor = object_reader.namespace_id(namespace, cursor=cursor)
+
+    logger.debug("Upserted namespace %s.", namespace)
+
+    return cursor
+
+
 def upsert_object(data, cursor=None):
     """
     Upsert an object in the repository.
@@ -69,10 +90,8 @@ def upsert_object(data, cursor=None):
         RETURNING id
     ''', data)
 
-    logger.debug(
-        "Upserted into namespace: %s with PID ID: %s.", data['namespace'],
-        data['pid_id']
-    )
+    logger.info("Upserted into namespace: %s with PID ID: %s.",
+                data['namespace'], data['pid_id'])
 
     return cursor
 
@@ -129,7 +148,7 @@ def upsert_old_object(data, cursor=None):
     ''', data)
 
     if not cursor.rowcount:
-        cursor = old_object_id(data, cursor)
+        cursor = object_reader.old_object_id(data, cursor=cursor)
 
     logger.debug(
         'Upserted old object version for %(object)s at %(committed)s.',
@@ -145,7 +164,7 @@ def jump_pids(namespace_id, pid_id, cursor=None):
     """
     if pid_id.isdecimal():
         pid_id = int(pid_id)
-        namespace_info(namespace_id, cursor=cursor)
+        object_reader.namespace_info(namespace_id, cursor=cursor)
         namespace = cursor.fetchone()
         if namespace['highest_id'] < pid_id:
             get_pid_ids(namespace['namespace'],
