@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
-from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
 
 logger = logging.getLogger(__name__)
 
@@ -286,7 +286,7 @@ class DatastreamListResource(ABC):
                         with xf.element('{{{0}}}datastream'.format(
                                 FEDORA_ACCESS_URI), attrib=datastream):
                             pass
-                except ObjectExistsError as e:
+                except ObjectDoesNotExistError as e:
                     logger.info(('Datastream list not retrieved for %s as '
                                 'object did not exist.'), e.pid)
                     raise falcon.HTTPNotFound()
@@ -309,7 +309,7 @@ class DatastreamListResource(ABC):
                 label: The datastream label, and
                 mimeType: The datastream MIME-type.
         Raises:
-            ObjectExistsError: The object doesn't exist.
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
@@ -411,7 +411,7 @@ class DatastreamHistoryResource(ABC):
                     for datastream in self._get_datastream_versions(pid, dsid,
                                                                     resp):
                         _writeDatastreamProfile(xf, datastream)
-                except ObjectExistsError as e:
+                except ObjectDoesNotExistError as e:
                     logger.info(('Datastream history not retrieved for %s on '
                                  '%s as object did not exist.'), dsid, e.pid)
                     raise falcon.HTTPNotFound()

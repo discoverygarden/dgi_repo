@@ -14,7 +14,7 @@ import dgi_repo.database.read.repo_objects as object_reader
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
-from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
 from dgi_repo.fcrepo3.utilities import send_object_404
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
@@ -194,7 +194,7 @@ class DatastreamListResource(api.DatastreamListResource):
             try:
                 object_id = object_info['id']
             except TypeError as e:
-                raise ObjectExistsError(pid) from e
+                raise ObjectDoesNotExistError(pid) from e
             raw_datastreams = ds_reader.datastreams(
                 object_id,
                 cursor=cursor
@@ -289,7 +289,7 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
                     cursor=cursor
                 ).fetchone()
             except TypeError as e:
-                raise ObjectExistsError(pid) from e
+                raise ObjectDoesNotExistError(pid) from e
             if ds_info is None:
                 self._send_ds_404(pid, dsid, resp)
 
