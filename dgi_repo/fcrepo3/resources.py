@@ -15,7 +15,6 @@ from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
-from dgi_repo.fcrepo3.utilities import send_object_404
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 
@@ -218,25 +217,21 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
     """
     Provide the datastream content endpoint.
     """
-    def on_get(self, req, resp, pid, dsid):
+    def _get_ds_dissemination(self, req, resp, pid, dsid):
         """
         Provide datastream content.
         """
-        super().on_get(req, resp, pid, dsid)
         with get_connection() as conn, conn.cursor() as cursor:
             object_info = object_reader.object_id_from_raw(
                 pid,
                 cursor=cursor
             ).fetchone()
-            try:
-                object_id = object_info['id']
-            except TypeError:
-                send_object_404(pid, resp)
-                return
+            if object_info is None:
+                raise ObjectDoesNotExistError(pid)
 
             time = utils.iso8601_to_datetime(req.get_param('asOfDateTime'))
             ds_info = ds_reader.datastream(
-                {'object': object_id, 'dsid': dsid},
+                {'object': object_info['id'], 'dsid': dsid},
                 cursor=cursor
             ).fetchone()
             self._check_ds(ds_info, dsid, resp, pid)

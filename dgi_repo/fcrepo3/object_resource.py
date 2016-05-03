@@ -15,10 +15,11 @@ import dgi_repo.database.write.sources as source_writer
 import dgi_repo.database.read.sources as source_reader
 from dgi_repo import utilities as utils
 from dgi_repo.configuration import configuration as _config
-from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.exceptions import (ObjectExistsError,
+                                         ObjectDoesNotExistError)
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.fcrepo3 import api, foxml, relations
-from dgi_repo.fcrepo3.utilities import resolve_log, send_object_404
+from dgi_repo.fcrepo3.utilities import resolve_log
 
 logger = logging.getLogger(__name__)
 
@@ -93,153 +94,134 @@ class ObjectResource(api.ObjectResource):
 
         return pid
 
-    def on_get(self, req, resp, pid):
+    def _get_object(self, req, pid):
         """
         Generate the object profile XML.
 
         This does not respect asOfDateTime from Fedora.
         """
-        super().on_get(req, resp, pid)
-
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                try:
-                    object_reader.object_info_from_raw(pid, cursor=cursor)
-                except TypeError:
-                    send_object_404(pid, resp)
-
-                # Get object info.
-                object_info = cursor.fetchone()
-                object_relation_reader.read_relationship(
-                    relations.FEDORA_MODEL_NAMESPACE,
-                    relations.HAS_MODEL_PREDICATE,
-                    object_info['id'],
+        with get_connection() as conn, conn.cursor() as cursor:
+            # Get object info.
+            object_info = object_reader.object_info_from_raw(
+                pid,
+                cursor=cursor
+            ).fetchone()
+            if object_info is None:
+                raise ObjectDoesNotExistError(pid)
+            object_relation_reader.read_relationship(
+                relations.FEDORA_MODEL_NAMESPACE,
+                relations.HAS_MODEL_PREDICATE,
+                object_info['id'],
+                cursor=cursor
+            )
+            model_info = cursor.fetchall()
+            models = set()
+            for rdf_object_info in model_info:
+                cursor = object_reader.object_info(
+                    rdf_object_info['rdf_object'],
                     cursor=cursor
                 )
-                model_info = cursor.fetchall()
-                models = set()
-                for rdf_object_info in model_info:
-                    cursor = object_reader.object_info(
-                        rdf_object_info['rdf_object'],
-                        cursor=cursor
-                    )
-                    model_object_info = cursor.fetchone()
+                model_object_info = cursor.fetchone()
 
-                    object_reader.namespace_info(
-                        model_object_info['namespace'],
-                        cursor=cursor
-                    )
-                    namespace = cursor.fetchone()['namespace']
-
-                    model_pid = utils.make_pid(namespace,
-                                               model_object_info['pid_id'])
-                    models.add('info:fedora/{}'.format(model_pid))
-                source_reader.user(object_info['owner'], cursor=cursor)
-                owner = cursor.fetchone()['username']
-
-                resp.body = self._get_object_profile(
-                    pid,
-                    object_info['label'],
-                    models,
-                    object_info['created'],
-                    object_info['modified'],
-                    object_info['state'],
-                    owner
+                object_reader.namespace_info(
+                    model_object_info['namespace'],
+                    cursor=cursor
                 )
+                namespace = cursor.fetchone()['namespace']
 
-                logger.info('Retrieved object: %s.', pid)
-        return
+                model_pid = utils.make_pid(namespace,
+                                           model_object_info['pid_id'])
+                models.add('info:fedora/{}'.format(model_pid))
+            source_reader.user(object_info['owner'], cursor=cursor)
+            owner = cursor.fetchone()['username']
 
-    def on_put(self, req, resp, pid):
+            return self._get_object_profile(
+                pid,
+                object_info['label'],
+                models,
+                object_info['created'],
+                object_info['modified'],
+                object_info['state'],
+                owner
+            )
+
+    def _update_object(self, req, pid):
         """
         Commit the object modification.
         """
-        super().on_put(req, resp, pid)
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                # Get current object info.
-                try:
-                    object_reader.object_info_from_raw(pid, cursor=cursor)
-                except TypeError:
-                    send_object_404(pid, resp)
+        modified = None
+        with get_connection() as conn, conn.cursor() as cursor:
+            # Get current object info.
+            object_info = object_reader.object_info_from_raw(
+                pid,
+                cursor=cursor
+            ).fetchone()
+            if not object_info:
+                raise ObjectDoesNotExistError(pid)
 
-                object_info = dict(cursor.fetchone())
+            object_info = dict(object_info)
 
-                # Check modified date param, exiting if needed.
-                modified_date = req.get_param('lastModifiedDate')
-                if modified_date is not None:
-                    modified_date = utils.iso8601_to_datetime(modified_date)
+            # Check modified date param, exiting if needed.
+            modified_date = req.get_param('lastModifiedDate')
+            if modified_date is not None:
+                modified_date = utils.iso8601_to_datetime(modified_date)
 
-                    if object_info['modified'] > modified_date:
-                        logger.info(('{} lastModifiedDate ({}) is more recent '
-                                    'than the request ({})').format(
-                                        pid,
-                                        object_info['modified'].isoformat(),
-                                        modified_date.isoformat()
-                        ))
-                        # @XXX Raising HTTPError over HTTPConflict because we
-                        # don't have  a title and description for HTTPConflict.
-                        raise falcon.HTTPError('409 Conflict')
+                if object_info['modified'] > modified_date:
+                    logger.info(('{} lastModifiedDate ({}) is more recent '
+                                'than the request ({})').format(
+                                    pid,
+                                    object_info['modified'].isoformat(),
+                                    modified_date.isoformat()
+                    ))
+                    # @XXX Raising HTTPError over HTTPConflict because we
+                    # don't have  a title and description for HTTPConflict.
+                    raise falcon.HTTPError('409 Conflict')
 
-                # Create old version of object.
-                if object_info['versioned']:
-                    old_object_info = object_info
-                    old_object_info['committed'] = object_info['modified']
-                    old_object_info['object'] = object_info['id']
-                    del old_object_info['id']
-                    object_writer.upsert_old_object(
-                        old_object_info,
-                        cursor=cursor
-                    )
-                    cursor.fetchone()
+            # Create old version of object.
+            if object_info['versioned']:
+                old_object_info = object_info
+                old_object_info['committed'] = object_info['modified']
+                old_object_info['object'] = object_info['id']
+                del old_object_info['id']
+                object_writer.upsert_old_object(old_object_info, cursor=cursor)
+                cursor.fetchone()
 
-                # Update object info.
-                new_object_info = object_info
-                new_object_info['label'] = req.get_param(
-                    'label',
-                    default=object_info['label']
+            # Update object info.
+            new_object_info = object_info
+            new_object_info['label'] = req.get_param(
+                'label',
+                default=object_info['label']
+            )
+            new_object_info['state'] = req.get_param(
+                'state',
+                default=object_info['state']
+            )
+            if req.get_param('ownerId') is not None:
+                new_object_info['owner'] = self._resolve_owner(req, cursor)
+            if req.get_param('logMessage') is not None:
+                new_object_info['log'] = resolve_log(req, cursor)
+            if modified_date is not None:
+                new_object_info['modified'] = req.get_param(
+                    'lastModifiedDate',
+                    default=object_info['modified']
                 )
-                new_object_info['state'] = req.get_param(
-                    'state',
-                    default=object_info['state']
-                )
-                if req.get_param('ownerId') is not None:
-                    new_object_info['owner'] = self._resolve_owner(req, cursor)
-                if req.get_param('logMessage') is not None:
-                    new_object_info['log'] = resolve_log(req, cursor)
-                if modified_date is not None:
-                    resp.body = modified_date.isoformat()
-                    new_object_info['modified'] = req.get_param(
-                        'lastModifiedDate',
-                        default=object_info['modified']
-                    )
-                else:
-                    del new_object_info['modified']
-                object_writer.upsert_object(
-                    new_object_info,
-                    cursor=cursor
-                )
+            else:
+                del new_object_info['modified']
+            object_writer.upsert_object(new_object_info, cursor=cursor)
 
-                logger.info('Modified %s', pid)
-
-    def on_delete(self, req, resp, pid):
+    def _purge_object(self, req, pid):
         """
         Purge the object.
 
         @TODO: handle logMessage when audit is dealt with.
         """
-        super().on_delete(req, resp, pid)
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                try:
-                    object_reader.object_info_from_raw(pid, cursor)
-                    object_id = cursor.fetchone()['id']
-                    object_purger.delete_object(object_id, cursor)
-                except TypeError:
-                    send_object_404(pid, resp)
+        with get_connection() as conn, conn.cursor() as cursor:
+            object_info = object_reader.object_info_from_raw(pid,
+                                                             cursor).fetchone()
+            if object_info is None:
+                raise ObjectDoesNotExistError(pid)
 
-                resp.body = 'Purged {}'.format(pid)
-                logger.info('Purged %s', pid)
+            object_purger.delete_object(object_info['id'], cursor)
 
     def _resolve_owner(self, req, cursor):
         """

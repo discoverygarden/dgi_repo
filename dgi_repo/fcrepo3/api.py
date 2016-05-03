@@ -187,12 +187,47 @@ class ObjectResource(ABC):
     def on_get(self, req, resp, pid):
         """
         Get object profile.
+
+        @TODO: handle calling _get_object_profile at this level.
         """
         resp.content_type = 'application/xml'
+        try:
+            resp.body = self._get_object(req, pid)
+        except ObjectDoesNotExistError as e:
+            logger.info('Did not retrieve object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
+        logger.info('Retrieved object: %s.', pid)
+
+    @abstractmethod
+    def _get_object(self, req, pid):
+        """
+        Get an object's profile.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
+        pass
 
     def on_put(self, req, resp, pid):
         """
         Update an object.
+
+        @TODO: Bring 409 to this level.
+        """
+        try:
+            self._update_object(req, pid)
+        except ObjectDoesNotExistError as e:
+            logger.info('Did not update object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
+        logger.info('Updated object: %s.', pid)
+
+    @abstractmethod
+    def _update_object(self, req, pid):
+        """
+        Update an object.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
@@ -201,6 +236,23 @@ class ObjectResource(ABC):
         Purge an object.
         """
         resp.content_type = 'text/plain'
+        try:
+            self._purge_object(req, pid)
+        except ObjectDoesNotExistError as e:
+            logger.info('Did not purge object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
+        resp.body = 'Purged {}'.format(pid)
+        logger.info('Purged object: %s.', pid)
+
+    @abstractmethod
+    def _purge_object(self, req, pid):
+        """
+        Purge an object.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
+        pass
 
     def _get_object_profile(self, pid, label, models, created,
                             modified, state, owner):
@@ -383,10 +435,25 @@ class DatastreamDisseminationResource(ABC):
     """
     Base Falcon "Resource" to handle datastream dissemination.
     """
-    @abstractmethod
     def on_get(self, req, resp, pid, dsid):
         """
         Dump datastream content.
+        """
+        try:
+            self._get_ds_dissemination(req, resp, pid, dsid)
+        except ObjectDoesNotExistError as e:
+            logger.info(('Did not get datastream dissemination for %s as the '
+                         'object %s did not exist.'), dsid, pid)
+            _send_object_404(pid, resp)
+        logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
+
+    @abstractmethod
+    def _get_ds_dissemination(self, req, resp, pid, dsid):
+        """
+        Prep datastream content response.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
@@ -494,3 +561,12 @@ def _writeDatastreamProfile(xf, datastream_info):
             if value is not None:
                 with xf.element('{{{}}}{}'.format(FEDORA_MANAGEMENT_URI, key)):
                     xf.write(str(value))
+
+
+def _send_object_404(pid, resp):
+    """
+    Send a Fedora like 404 when objects don't exist.
+    """
+    resp.content_type = 'text/plain'
+    resp.body = 'Object not found in low-level storage: {}'.format(pid)
+    raise falcon.HTTPNotFound()
