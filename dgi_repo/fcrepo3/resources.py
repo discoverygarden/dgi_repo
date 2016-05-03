@@ -296,8 +296,9 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
             datastream_versions = []
             old_dss = ds_reader.old_datastreams(ds_info['id'],
                                                 cursor=cursor).fetchall()
+            version = 0
             temp_ds = ds_info.copy()
-            for version, old_ds in enumerate(old_dss):
+            for old_ds in old_dss:
                 temp_ds.update(old_ds)
                 temp_ds['modified'] = old_ds['committed']
                 datastream_versions.append(fedora_utils.datastream_to_profile(
@@ -305,10 +306,11 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
                     cursor,
                     version=version
                 ))
+                version += 1
             datastream_versions.append(fedora_utils.datastream_to_profile(
                 ds_info,
                 cursor,
-                version=version + 1
+                version=version
             ))
 
             return datastream_versions
