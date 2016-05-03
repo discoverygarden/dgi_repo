@@ -298,6 +298,7 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
                                                 cursor=cursor).fetchall()
             version = 0
             temp_ds = ds_info.copy()
+            # Not using enumerate as we use the version var outside the loop.
             for old_ds in old_dss:
                 temp_ds.update(old_ds)
                 temp_ds['modified'] = old_ds['committed']
