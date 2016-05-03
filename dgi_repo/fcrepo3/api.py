@@ -1,8 +1,7 @@
 """
 Falcon resource abstract base classes.
 
-@TODO: move API level logging/responses from implementations to here.
-@TODO: move passed vars to object attributes.
+@TODO: move remaining API level logging/responses from implementations to here.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -11,6 +10,7 @@ import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,25 @@ class ObjectResource(ABC):
         """
         Ingest a new object.
         """
+        try:
+            # The PID we have right now may not be the final PID.
+            pid = self._create_object(req, pid)
+        except ObjectExistsError as e:
+            logger.info('Did not ingest %s as it already existed.', e.pid)
+            raise falcon.HTTPError('500 Internal Server Error') from e
         resp.content_type = 'text/plain'
+        resp.body = 'Ingested {}.'.format(pid)
+        logger.info('Ingested %s.', pid)
+
+    @abstractmethod
+    def _create_object(self, req, pid):
+        """
+        Create an object
+
+        Raises:
+            ObjectExistsError: The object already exist.
+        """
+        pass
 
     def on_get(self, req, resp, pid):
         """
@@ -183,14 +201,6 @@ class ObjectResource(ABC):
         Purge an object.
         """
         resp.content_type = 'text/plain'
-
-    def _send_500(self, pid, resp):
-        """
-        Send a Fedora like 500 when objects exist.
-        # Object exists return 500; @XXX it's what Fedora does.
-        """
-        logger.info('Did not ingest %s as it already existed.', pid)
-        raise falcon.HTTPError('500 Internal Server Error')
 
     def _get_object_profile(self, pid, label, models, created,
                             modified, state, owner):

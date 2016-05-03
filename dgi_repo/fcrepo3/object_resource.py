@@ -28,79 +28,70 @@ class ObjectResource(api.ObjectResource):
     Provide the object endpoint.
     """
 
-    def on_post(self, req, resp, pid):
+    def _create_object(self, req, pid):
         """
         Create the new object.
         """
-        super().on_post(req, resp, pid)
-        with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
-            with conn.cursor() as cursor:
-                xml = req.get_param('file')
-                if xml is not None:
-                    try:
-                        # Import FOXML, getting PID.
-                        pid = foxml.import_foxml(
-                            xml.file,
-                            req.env['wsgi.identity'].source_id,
-                            cursor=cursor
-                        )
-                        logger.info('Imported %s', pid)
-                    except ObjectExistsError as e:
-                        self._send_500(e.pid, resp)
+        conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
+        with conn, conn.cursor() as cursor:
+            xml = req.get_param('file')
+            if xml is not None:
+                # Import FOXML, getting PID.
+                pid = foxml.import_foxml(
+                    xml.file,
+                    req.env['wsgi.identity'].source_id,
+                    cursor=cursor
+                )
+            else:
+                if not pid or pid == 'new':
+                    # Generate PID.
+                    raw_namespace = req.get_param(
+                        'namespace',
+                        default=_config['default_namespace']
+                    )
+                    object_writer.get_pid_id(raw_namespace, cursor=cursor)
+                    pid_id, namespace = cursor.fetchone()
+                    pid = utils.make_pid(raw_namespace, pid_id)
                 else:
-                    if not pid or pid == 'new':
-                        # Generate PID.
-                        raw_namespace = req.get_param(
-                            'namespace',
-                            default=_config['default_namespace']
-                        )
-                        object_writer.get_pid_id(raw_namespace, cursor=cursor)
-                        pid_id, namespace = cursor.fetchone()
-                        pid = utils.make_pid(raw_namespace, pid_id)
-                    else:
-                        # Reserve given PID in namespace.
-                        raw_namespace, pid_id = utils.break_pid(pid)
-                        object_reader.namespace_id(raw_namespace,
-                                                   cursor=cursor)
-                        try:
-                            namespace = cursor.fetchone()[0]
-                        except TypeError:
-                            # @XXX burns the first PID in a namespace.
-                            object_writer.get_pid_id(raw_namespace,
-                                                     cursor=cursor)
-                            namespace = cursor.fetchone()[1]
-
-                        # Jump up PIDs if needed.
-                        object_writer.jump_pids(namespace, pid_id,
-                                                cursor=cursor)
-
-                    # Figure out the owner's DB ID.
-                    owner = self._resolve_owner(req, cursor)
-
-                    # Figure out the log's DB ID.
-                    log = resolve_log(req, cursor)
-
+                    # Reserve given PID in namespace.
+                    raw_namespace, pid_id = utils.break_pid(pid)
+                    object_reader.namespace_id(raw_namespace, cursor=cursor)
                     try:
-                        object_writer.write_object(
-                            {
-                                'namespace': namespace,
-                                'state': req.get_param('state', default='A'),
-                                'label': req.get_param('label'),
-                                'log': log,
-                                'pid_id': pid_id,
-                                'owner': owner,
-                            },
-                            cursor=cursor
-                        )
-                    except IntegrityError:
-                        self._send_500()
-                    if log is not None:
-                        logger.info('Ingested %s with log: "%s".', pid, log)
-                    foxml.create_default_dc_ds(cursor.fetchone()[0], pid,
-                                               cursor=cursor)
+                        namespace = cursor.fetchone()[0]
+                    except TypeError:
+                        # @XXX burns the first PID in a namespace.
+                        object_writer.get_pid_id(raw_namespace, cursor=cursor)
+                        namespace = cursor.fetchone()[1]
 
-                resp.body = 'Ingested {}'.format(pid)
-        return
+                    # Jump up PIDs if needed.
+                    object_writer.jump_pids(namespace, pid_id,
+                                            cursor=cursor)
+
+                # Figure out the owner's DB ID.
+                owner = self._resolve_owner(req, cursor)
+
+                # Figure out the log's DB ID.
+                log = resolve_log(req, cursor)
+
+                try:
+                    object_writer.write_object(
+                        {
+                            'namespace': namespace,
+                            'state': req.get_param('state', default='A'),
+                            'label': req.get_param('label'),
+                            'log': log,
+                            'pid_id': pid_id,
+                            'owner': owner,
+                        },
+                        cursor=cursor
+                    )
+                except IntegrityError as e:
+                    raise ObjectExistsError(pid) from e
+                foxml.create_default_dc_ds(cursor.fetchone()[0], pid,
+                                           cursor=cursor)
+        conn.close()
+
+        return pid
 
     def on_get(self, req, resp, pid):
         """
