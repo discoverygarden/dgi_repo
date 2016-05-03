@@ -134,18 +134,17 @@ class DatastreamResource(api.DatastreamResource):
         """
         Get the ds* values in a dict, to build the datastream profile.
         """
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
-                ds_info = cursor.fetchone()
+        with get_connection() as conn, conn.cursor() as cursor:
+            ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
+            ds_info = cursor.fetchone()
+            if ds_info is None:
+                return None
+            if asOfDateTime is not None:
+                ds_info = ds_reader.datastream_as_of_time(
+                    ds_info['id'],
+                    utils.iso8601_to_datetime(asOfDateTime),
+                    cursor=cursor
+                )
                 if ds_info is None:
                     return None
-                if asOfDateTime is not None:
-                    ds_info = ds_reader.datastream_as_of_time(
-                        ds_info['id'],
-                        utils.iso8601_to_datetime(asOfDateTime),
-                        cursor=cursor
-                    )
-                    if ds_info is None:
-                        return None
-                return fedora_utils.datastream_to_profile(ds_info, cursor)
+            return fedora_utils.datastream_to_profile(ds_info, cursor)

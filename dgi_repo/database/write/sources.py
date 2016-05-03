@@ -52,7 +52,7 @@ def upsert_user(data, cursor=None):
     if not cursor.rowcount:
         cursor = user_id(data, cursor)
 
-    logger.debug('Upserted user:%(name)s for source: %(source)s.', data)
+    logger.debug('Upserted user: %(name)s for source: %(source)s.', data)
 
     return cursor
 
@@ -73,6 +73,6 @@ def upsert_role(data, cursor=None):
     if not cursor.rowcount:
         cursor = role_id(data, cursor)
 
-    logger.debug('Upserted user role:%(role)s for source: %(source)s.', data)
+    logger.debug('Upserted user role: %(role)s for source: %(source)s.', data)
 
     return cursor
