@@ -129,8 +129,10 @@ class PidResource(ABC):
     Falcon "Resource" to allocate PIDs.
     """
     def on_post(self, req, resp):
+        pid = None
         params = dict()
         req.get_param_as_int('numPIDs', min=1, store=params)
+        params.setdefault('numPIDs', 1)
         req.get_param('namespace', store=params)
 
         xml_out = SpooledTemporaryFile()
@@ -143,6 +145,14 @@ class PidResource(ABC):
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
+
+        if params['numPIDs'] == 1:
+            pids_to_log = pid
+        else:
+            pids_to_log = '{} counting back from {}'.format(params['numPIDs'],
+                                                            pid)
+
+        logger.info('Getting new PID(s): %s.', pids_to_log)
 
     @abstractmethod
     def _get_pids(self, numPIDs=1, namespace=None):
