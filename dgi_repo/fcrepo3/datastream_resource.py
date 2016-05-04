@@ -136,10 +136,13 @@ class DatastreamResource(api.DatastreamResource):
         Get the ds* values in a dict, to build the datastream profile.
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
+            try:
+                ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
+            except TypeError as e:
+                raise ObjectDoesNotExistError(pid) from e
             ds_info = cursor.fetchone()
             if ds_info is None:
-                return None
+                raise DatastreamDoesNotExistError(pid, dsid)
             if asOfDateTime is not None:
                 ds_info = ds_reader.datastream_as_of_time(
                     ds_info['id'],

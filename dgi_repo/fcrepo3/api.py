@@ -32,8 +32,8 @@ class FakeSoapResource(ABC):
     Helper class for pseudo-SOAP endpoints.
 
     The endpoints we need target specifically include:
-    -  :8080/fedora/services/access (for getDatastreamDissemination) and
-    -  :8080/fedora/services/management (for export)
+    - /services/access (for getDatastreamDissemination) and
+    - /services/management (for export)
     """
     SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
 
@@ -194,7 +194,7 @@ class ObjectResource(ABC):
         resp.content_type = 'application/xml'
         try:
             resp.body = self._get_object(req, pid)
-        except ObjectDoesNotExistError as e:
+        except ObjectDoesNotExistError:
             logger.info('Did not retrieve object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
         logger.info('Retrieved object: %s.', pid)
@@ -217,7 +217,7 @@ class ObjectResource(ABC):
         """
         try:
             self._update_object(req, pid)
-        except ObjectDoesNotExistError as e:
+        except ObjectDoesNotExistError:
             logger.info('Did not update object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
         logger.info('Updated object: %s.', pid)
@@ -239,7 +239,7 @@ class ObjectResource(ABC):
         resp.content_type = 'text/plain'
         try:
             self._purge_object(req, pid)
-        except ObjectDoesNotExistError as e:
+        except ObjectDoesNotExistError:
             logger.info('Did not purge object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
         resp.body = 'Purged {}'.format(pid)
@@ -349,9 +349,9 @@ class DatastreamListResource(ABC):
                         with xf.element('{{{0}}}datastream'.format(
                                 FEDORA_ACCESS_URI), attrib=datastream):
                             pass
-                except ObjectDoesNotExistError as e:
+                except ObjectDoesNotExistError:
                     logger.info(('Datastream list not retrieved for %s as '
-                                'object did not exist.'), e.pid)
+                                'object did not exist.'), pid)
                     raise falcon.HTTPNotFound()
         length = xml_out.tell()
         xml_out.seek(0)
@@ -387,7 +387,7 @@ class DatastreamResource(ABC):
         """
         try:
             self._create_ds(req, pid, dsid)
-        except ObjectDoesNotExistError as e:
+        except ObjectDoesNotExistError:
             logger.info(('Did not create datastream %s on  %s as the object '
                          'did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
@@ -410,16 +410,28 @@ class DatastreamResource(ABC):
         Get datastream info.
         """
         xml_out = SpooledTemporaryFile()
-        datastream_info = self._get_datastream_info(pid, dsid, **req.params)
-        if datastream_info is None:
-            self._send_208(pid, dsid, resp)
-        else:
-            with etree.xmlfile(xml_out) as xf:
-                _writeDatastreamProfile(xf, datastream_info)
-            length = xml_out.tell()
-            xml_out.seek(0)
-            resp.set_stream(xml_out, length)
-            resp.content_type = 'application/xml'
+        try:
+            datastream_info = self._get_datastream_info(pid, dsid,
+                                                        **req.params)
+
+        except ObjectDoesNotExistError:
+            logger.info(('Datastream not retrieved for %s on '
+                         '%s as object did not exist.'), dsid, pid)
+            _send_object_404(pid, resp)
+        except DatastreamDoesNotExistError:
+                resp.content_type = 'text/plain'
+                logger.info(('Datastream not retrieved for %s not found on %s '
+                            'as it did not exist.'), dsid, pid)
+                resp.body = 'Datastream {} not found on {}.'.format(dsid, pid)
+                resp.status = '209'
+                return
+        with etree.xmlfile(xml_out) as xf:
+            _writeDatastreamProfile(xf, datastream_info)
+        length = xml_out.tell()
+        xml_out.seek(0)
+        resp.set_stream(xml_out, length)
+        resp.content_type = 'application/xml'
+        return
 
     def on_put(self, req, resp, pid, dsid):
         """
@@ -427,9 +439,9 @@ class DatastreamResource(ABC):
         """
         try:
             self._update_datastream(req, pid, dsid)
-        except ObjectDoesNotExistError as e:
+        except ObjectDoesNotExistError:
             logger.info(('Datastream not updated for %s on '
-                         '%s as object did not exist.'), dsid, e.pid)
+                         '%s as object did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
         except DatastreamDoesNotExistError as e:
             logger.info(('Datastream not updated for %s on '
@@ -455,15 +467,6 @@ class DatastreamResource(ABC):
         """
         pass
 
-    def _send_208(self, pid, dsid, resp):
-        """
-        Send a Fedora like 208 when datastreams don't exist.
-        """
-        resp.content_type = 'text/plain'
-        logger.info('Datastream %s not found on %s.', dsid, pid)
-        resp.body = 'Datastream {} not found on {}.'.format(dsid, pid)
-        resp.status = '208'
-
     @abstractmethod
     def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
         """
@@ -482,7 +485,7 @@ class DatastreamDisseminationResource(ABC):
         """
         try:
             self._get_ds_dissemination(req, resp, pid, dsid)
-        except ObjectDoesNotExistError as e:
+        except ObjectDoesNotExistError:
             logger.info(('Did not get datastream dissemination for %s as the '
                          'object %s did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
@@ -530,9 +533,9 @@ class DatastreamHistoryResource(ABC):
                 try:
                     for datastream in self._get_datastream_versions(pid, dsid):
                         _writeDatastreamProfile(xf, datastream)
-                except ObjectDoesNotExistError as e:
+                except ObjectDoesNotExistError:
                     logger.info(('Datastream history not retrieved for %s on '
-                                 '%s as object did not exist.'), dsid, e.pid)
+                                 '%s as object did not exist.'), dsid, pid)
                     _send_object_404(pid, resp)
                 except DatastreamDoesNotExistError as e:
                     resp.content_type = 'text/xml'
