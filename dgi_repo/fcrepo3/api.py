@@ -385,6 +385,24 @@ class DatastreamResource(ABC):
         """
         Ingest new datastream.
         """
+        try:
+            self._create_ds(req, pid, dsid)
+        except ObjectDoesNotExistError as e:
+            logger.info(('Did not create datastream %s on  %s as the object '
+                         'did not exist.'), dsid, pid)
+            _send_object_404(pid, resp)
+
+        resp.status = falcon.HTTP_201
+        logger.info('Created DS %s on %s.', dsid, pid)
+
+    @abstractmethod
+    def _create_ds(self, req, pid, dsid):
+        """
+        Create a datastream.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
         pass
 
     def on_get(self, req, resp, pid, dsid):
@@ -406,6 +424,29 @@ class DatastreamResource(ABC):
     def on_put(self, req, resp, pid, dsid):
         """
         Update datastream.
+        """
+        try:
+            self._update_datastream(req, pid, dsid)
+        except ObjectDoesNotExistError as e:
+            logger.info(('Datastream not updated for %s on '
+                         '%s as object did not exist.'), dsid, e.pid)
+            _send_object_404(pid, resp)
+        except DatastreamDoesNotExistError as e:
+            resp.status = falcon.HTTP_404
+            logger.info(('Datastream not updated for %s on '
+                         '%s as datastream did not exist.'), dsid, pid)
+            resp.body = ('Datastream not updated for %s on %s as datastream '
+                         'did not exist.').format(dsid, pid)
+            raise falcon.HTTPNotFound() from e
+
+    @abstractmethod
+    def _update_datastream(self, req, pid, dsid):
+        """
+        Update a datastream.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass
 
@@ -493,7 +534,7 @@ class DatastreamHistoryResource(ABC):
                 except ObjectDoesNotExistError as e:
                     logger.info(('Datastream history not retrieved for %s on '
                                  '%s as object did not exist.'), dsid, e.pid)
-                    raise falcon.HTTPNotFound() from e
+                    _send_object_404(pid, resp)
                 except DatastreamDoesNotExistError as e:
                     resp.content_type = 'text/xml'
                     logger.info(('Datastream history not retrieved for %s on '

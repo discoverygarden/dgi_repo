@@ -3,7 +3,6 @@ Class file for the implementation of the datastream resource.
 """
 import logging
 
-import falcon
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.read.repo_objects as object_reader
@@ -12,6 +11,8 @@ import dgi_repo.database.write.datastreams as ds_writer
 import dgi_repo.database.delete.datastreams as ds_purger
 import dgi_repo.utilities as utils
 import dgi_repo.fcrepo3.utilities as fedora_utils
+from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import DatastreamDoesNotExistError
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.database.utilities import get_connection
 
@@ -23,38 +24,36 @@ class DatastreamResource(api.DatastreamResource):
     Provide the datastream CRUD endpoints.
     """
 
-    def on_post(self, req, resp, pid, dsid):
+    def _create_ds(self, req, pid, dsid):
         """
         Persist the new datastream.
         """
-        super().on_post(req, resp, pid, dsid)
-        with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
-            with conn.cursor() as cursor:
-                self._upsert_ds(req, pid, dsid, cursor)
-                resp.status = falcon.HTTP_201
-                logger.info('Created DS %s on %s.', dsid, pid)
+        conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
+        with conn, conn.cursor() as cursor:
+            self._upsert_ds(req, pid, dsid, cursor)
 
-    def on_put(self, req, resp, pid, dsid):
+    def _update_datastream(self, req, pid, dsid):
         """
         Commit the modification to the datastream.
         """
-        super().on_put(req, resp, pid, dsid)
-        with get_connection(ISOLATION_LEVEL_READ_COMMITTED) as conn:
-            with conn.cursor() as cursor:
+        conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
+        with conn, conn.cursor() as cursor:
+            try:
                 ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
-                ds_info = cursor.fetchone()
-                if ds_info is not None:
-                    ds = dict(ds_info)
-                    ds['committed'] = ds['modified']
-                    ds['datastream'] = ds['id']
-                    del ds['id']
-                    ds_writer.upsert_old_datastream(ds, cursor=cursor)
-                else:
-                    resp.status = falcon.HTTP_404
-                    return
+            except TypeError as e:
+                raise ObjectDoesNotExistError(pid) from e
+            ds_info = cursor.fetchone()
+            if ds_info is not None:
+                ds = dict(ds_info)
+                ds['committed'] = ds['modified']
+                ds['datastream'] = ds['id']
+                del ds['id']
+                ds_writer.upsert_old_datastream(ds, cursor=cursor)
+            else:
+                raise DatastreamDoesNotExistError(pid, dsid)
 
-                self._upsert_ds(req, pid, dsid, cursor)
-                logger.info('Updated DS %s on %s.', dsid, pid)
+            self._upsert_ds(req, pid, dsid, cursor)
+            logger.info('Updated DS %s on %s.', dsid, pid)
         return
 
     def on_delete(self, req, resp, pid, dsid):
@@ -63,28 +62,31 @@ class DatastreamResource(api.DatastreamResource):
 
         @TODO: handle logMessage when audit is dealt with.
         """
-        super().on_delete(req, resp, pid, dsid)
         start = utils.iso8601_to_datetime(req.get_param('startDT'))
         end = utils.iso8601_to_datetime(req.get_param('endDT'))
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                ds_purger.delete_datastream_versions(
-                    pid,
-                    dsid,
-                    start=start,
-                    end=end,
-                    cursor=cursor
-                )
-                logger.info(('Deleted datastream versions for %s on %s between'
-                            ' %s and %s.'), dsid, pid, start, end)
-                foxml.internalize_rels(pid, dsid,
-                                       req.env['wsgi.identity'].source_id,
-                                       cursor=cursor)
+        with get_connection() as conn, conn.cursor() as cursor:
+            ds_purger.delete_datastream_versions(
+                pid,
+                dsid,
+                start=start,
+                end=end,
+                cursor=cursor
+            )
+            logger.info(('Deleted datastream versions for %s on %s between'
+                         ' %s and %s.'), dsid, pid, start, end)
+            foxml.internalize_rels(pid, dsid,
+                                   req.env['wsgi.identity'].source_id,
+                                   cursor=cursor)
 
     def _upsert_ds(self, req, pid, dsid, cursor):
         """
         Upsert a datastream.
         """
+        object_info = object_reader.object_id_from_raw(
+            pid, cursor=cursor).fetchone()
+        if object_info is None:
+            raise ObjectDoesNotExistError(pid)
+
         control_group = req.get_param('controlGroup', default='M')
         ds_location = req.get_param('dsLocation')
         data_ref = None
@@ -109,11 +111,10 @@ class DatastreamResource(api.DatastreamResource):
                 'checksum': checksum,
                 'type': req.get_param('checksumType'),
             }),
-        object_reader.object_id_from_raw(pid, cursor=cursor)
         fedora_utils.write_ds(
             {
                 'dsid': dsid,
-                'object': cursor.fetchone()['id'],
+                'object': object_info['id'],
                 'log': fedora_utils.resolve_log(req, cursor),
                 'control_group': control_group,
                 'label': req.get_param('dsLabel'),
