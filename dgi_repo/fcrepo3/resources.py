@@ -149,12 +149,6 @@ class PidResource(api.PidResource):
         for pid_id in range(highest_id - numPIDs + 1, highest_id + 1):
             pids.append(utils.make_pid(namespace, pid_id))
 
-        if numPIDs == 1:
-            pids_to_log = pids
-        else:
-            pids_to_log = '{}-{}'.format(pids[0], pids[-1])
-        logger.info('Getting new PID(s): %s.', pids_to_log)
-
         return pids
 
 
@@ -163,17 +157,13 @@ class ObjectResourceExport(api.ObjectResourceExport):
     """
     Provide export and objectXML endpoints.
     """
-    def on_get(self, req, resp, pid):
+    def _export_object(self, req, pid):
         """
         Provide a FOXML export.
         """
-        super().on_get(req, resp, pid)
         archival = req.get_param('context') == 'archive'
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                resp.stream = foxml.generate_foxml(pid, archival=archival,
-                                                   cursor=cursor)
-                logger.info('Exporting: %s.', pid)
+        with get_connection() as conn, conn.cursor() as cursor:
+            foxml.generate_foxml(pid, archival=archival, cursor=cursor)
 
 
 @route('/objects/{pid}/datastreams')

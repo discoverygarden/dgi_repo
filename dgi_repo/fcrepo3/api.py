@@ -340,7 +340,23 @@ class ObjectResourceExport(ABC):
         """
         Dump out FOXML export.
         """
+        try:
+            resp.stream = self._export_object(req, pid)
+        except ObjectDoesNotExistError:
+            logger.info('Did not export object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
         resp.content_type = 'application/xml'
+        logger.info('Exporting: %s.', pid)
+
+    @abstractmethod
+    def _export_object(self, req):
+        """
+        Get a stream of an object's FOXML.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
+        pass
 
 
 class DatastreamListResource(ABC):

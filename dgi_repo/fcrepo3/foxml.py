@@ -18,6 +18,7 @@ import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
 from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
@@ -143,6 +144,9 @@ def populate_foxml_etree(foxml, pid, base_url='http://localhost:8080/fedora',
                          archival=False, inline_to_managed=False, cursor=None):
     """
     Add FOXML from a PID into an lxml etree.
+
+    Raises:
+        ObjectDoesNotExistError: The object doesn't exist.
     """
     attributes = {
         'VERSION': '1.1',
@@ -154,6 +158,8 @@ def populate_foxml_etree(foxml, pid, base_url='http://localhost:8080/fedora',
                        **attributes):
         cursor = object_info_from_raw(pid, cursor=cursor)
         object_info = cursor.fetchone()
+        if object_info is None:
+            raise ObjectDoesNotExistError(pid)
         populate_foxml_properties(foxml, object_info, cursor=cursor)
         populate_foxml_datastreams(foxml, pid, object_info, base_url, archival,
                                    inline_to_managed, cursor)
@@ -565,6 +571,9 @@ class FoxmlTarget(object):
     def end(self, tag):
         """
         Internalize data at the end of tags.
+
+        Raises:
+            ObjectDoesExistsError: The object already exists.
         """
         # Create the object.
         if tag == '{{{0}}}objectProperties'.format(FOXML_NAMESPACE):
