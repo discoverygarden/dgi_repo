@@ -48,6 +48,8 @@ class FakeSoapResource(ABC):
                 with xf.element('{{{0}}}Body'.format(self.__class__.SOAP_NS)):
                     for method, kwargs in self._parse(req):
                         self._respond(xf, method, kwargs)
+                        logger.info('Responding to : %s with params %s.',
+                                    method, kwargs)
         length = soap_xml_out.tell()
         soap_xml_out.seek(0)
         resp.set_stream(soap_xml_out, length)

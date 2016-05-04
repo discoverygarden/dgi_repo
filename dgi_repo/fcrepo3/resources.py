@@ -113,7 +113,6 @@ class SoapManagementResource(api.FakeSoapResource):
                     api.FEDORA_TYPES_URI)):
                 with xf.element('objectXML'):
                     base64.encode(foxml.generate_foxml(kwargs['pid']), xf)
-            logger.info('Exporting: %s.', kwargs['pid'])
 
 
 @route('/upload')
