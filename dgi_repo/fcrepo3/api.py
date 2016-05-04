@@ -418,13 +418,12 @@ class DatastreamResource(ABC):
             logger.info(('Datastream not retrieved for %s on '
                          '%s as object did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
-        except DatastreamDoesNotExistError:
+        except DatastreamDoesNotExistError as e:
                 resp.content_type = 'text/plain'
                 logger.info(('Datastream not retrieved for %s not found on %s '
-                            'as it did not exist.'), dsid, pid)
+                             'as it did not exist.'), dsid, pid)
                 resp.body = 'Datastream {} not found on {}.'.format(dsid, pid)
-                resp.status = '209'
-                return
+                raise falcon.HTTPNotFound() from e
         with etree.xmlfile(xml_out) as xf:
             _writeDatastreamProfile(xf, datastream_info)
         length = xml_out.tell()
