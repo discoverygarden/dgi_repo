@@ -39,13 +39,14 @@ class DatastreamDoesNotExistError(Exception):
     Used to indicate a datastream expected to exist does not.
     """
 
-    def __init__(self, pid, dsid):
+    def __init__(self, pid, dsid, time=None):
         """
         Constructor for exception.
         """
         self.pid = pid
         self.dsid = dsid
-        super().__init__(pid, dsid)
+        self.time = time if time is not None else 'now'
+        super().__init__(pid, dsid, time)
 
 
 def handle_exception(ex, req, resp, params):

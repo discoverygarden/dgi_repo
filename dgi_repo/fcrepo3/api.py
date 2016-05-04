@@ -519,6 +519,13 @@ class DatastreamDisseminationResource(ABC):
             logger.info(('Did not get datastream dissemination for %s as the '
                          'object %s did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
+        except DatastreamDoesNotExistError as e:
+            resp.content_type = 'text/plain'
+            logger.info('Datastream %s not found on %s as of %s.',
+                        e.dsid, e.pid, e.time)
+            resp.body = 'Datastream {} not found on {} as of {}.'.format(
+                         e.dsid, e.pid, e.time)
+            raise falcon.HTTPNotFound() from e
         logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
 
     @abstractmethod
@@ -532,20 +539,6 @@ class DatastreamDisseminationResource(ABC):
             ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
-
-    def _check_ds(self, ds_info, dsid, resp, pid, time=None):
-        """
-        Check if ds_info is populated or send 404.
-        """
-        time = time if time else 'now'
-        if ds_info is None:
-            resp.content_type = 'text/plain'
-            logger.info('Datastream %s not found on %s as of %s.',
-                        dsid, pid, time)
-            resp.body = 'Datastream {} not found on {} as of {}.'.format(dsid,
-                                                                         pid,
-                                                                         time)
-            raise falcon.HTTPNotFound()
 
 
 class DatastreamHistoryResource(ABC):

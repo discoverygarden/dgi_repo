@@ -224,14 +224,16 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
                 {'object': object_info['id'], 'dsid': dsid},
                 cursor=cursor
             ).fetchone()
-            self._check_ds(ds_info, dsid, resp, pid)
+            if ds_info is None:
+                raise DatastreamDoesNotExistError(pid, dsid)
             if time is not None:
                 ds_info = ds_reader.datastream_as_of_time(
                     ds_info['id'],
                     time,
                     cursor
                 )
-            self._check_ds(ds_info, dsid, resp, pid, time=time)
+                if ds_info is None:
+                    raise DatastreamDoesNotExistError(pid, dsid, time)
 
             try:
                 resource_info = ds_reader.resource(
