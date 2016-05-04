@@ -514,7 +514,7 @@ class DatastreamDisseminationResource(ABC):
         Dump datastream content.
         """
         try:
-            self._get_ds_dissemination(req, resp, pid, dsid)
+            info = self._get_ds_dissemination(req, pid, dsid)
         except ObjectDoesNotExistError:
             logger.info(('Did not get datastream dissemination for %s as the '
                          'object %s did not exist.'), dsid, pid)
@@ -526,15 +526,30 @@ class DatastreamDisseminationResource(ABC):
             resp.body = 'Datastream {} not found on {} as of {}.'.format(
                          e.dsid, e.pid, e.time)
             raise falcon.HTTPNotFound() from e
+
+        try:
+            resp.content_type = info['mime']
+        except KeyError:
+            pass
+        try:
+            resp.location = info['location']
+            resp.status = falcon.HTTP_307
+        except KeyError:
+            pass
+        try:
+            resp.stream = info['stream']
+        except KeyError:
+            pass
+
         logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
 
     @abstractmethod
-    def _get_ds_dissemination(self, req, resp, pid, dsid):
+    def _get_ds_dissemination(self, req, pid, dsid):
         """
         Prep datastream content response.
 
-        @TODO: Get rid of the need for passing resp.
-
+        Returns:
+            Dictionary of the form {'mime': '', location: '', stream: file,}
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
         """

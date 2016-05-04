@@ -207,7 +207,7 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
     """
     Provide the datastream content endpoint.
     """
-    def _get_ds_dissemination(self, req, resp, pid, dsid):
+    def _get_ds_dissemination(self, req, pid, dsid):
         """
         Provide datastream content.
         """
@@ -242,21 +242,20 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
             except KeyError:
                 return
 
+            info = {}
             mime_info = ds_reader.mime_from_resource(resource_info['id'],
                                                      cursor=cursor).fetchone()
             if mime_info:
-                resp.content_type = mime_info['mime']
-
+                info['mime'] = mime_info['mime']
             # Redirect if we are a redirect DS.
             if ds_info['control_group'] == 'R':
-                resp.status = falcon.HTTP_307
-                resp.location = resource_info['uri']
-                return
+                info['location'] = source_info['uri']
+            else:
+                # Send data if we are not a redirect DS.
+                file_path = filestore.resolve_uri(resource_info['uri'])
+                info['stream'] = open(file_path, 'rb')
 
-            # Send data if we are not a redirect DS.
-            file_path = filestore.resolve_uri(resource_info['uri'])
-            resp.stream = open(file_path, 'rb')
-            return
+            return info
 
 
 @route('/objects/{pid}/datastreams/{dsid}/history')
