@@ -15,6 +15,7 @@ from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import DatastreamDoesNotExistError
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 
@@ -272,7 +273,7 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
     """
     Provide the datastream history endpoint.
     """
-    def _get_datastream_versions(self, pid, dsid, resp):
+    def _get_datastream_versions(self, pid, dsid):
         """
         Get an iterable of datastream versions.
         """
@@ -286,7 +287,7 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
             except TypeError as e:
                 raise ObjectDoesNotExistError(pid) from e
             if ds_info is None:
-                self._send_ds_404(pid, dsid, resp)
+                raise DatastreamDoesNotExistError(pid, dsid)
 
             datastream_versions = []
             old_dss = ds_reader.old_datastreams(ds_info['id'],

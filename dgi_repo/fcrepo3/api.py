@@ -10,6 +10,7 @@ import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import DatastreamDoesNotExistError
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 
 logger = logging.getLogger(__name__)
@@ -452,6 +453,8 @@ class DatastreamDisseminationResource(ABC):
         """
         Prep datastream content response.
 
+        @TODO: Get rid of the need for passing resp.
+
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
         """
@@ -485,34 +488,34 @@ class DatastreamHistoryResource(ABC):
             with xf.element('{{0}}datastreamHistory'.format(
                     FEDORA_MANAGEMENT_URI)):
                 try:
-                    for datastream in self._get_datastream_versions(pid, dsid,
-                                                                    resp):
+                    for datastream in self._get_datastream_versions(pid, dsid):
                         _writeDatastreamProfile(xf, datastream)
                 except ObjectDoesNotExistError as e:
                     logger.info(('Datastream history not retrieved for %s on '
                                  '%s as object did not exist.'), dsid, e.pid)
-                    raise falcon.HTTPNotFound()
+                    raise falcon.HTTPNotFound() from e
+                except DatastreamDoesNotExistError as e:
+                    resp.content_type = 'text/xml'
+                    logger.info(('Datastream history not retrieved for %s on '
+                                 '%s as datastream did not exist.'), dsid, pid)
+                    resp.body = ('Datastream history not retrieved for %s on '
+                                 '%s as datastream did not exist.').format(
+                                 dsid, pid)
+                    raise falcon.HTTPNotFound() from e
         length = xml_out.tell()
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
         logger.info('Retrieved DS history for %s on %s', dsid, pid)
 
-    def _send_ds_404(self, pid, dsid, resp):
-        """
-        Send a 404 for the datastream not existing.
-        """
-        resp.content_type = 'text/xml'
-        logger.info(('Datastream history not retrieved for %s on %s as '
-                     'datastream did not exist.'), dsid, pid)
-        resp.body = ('Datastream history not retrieved for %s on %s as '
-                     'datastream did not exist.').format(dsid, pid)
-        raise falcon.HTTPNotFound()
-
     @abstractmethod
-    def _get_datastream_versions(self, pid, dsid, resp):
+    def _get_datastream_versions(self, pid, dsid):
         """
         Get an iterable of datastream versions.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass
 
