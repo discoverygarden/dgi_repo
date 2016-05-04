@@ -432,7 +432,6 @@ class DatastreamResource(ABC):
                          '%s as object did not exist.'), dsid, e.pid)
             _send_object_404(pid, resp)
         except DatastreamDoesNotExistError as e:
-            resp.status = falcon.HTTP_404
             logger.info(('Datastream not updated for %s on '
                          '%s as datastream did not exist.'), dsid, pid)
             resp.body = ('Datastream not updated for %s on %s as datastream '
