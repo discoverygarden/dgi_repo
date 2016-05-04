@@ -1,7 +1,5 @@
 """
 Falcon resource abstract base classes.
-
-@TODO: move remaining API level logging/responses from implementations to here.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -200,12 +198,10 @@ class ObjectResource(ABC):
     def on_get(self, req, resp, pid):
         """
         Get object profile.
-
-        @TODO: handle calling _get_object_profile at this level.
         """
         resp.content_type = 'application/xml'
         try:
-            resp.body = self._get_object(req, pid)
+            resp.body = self._get_object_profile(*self._get_object(req, pid))
         except ObjectDoesNotExistError:
             logger.info('Did not retrieve object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
@@ -214,7 +210,7 @@ class ObjectResource(ABC):
     @abstractmethod
     def _get_object(self, req, pid):
         """
-        Get an object's profile.
+        Get params for _get_object_profile.
 
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.

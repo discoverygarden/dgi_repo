@@ -135,7 +135,7 @@ class ObjectResource(api.ObjectResource):
             source_reader.user(object_info['owner'], cursor=cursor)
             owner = cursor.fetchone()['username']
 
-            return self._get_object_profile(
+            return (
                 pid,
                 object_info['label'],
                 models,
