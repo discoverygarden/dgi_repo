@@ -386,7 +386,7 @@ class DatastreamResource(ABC):
         Ingest new datastream.
         """
         try:
-            self._create_ds(req, pid, dsid)
+            self._create_datastream(req, pid, dsid)
         except ObjectDoesNotExistError:
             logger.info(('Did not create datastream %s on  %s as the object '
                          'did not exist.'), dsid, pid)
@@ -396,7 +396,7 @@ class DatastreamResource(ABC):
         logger.info('Created DS %s on %s.', dsid, pid)
 
     @abstractmethod
-    def _create_ds(self, req, pid, dsid):
+    def _create_datastream(self, req, pid, dsid):
         """
         Create a datastream.
 
@@ -463,6 +463,13 @@ class DatastreamResource(ABC):
     def on_delete(self, req, resp, pid, dsid):
         """
         Purge datastream.
+        """
+        self._delete_datastream(req, pid, dsid)
+
+    @abstractmethod
+    def _delete_datastream(self, req, pid, dsid):
+        """
+        Delete a datastream.
         """
         pass
 

@@ -24,7 +24,7 @@ class DatastreamResource(api.DatastreamResource):
     Provide the datastream CRUD endpoints.
     """
 
-    def _create_ds(self, req, pid, dsid):
+    def _create_datastream(self, req, pid, dsid):
         """
         Persist the new datastream.
         """
@@ -56,7 +56,7 @@ class DatastreamResource(api.DatastreamResource):
             logger.info('Updated DS %s on %s.', dsid, pid)
         return
 
-    def on_delete(self, req, resp, pid, dsid):
+    def _delete_datastream(self, req, pid, dsid):
         """
         Purge the datastream (or range of versions).
 
