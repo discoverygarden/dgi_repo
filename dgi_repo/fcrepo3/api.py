@@ -9,7 +9,8 @@ from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.fcrepo3.exceptions import (ObjectDoesNotExistError,
                                          DatastreamDoesNotExistError,
-                                         ObjectConflictsError)
+                                         ObjectConflictsError,
+                                         DatastreamConflictsError)
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 
 logger = logging.getLogger(__name__)
@@ -229,7 +230,7 @@ class ObjectResource(ABC):
             _send_object_404(pid, resp)
         except ObjectConflictsError as e:
             logger.info(('{} lastModifiedDate ({}) is more recent than the '
-                         'request ({})').format(
+                         'request ({}); not modifying object.').format(
                          e.pid, e.modified_time.isoformat(),
                          e.request_time.isoformat()))
             # @XXX Raising HTTPError over HTTPConflict because we
@@ -479,6 +480,14 @@ class DatastreamResource(ABC):
             resp.body = ('Datastream not updated for %s on %s as datastream '
                          'did not exist.').format(dsid, pid)
             raise falcon.HTTPNotFound() from e
+        except DatastreamConflictsError as e:
+            logger.info(('{} on {} lastModifiedDate ({}) is more recent than '
+                         'the request ({}); not modifying datastream.').format(
+                         e.dsid, e.pid, e.modified_time.isoformat(),
+                         e.request_time.isoformat()))
+            # @XXX Raising HTTPError over HTTPConflict because we
+            # don't have  a title and description for HTTPConflict.
+            raise falcon.HTTPError('409 Conflict') from e
 
     @abstractmethod
     def _update_datastream(self, req, pid, dsid):

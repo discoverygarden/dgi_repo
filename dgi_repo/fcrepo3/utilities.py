@@ -7,7 +7,7 @@ import requests
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.write.log as log_writer
-import dgi_repo.database.write.datastreams as datastream_writer
+import dgi_repo.database.write.datastreams as ds_writer
 import dgi_repo.database.read.datastreams as ds_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.utilities import check_cursor
@@ -50,17 +50,15 @@ def write_ds(ds, old=False, cursor=None):
         if ds['data_ref']['TYPE'] == 'URL':
             # Data will remain external.
             if ds['control_group'] == 'R':
-                datastream_writer.upsert_mime(ds['mimetype'],
-                                              cursor=cursor)
-                datastream_writer.upsert_resource(
+                ds_writer.upsert_mime(ds['mimetype'], cursor=cursor)
+                ds_writer.upsert_resource(
                     {
                         'uri': ds['data_ref']['REF'],
                         'mime': cursor.fetchone()['id'],
                     },
                     cursor=cursor)
                 ds['resource'] = cursor.fetchone()['id']
-                datastream_writer.upsert_datastream(ds,
-                                                    cursor=cursor)
+                ds_writer.upsert_datastream(ds, cursor=cursor)
             else:
                 # Data has been uploaded.
                 filestore.create_datastream_from_upload(
@@ -92,6 +90,8 @@ def write_ds(ds, old=False, cursor=None):
                 old=old,
                 cursor=cursor
             )
+    else:
+        ds_writer.upsert_datastream(ds, cursor=cursor)
 
     return cursor
 

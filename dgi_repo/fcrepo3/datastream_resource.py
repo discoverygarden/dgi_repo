@@ -49,11 +49,19 @@ class DatastreamResource(api.DatastreamResource):
                 ds['committed'] = ds['modified']
                 ds['datastream'] = ds['id']
                 del ds['id']
+                # Check modified date param, exiting if needed.
+                modified_date = req.get_param('lastModifiedDate')
+                if modified_date is not None:
+                    modified_date = utils.iso8601_to_datetime(modified_date)
+                    if ds['committed'] > modified_date:
+                        raise DatastreamConflictsError(pid, dsid,
+                                                       ds['committed'],
+                                                       modified_date)
                 ds_writer.upsert_old_datastream(ds, cursor=cursor)
             else:
                 raise DatastreamDoesNotExistError(pid, dsid)
 
-            self._upsert_ds(req, pid, dsid, cursor)
+            self._upsert_ds(req, pid, dsid, cursor, ds=ds_info)
             logger.info('Updated DS %s on %s.', dsid, pid)
         return
 
@@ -79,10 +87,11 @@ class DatastreamResource(api.DatastreamResource):
                                    req.env['wsgi.identity'].source_id,
                                    cursor=cursor)
 
-    def _upsert_ds(self, req, pid, dsid, cursor):
+    def _upsert_ds(self, req, pid, dsid, cursor, ds=None):
         """
         Upsert a datastream.
         """
+        ds = dict(ds) if ds is not None else {}
         object_info = object_reader.object_id_from_raw(
             pid, cursor=cursor).fetchone()
         if object_info is None:
@@ -104,7 +113,10 @@ class DatastreamResource(api.DatastreamResource):
                     'REF': ds_location,
                 }
         else:
-            data = req.get_param('file').file
+            try:
+                data = req.get_param('file').file
+            except AttributeError:
+                pass
         checksums = None
         checksum = req.get_param('checksum')
         if checksum is not None:
@@ -112,22 +124,20 @@ class DatastreamResource(api.DatastreamResource):
                 'checksum': checksum,
                 'type': req.get_param('checksumType'),
             }),
-        fedora_utils.write_ds(
-            {
-                'dsid': dsid,
-                'object': object_info['id'],
-                'log': fedora_utils.resolve_log(req, cursor),
-                'control_group': control_group,
-                'label': req.get_param('dsLabel'),
-                'versioned': req.get_param('versionable') != 'false',
-                'state': req.get_param('dsState', default='A'),
-                'checksums': checksums,
-                'mimetype': req.get_param('mimeType'),
-                'data_ref': data_ref,
-                'data': data,
-            },
-            cursor=cursor
-        )
+        ds.update({
+            'dsid': dsid,
+            'object': object_info['id'],
+            'log': fedora_utils.resolve_log(req, cursor),
+            'control_group': control_group,
+            'label': req.get_param('dsLabel'),
+            'versioned': req.get_param('versionable') != 'false',
+            'state': req.get_param('dsState', default='A'),
+            'checksums': checksums,
+            'mimetype': req.get_param('mimeType'),
+            'data_ref': data_ref,
+            'data': data,
+        })
+        fedora_utils.write_ds(ds, cursor=cursor)
         foxml.internalize_rels(pid, dsid,
                                req.env['wsgi.identity'].source_id,
                                cursor=cursor)
