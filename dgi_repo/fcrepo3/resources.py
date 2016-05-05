@@ -5,8 +5,6 @@ import datetime
 import base64
 import logging
 
-import falcon
-
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.fcrepo3.utilities as fedora_utils
 import dgi_repo.database.read.datastreams as ds_reader
@@ -14,8 +12,8 @@ import dgi_repo.database.read.repo_objects as object_reader
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
-from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
-from dgi_repo.fcrepo3.exceptions import DatastreamDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import (ObjectDoesNotExistError,
+                                         DatastreamDoesNotExistError)
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 

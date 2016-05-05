@@ -11,8 +11,9 @@ import dgi_repo.database.write.datastreams as ds_writer
 import dgi_repo.database.delete.datastreams as ds_purger
 import dgi_repo.utilities as utils
 import dgi_repo.fcrepo3.utilities as fedora_utils
-from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
-from dgi_repo.fcrepo3.exceptions import DatastreamDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import (ObjectDoesNotExistError,
+                                         DatastreamDoesNotExistError,
+                                         DatastreamConflictsError)
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.database.utilities import get_connection
 

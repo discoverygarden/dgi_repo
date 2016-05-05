@@ -7,8 +7,9 @@ from abc import ABC, abstractmethod
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
-from dgi_repo.fcrepo3.exceptions import ObjectDoesNotExistError
-from dgi_repo.fcrepo3.exceptions import DatastreamDoesNotExistError
+from dgi_repo.fcrepo3.exceptions import (ObjectDoesNotExistError,
+                                         DatastreamDoesNotExistError,
+                                         ObjectConflictsError)
 from dgi_repo.fcrepo3.exceptions import ObjectExistsError
 
 logger = logging.getLogger(__name__)
@@ -220,14 +221,20 @@ class ObjectResource(ABC):
     def on_put(self, req, resp, pid):
         """
         Update an object.
-
-        @TODO: Bring 409 to this level.
         """
         try:
             self._update_object(req, pid)
         except ObjectDoesNotExistError:
             logger.info('Did not update object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
+        except ObjectConflictsError as e:
+            logger.info(('{} lastModifiedDate ({}) is more recent than the '
+                         'request ({})').format(
+                         e.pid, e.modified_time.isoformat(),
+                         e.request_time.isoformat()))
+            # @XXX Raising HTTPError over HTTPConflict because we
+            # don't have  a title and description for HTTPConflict.
+            raise falcon.HTTPError('409 Conflict') from e
         logger.info('Updated object: %s.', pid)
 
     @abstractmethod

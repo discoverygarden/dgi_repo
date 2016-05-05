@@ -3,7 +3,6 @@ Class file for the implementation of the object resource.
 """
 import logging
 
-import falcon
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
@@ -16,7 +15,8 @@ import dgi_repo.database.read.sources as source_reader
 from dgi_repo import utilities as utils
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.fcrepo3.exceptions import (ObjectExistsError,
-                                         ObjectDoesNotExistError)
+                                         ObjectDoesNotExistError,
+                                         ObjectConflictsError)
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.fcrepo3.utilities import resolve_log
@@ -152,10 +152,8 @@ class ObjectResource(api.ObjectResource):
         modified = None
         with get_connection() as conn, conn.cursor() as cursor:
             # Get current object info.
-            object_info = object_reader.object_info_from_raw(
-                pid,
-                cursor=cursor
-            ).fetchone()
+            object_info = object_reader.object_info_from_raw(pid, cursor=cursor
+                                                             ).fetchone()
             if not object_info:
                 raise ObjectDoesNotExistError(pid)
 
@@ -165,17 +163,9 @@ class ObjectResource(api.ObjectResource):
             modified_date = req.get_param('lastModifiedDate')
             if modified_date is not None:
                 modified_date = utils.iso8601_to_datetime(modified_date)
-
                 if object_info['modified'] > modified_date:
-                    logger.info(('{} lastModifiedDate ({}) is more recent '
-                                'than the request ({})').format(
-                                    pid,
-                                    object_info['modified'].isoformat(),
-                                    modified_date.isoformat()
-                    ))
-                    # @XXX Raising HTTPError over HTTPConflict because we
-                    # don't have  a title and description for HTTPConflict.
-                    raise falcon.HTTPError('409 Conflict')
+                    raise ObjectConflictsError(pid, object_info['modified'],
+                                               modified_date)
 
             # Create old version of object.
             if object_info['versioned']:
