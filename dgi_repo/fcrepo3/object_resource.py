@@ -190,11 +190,6 @@ class ObjectResource(api.ObjectResource):
                 new_object_info['owner'] = self._resolve_owner(req, cursor)
             if req.get_param('logMessage') is not None:
                 new_object_info['log'] = resolve_log(req, cursor)
-            if modified_date is not None:
-                new_object_info['modified'] = req.get_param(
-                    'lastModifiedDate',
-                    default=object_info['modified']
-                )
             else:
                 del new_object_info['modified']
             object_writer.upsert_object(new_object_info, cursor=cursor)
