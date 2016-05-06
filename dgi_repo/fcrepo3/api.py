@@ -547,7 +547,7 @@ class DatastreamDisseminationResource(ABC):
             try:
                 resp.stream = info['stream']
             except KeyError:
-                pass
+                logger.debug('No location or stream for %s on %s.', dsid, pid)
 
         logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
 
