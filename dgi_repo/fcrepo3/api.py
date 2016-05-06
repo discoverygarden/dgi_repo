@@ -7,11 +7,10 @@ from abc import ABC, abstractmethod
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
-from dgi_repo.fcrepo3.exceptions import (ObjectDoesNotExistError,
-                                         DatastreamDoesNotExistError,
-                                         ObjectConflictsError,
-                                         DatastreamConflictsError)
-from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.exceptions import (ObjectDoesNotExistError,
+                                 DatastreamDoesNotExistError,
+                                 ObjectConflictsError,
+                                 DatastreamConflictsError, ObjectExistsError)
 
 logger = logging.getLogger(__name__)
 

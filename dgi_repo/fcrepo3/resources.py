@@ -12,8 +12,8 @@ import dgi_repo.database.read.repo_objects as object_reader
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
-from dgi_repo.fcrepo3.exceptions import (ObjectDoesNotExistError,
-                                         DatastreamDoesNotExistError)
+from dgi_repo.exceptions import (ObjectDoesNotExistError,
+                                 DatastreamDoesNotExistError)
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 

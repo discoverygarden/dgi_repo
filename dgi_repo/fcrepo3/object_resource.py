@@ -14,9 +14,8 @@ import dgi_repo.database.write.sources as source_writer
 import dgi_repo.database.read.sources as source_reader
 from dgi_repo import utilities as utils
 from dgi_repo.configuration import configuration as _config
-from dgi_repo.fcrepo3.exceptions import (ObjectExistsError,
-                                         ObjectDoesNotExistError,
-                                         ObjectConflictsError)
+from dgi_repo.exceptions import (ObjectExistsError, ObjectDoesNotExistError,
+                                 ObjectConflictsError)
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.fcrepo3.utilities import resolve_log
