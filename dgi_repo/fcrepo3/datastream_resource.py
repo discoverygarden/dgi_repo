@@ -1,7 +1,6 @@
 """
 Class file for the implementation of the datastream resource.
 """
-import logging
 
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
@@ -16,8 +15,6 @@ from dgi_repo.exceptions import (ObjectDoesNotExistError,
                                  DatastreamConflictsError)
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.database.utilities import get_connection
-
-logger = logging.getLogger(__name__)
 
 
 class DatastreamResource(api.DatastreamResource):
@@ -62,7 +59,6 @@ class DatastreamResource(api.DatastreamResource):
                 raise DatastreamDoesNotExistError(pid, dsid)
 
             self._upsert_ds(req, pid, dsid, cursor, ds=ds_info)
-            logger.info('Updated DS %s on %s.', dsid, pid)
         return
 
     def _delete_datastream(self, req, pid, dsid):
@@ -81,8 +77,6 @@ class DatastreamResource(api.DatastreamResource):
                 end=end,
                 cursor=cursor
             )
-            logger.info(('Deleted datastream versions for %s on %s between'
-                         ' %s and %s.'), dsid, pid, start, end)
             foxml.internalize_rels(pid, dsid,
                                    req.env['wsgi.identity'].source_id,
                                    cursor=cursor)

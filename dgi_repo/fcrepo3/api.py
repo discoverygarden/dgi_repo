@@ -469,6 +469,7 @@ class DatastreamResource(ABC):
         """
         try:
             self._update_datastream(req, pid, dsid)
+            logger.info('Updated DS %s on %s.', dsid, pid)
         except ObjectDoesNotExistError:
             logger.info(('Datastream not updated for %s on '
                          '%s as object did not exist.'), dsid, pid)
@@ -504,6 +505,8 @@ class DatastreamResource(ABC):
         Purge datastream.
         """
         self._delete_datastream(req, pid, dsid)
+        logger.info(('Deleted datastream versions for %s on %s between'
+                     ' %s and %s.'), dsid, pid, start, end)
 
     @abstractmethod
     def _delete_datastream(self, req, pid, dsid):
