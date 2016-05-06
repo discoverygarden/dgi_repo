@@ -544,11 +544,10 @@ class DatastreamDisseminationResource(ABC):
             resp.location = info['location']
             resp.status = falcon.HTTP_307
         except KeyError:
-            pass
-        try:
-            resp.stream = info['stream']
-        except KeyError:
-            pass
+            try:
+                resp.stream = info['stream']
+            except KeyError:
+                pass
 
         logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
 
@@ -558,7 +557,11 @@ class DatastreamDisseminationResource(ABC):
         Prep datastream content response.
 
         Returns:
-            Dictionary of the form {'mime': '', location: '', stream: file,}
+            Dictionary containing:
+                -mime: the mime
+                And one of:
+                -location: location
+                -stream: stream
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
             DatastreamDoesNotExistError: The datastream doesn't exist.
