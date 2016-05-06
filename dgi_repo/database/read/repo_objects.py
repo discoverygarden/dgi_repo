@@ -102,6 +102,9 @@ def object_id_from_raw(pid, cursor=None):
     namespace, pid_id = utilities.break_pid(pid)
     namespace_id(namespace, cursor=cursor)
 
+    if not cursor.rowcount:
+        return cursor
+
     object_id({'namespace': cursor.fetchone()['id'], 'pid_id': pid_id},
               cursor=cursor)
 
