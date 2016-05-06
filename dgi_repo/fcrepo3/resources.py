@@ -1,9 +1,7 @@
 """
 Falcon Resource implementations.
 """
-import datetime
 import base64
-import logging
 
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.fcrepo3.utilities as fedora_utils
@@ -16,8 +14,6 @@ from dgi_repo.exceptions import (ObjectDoesNotExistError,
                                  DatastreamDoesNotExistError)
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
-
-logger = logging.getLogger(__name__)
 
 route_map = {
     '/describe': api.DescribeResource

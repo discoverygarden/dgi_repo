@@ -1,8 +1,6 @@
 """
 Class file for the implementation of the object resource.
 """
-import logging
-
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
@@ -19,8 +17,6 @@ from dgi_repo.exceptions import (ObjectExistsError, ObjectDoesNotExistError,
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.fcrepo3 import api, foxml, relations
 from dgi_repo.fcrepo3.utilities import resolve_log
-
-logger = logging.getLogger(__name__)
 
 
 class ObjectResource(api.ObjectResource):
