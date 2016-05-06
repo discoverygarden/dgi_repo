@@ -444,16 +444,12 @@ class DatastreamResource(ABC):
         try:
             datastream_info = self._get_datastream_info(pid, dsid,
                                                         **req.params)
-
-        except ObjectDoesNotExistError:
-            logger.info(('Datastream not retrieved for %s on '
-                         '%s as object did not exist.'), dsid, pid)
-            _send_object_404(pid, resp)
         except DatastreamDoesNotExistError as e:
                 resp.content_type = 'text/plain'
-                logger.info(('Datastream not retrieved for %s not found on %s '
-                             'as it did not exist.'), dsid, pid)
-                resp.body = 'Datastream {} not found on {}.'.format(dsid, pid)
+                logger.info(('Datastream not retrieved: %s not found on %s as'
+                             ' of %s.'), e.dsid, e.pid, e.time)
+                resp.body = 'Datastream {} not found on {} as of {}.'.format(
+                            e.dsid, e.pid, e.time)
                 raise falcon.HTTPNotFound() from e
         with etree.xmlfile(xml_out) as xf:
             _writeDatastreamProfile(xf, datastream_info)
@@ -470,14 +466,10 @@ class DatastreamResource(ABC):
         try:
             self._update_datastream(req, pid, dsid)
             logger.info('Updated DS %s on %s.', dsid, pid)
-        except ObjectDoesNotExistError:
-            logger.info(('Datastream not updated for %s on '
-                         '%s as object did not exist.'), dsid, pid)
-            _send_object_404(pid, resp)
         except DatastreamDoesNotExistError as e:
             logger.info(('Datastream not updated for %s on '
                          '%s as datastream did not exist.'), dsid, pid)
-            resp.body = ('Datastream not updated for %s on %s as datastream '
+            resp.body = ('Datastream not updated for {} on {} as datastream '
                          'did not exist.').format(dsid, pid)
             raise falcon.HTTPNotFound() from e
         except DatastreamConflictsError as e:
@@ -495,7 +487,6 @@ class DatastreamResource(ABC):
         Update a datastream.
 
         Raises:
-            ObjectDoesNotExistError: The object doesn't exist.
             DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass
@@ -539,8 +530,8 @@ class DatastreamDisseminationResource(ABC):
             _send_object_404(pid, resp)
         except DatastreamDoesNotExistError as e:
             resp.content_type = 'text/plain'
-            logger.info('Datastream %s not found on %s as of %s.',
-                        e.dsid, e.pid, e.time)
+            logger.info(('Datastream content not retrieved: %s not found on %s'
+                        ' as of %s.'), e.dsid, e.pid, e.time)
             resp.body = 'Datastream {} not found on {} as of {}.'.format(
                          e.dsid, e.pid, e.time)
             raise falcon.HTTPNotFound() from e
@@ -570,6 +561,7 @@ class DatastreamDisseminationResource(ABC):
             Dictionary of the form {'mime': '', location: '', stream: file,}
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass
 
@@ -589,16 +581,12 @@ class DatastreamHistoryResource(ABC):
                 try:
                     for datastream in self._get_datastream_versions(pid, dsid):
                         _writeDatastreamProfile(xf, datastream)
-                except ObjectDoesNotExistError:
-                    logger.info(('Datastream history not retrieved for %s on '
-                                 '%s as object did not exist.'), dsid, pid)
-                    _send_object_404(pid, resp)
                 except DatastreamDoesNotExistError as e:
                     resp.content_type = 'text/xml'
                     logger.info(('Datastream history not retrieved for %s on '
                                  '%s as datastream did not exist.'), dsid, pid)
-                    resp.body = ('Datastream history not retrieved for %s on '
-                                 '%s as datastream did not exist.').format(
+                    resp.body = ('Datastream history not retrieved for {} on '
+                                 '{} as datastream did not exist.').format(
                                  dsid, pid)
                     raise falcon.HTTPNotFound() from e
         length = xml_out.tell()
@@ -613,7 +601,6 @@ class DatastreamHistoryResource(ABC):
         Get an iterable of datastream versions.
 
         Raises:
-            ObjectDoesNotExistError: The object doesn't exist.
             DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass

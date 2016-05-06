@@ -69,6 +69,8 @@ class SoapAccessResource(api.FakeSoapResource):
             - the datastream control group
             - the URI of the resource the datastream represents
             - the MIME type of the datastream's resource
+        Raises:
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         with get_connection() as conn, conn.cursor() as cursor:
             datastream_info = ds_reader.datastream_from_raw(
@@ -76,6 +78,8 @@ class SoapAccessResource(api.FakeSoapResource):
                 dsid,
                 cursor=cursor
             ).fetchone()
+            if datastream_info is None:
+                raise DatastreamDoesNotExistError(pid, dsid)
             resource_info = ds_reader.resource(
                 datastream_info['resource'],
                 cursor=cursor
@@ -262,14 +266,11 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
         Get an iterable of datastream versions.
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            try:
-                ds_info = ds_reader.datastream_from_raw(
-                    pid,
-                    dsid,
-                    cursor=cursor
-                ).fetchone()
-            except TypeError as e:
-                raise ObjectDoesNotExistError(pid) from e
+            ds_info = ds_reader.datastream_from_raw(
+                pid,
+                dsid,
+                cursor=cursor
+            ).fetchone()
             if ds_info is None:
                 raise DatastreamDoesNotExistError(pid, dsid)
 

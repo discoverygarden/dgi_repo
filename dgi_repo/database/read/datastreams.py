@@ -43,6 +43,10 @@ def datastream_from_raw(pid, dsid, cursor=None):
     cursor = check_cursor(cursor)
 
     object_reader.object_id_from_raw(pid, cursor=cursor)
+
+    if not cursor.rowcount:
+        return cursor
+
     data = {
         'object': cursor.fetchone()['id'],
         'dsid': dsid,

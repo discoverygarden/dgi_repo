@@ -36,10 +36,7 @@ class DatastreamResource(api.DatastreamResource):
         """
         conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
         with conn, conn.cursor() as cursor:
-            try:
-                ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
-            except TypeError as e:
-                raise ObjectDoesNotExistError(pid) from e
+            ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
             ds_info = cursor.fetchone()
             if ds_info is not None:
                 ds = dict(ds_info)
@@ -84,6 +81,9 @@ class DatastreamResource(api.DatastreamResource):
     def _upsert_ds(self, req, pid, dsid, cursor, ds=None):
         """
         Upsert a datastream.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         ds = dict(ds) if ds is not None else {}
         object_info = object_reader.object_id_from_raw(
@@ -141,19 +141,17 @@ class DatastreamResource(api.DatastreamResource):
         Get the ds* values in a dict, to build the datastream profile.
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            try:
-                ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
-            except TypeError as e:
-                raise ObjectDoesNotExistError(pid) from e
+            ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
             ds_info = cursor.fetchone()
             if ds_info is None:
                 raise DatastreamDoesNotExistError(pid, dsid)
             if asOfDateTime is not None:
+                time = utils.iso8601_to_datetime(asOfDateTime)
                 ds_info = ds_reader.datastream_as_of_time(
                     ds_info['id'],
-                    utils.iso8601_to_datetime(asOfDateTime),
+                    time,
                     cursor=cursor
                 )
                 if ds_info is None:
-                    return None
+                    raise DatastreamDoesNotExistError(pid, dsid, time)
             return fedora_utils.datastream_to_profile(ds_info, cursor)

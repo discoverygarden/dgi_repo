@@ -41,6 +41,10 @@ def delete_datastream_from_raw(pid, dsid, cursor=None):
     cursor = check_cursor(cursor)
 
     object_reader.object_id_from_raw(pid, cursor=cursor)
+
+    if not cursor.rowcount:
+        return cursor
+
     datastream_reader.datastream_id(
         {
             'object': cursor.fetchone()['id'],
