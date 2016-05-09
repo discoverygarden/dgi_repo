@@ -39,6 +39,15 @@ class ObjectResource(api.ObjectResource):
                     cursor=cursor
                 )
             else:
+                try:
+                    # Try to import FOXML from request body.
+                    pid = foxml.import_foxml(
+                        req.stream,
+                        req.env['wsgi.identity'].source_id,
+                        cursor=cursor
+                    )
+                except ValueError:
+                    pass
                 if not pid or pid == 'new':
                     # Generate PID.
                     raw_namespace = req.get_param(

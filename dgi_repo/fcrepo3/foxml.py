@@ -738,6 +738,9 @@ class FoxmlTarget(object):
         Prep for next use.
 
         We retain the current cursor.
+
+        Raises:
+            ValueError when not processing FOXML.
         """
         # Create a default DC DS.
         if self.object_id is not None:
@@ -749,7 +752,10 @@ class FoxmlTarget(object):
                                  purge=False, cursor=self.cursor)
             self.cursor.fetchall()
         # Reset for next use.
-        pid = self.object_info['PID']
+        try:
+            pid = self.object_info['PID']
+        except KeyError as e:
+            raise ValueError from e
         self.__init__(self.cursor, self.source)
 
         return pid
