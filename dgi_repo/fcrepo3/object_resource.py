@@ -47,53 +47,54 @@ class ObjectResource(api.ObjectResource):
                         cursor=cursor
                     )
                 except ValueError:
-                    pass
-                if not pid or pid == 'new':
-                    # Generate PID.
-                    raw_namespace = req.get_param(
-                        'namespace',
-                        default=_config['default_namespace']
-                    )
-                    object_writer.get_pid_id(raw_namespace, cursor=cursor)
-                    pid_id, namespace = cursor.fetchone()
-                    pid = utils.make_pid(raw_namespace, pid_id)
-                else:
-                    # Reserve given PID in namespace.
-                    raw_namespace, pid_id = utils.break_pid(pid)
-                    object_reader.namespace_id(raw_namespace, cursor=cursor)
-                    try:
-                        namespace = cursor.fetchone()[0]
-                    except TypeError:
-                        # @XXX burns the first PID in a namespace.
+                    if not pid or pid == 'new':
+                        # Generate PID.
+                        raw_namespace = req.get_param(
+                            'namespace',
+                            default=_config['default_namespace']
+                        )
                         object_writer.get_pid_id(raw_namespace, cursor=cursor)
-                        namespace = cursor.fetchone()[1]
+                        pid_id, namespace = cursor.fetchone()
+                        pid = utils.make_pid(raw_namespace, pid_id)
+                    else:
+                        # Reserve given PID in namespace.
+                        raw_namespace, pid_id = utils.break_pid(pid)
+                        object_reader.namespace_id(raw_namespace,
+                                                   cursor=cursor)
+                        try:
+                            namespace = cursor.fetchone()[0]
+                        except TypeError:
+                            # @XXX burns the first PID in a namespace.
+                            object_writer.get_pid_id(raw_namespace,
+                                                     cursor=cursor)
+                            namespace = cursor.fetchone()[1]
 
-                    # Jump up PIDs if needed.
-                    object_writer.jump_pids(namespace, pid_id,
-                                            cursor=cursor)
+                        # Jump up PIDs if needed.
+                        object_writer.jump_pids(namespace, pid_id,
+                                                cursor=cursor)
 
-                # Figure out the owner's DB ID.
-                owner = self._resolve_owner(req, cursor)
+                    # Figure out the owner's DB ID.
+                    owner = self._resolve_owner(req, cursor)
 
-                # Figure out the log's DB ID.
-                log = resolve_log(req, cursor)
+                    # Figure out the log's DB ID.
+                    log = resolve_log(req, cursor)
 
-                try:
-                    object_writer.write_object(
-                        {
-                            'namespace': namespace,
-                            'state': req.get_param('state', default='A'),
-                            'label': req.get_param('label'),
-                            'log': log,
-                            'pid_id': pid_id,
-                            'owner': owner,
-                        },
-                        cursor=cursor
-                    )
-                except IntegrityError as e:
-                    raise ObjectExistsError(pid) from e
-                foxml.create_default_dc_ds(cursor.fetchone()[0], pid,
-                                           cursor=cursor)
+                    try:
+                        object_writer.write_object(
+                            {
+                                'namespace': namespace,
+                                'state': req.get_param('state', default='A'),
+                                'label': req.get_param('label'),
+                                'log': log,
+                                'pid_id': pid_id,
+                                'owner': owner,
+                            },
+                            cursor=cursor
+                        )
+                    except IntegrityError as e:
+                        raise ObjectExistsError(pid) from e
+                    foxml.create_default_dc_ds(cursor.fetchone()[0], pid,
+                                               cursor=cursor)
         conn.close()
 
         return pid

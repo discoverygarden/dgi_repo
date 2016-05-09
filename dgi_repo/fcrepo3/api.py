@@ -183,7 +183,7 @@ class ObjectResource(ABC):
             logger.info('Did not ingest %s as it already existed.', e.pid)
             raise falcon.HTTPError('500 Internal Server Error') from e
         resp.content_type = 'text/plain'
-        resp.body = 'Ingested {}.'.format(pid)
+        resp.body = pid
         logger.info('Ingested %s.', pid)
 
     @abstractmethod

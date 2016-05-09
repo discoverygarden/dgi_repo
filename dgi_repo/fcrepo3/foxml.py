@@ -577,7 +577,9 @@ class FoxmlTarget(object):
         # Create the object.
         if tag == '{{{0}}}objectProperties'.format(FOXML_NAMESPACE):
             object_db_info = {}
-            raw_namespace, object_db_info['pid_id'] = utils.break_pid(self.object_info['PID'])
+            raw_namespace, object_db_info['pid_id'] = utils.break_pid(
+                self.object_info['PID']
+            )
             object_reader.namespace_id(raw_namespace, cursor=self.cursor)
             try:
                 object_db_info['namespace'] = self.cursor.fetchone()['id']
@@ -619,7 +621,7 @@ class FoxmlTarget(object):
                     self.object_info['{}{}'.format(
                         relations.FEDORA_MODEL_NAMESPACE,
                         relations.STATE_PREDICATE
-                )]]
+                    )]]
             except KeyError:
                 try:
                     object_db_info['state'] = self.object_info['{}{}'.format(
