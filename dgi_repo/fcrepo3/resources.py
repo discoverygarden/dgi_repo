@@ -233,12 +233,11 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
                 if ds_info is None:
                     raise DatastreamDoesNotExistError(pid, dsid, time)
 
-            try:
-                resource_info = ds_reader.resource(
-                    ds_info['resource']
-                ).fetchone()
-            except KeyError:
-                return
+            resource_info = ds_reader.resource(
+                ds_info['resource']
+            ).fetchone()
+            if resource_info is None:
+                return None
 
             info = {}
             mime_info = ds_reader.mime_from_resource(resource_info['id'],

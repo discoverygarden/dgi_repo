@@ -524,6 +524,9 @@ class DatastreamDisseminationResource(ABC):
         """
         try:
             info = self._get_ds_dissemination(req, pid, dsid)
+            if info is None:
+                logger.debug('No location or stream for %s on %s.', dsid, pid)
+                return
         except ObjectDoesNotExistError:
             logger.info(('Did not get datastream dissemination for %s as the '
                          'object %s did not exist.'), dsid, pid)
@@ -547,7 +550,7 @@ class DatastreamDisseminationResource(ABC):
             try:
                 resp.stream = info['stream']
             except KeyError:
-                logger.debug('No location or stream for %s on %s.', dsid, pid)
+                pass
 
         logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
 
@@ -557,7 +560,7 @@ class DatastreamDisseminationResource(ABC):
         Prep datastream content response.
 
         Returns:
-            Dictionary containing:
+            None if there is no content or a dictionary containing:
                 -mime: the mime
                 And one of:
                 -location: location
