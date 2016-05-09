@@ -7,6 +7,7 @@ import datetime
 
 from lxml import etree
 
+from dgi_repo.fcrepo3 import object_resource
 from dgi_repo.fcrepo3 import api
 
 
@@ -19,8 +20,8 @@ class GetObjectProfileTestCase(unittest.TestCase):
         """
         Test object profile values.
         """
-        object_resource = api.ObjectResource()
-        xml = object_resource._get_object_profile(
+        my_object_resource = object_resource.ObjectResource()
+        xml = my_object_resource._get_object_profile(
             'boaty:mcboatface',
             'intertubes',
             ['do:thereisnotry'],

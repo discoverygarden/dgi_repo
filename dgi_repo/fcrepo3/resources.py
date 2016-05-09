@@ -1,11 +1,7 @@
 """
 Falcon Resource implementations.
 """
-import datetime
 import base64
-import logging
-
-import falcon
 
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.fcrepo3.utilities as fedora_utils
@@ -14,12 +10,10 @@ import dgi_repo.database.read.repo_objects as object_reader
 from dgi_repo.database import filestore
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import api, foxml
-from dgi_repo.fcrepo3.exceptions import ObjectExistsError
-from dgi_repo.fcrepo3.utilities import send_object_404
+from dgi_repo.exceptions import (ObjectDoesNotExistError,
+                                 DatastreamDoesNotExistError)
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
-
-logger = logging.getLogger(__name__)
 
 route_map = {
     '/describe': api.DescribeResource
@@ -75,6 +69,8 @@ class SoapAccessResource(api.FakeSoapResource):
             - the datastream control group
             - the URI of the resource the datastream represents
             - the MIME type of the datastream's resource
+        Raises:
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         with get_connection() as conn, conn.cursor() as cursor:
             datastream_info = ds_reader.datastream_from_raw(
@@ -82,6 +78,8 @@ class SoapAccessResource(api.FakeSoapResource):
                 dsid,
                 cursor=cursor
             ).fetchone()
+            if datastream_info is None:
+                raise DatastreamDoesNotExistError(pid, dsid)
             resource_info = ds_reader.resource(
                 datastream_info['resource'],
                 cursor=cursor
@@ -113,7 +111,6 @@ class SoapManagementResource(api.FakeSoapResource):
                     api.FEDORA_TYPES_URI)):
                 with xf.element('objectXML'):
                     base64.encode(foxml.generate_foxml(kwargs['pid']), xf)
-            logger.info('Exporting: %s.', kwargs['pid'])
 
 
 @route('/upload')
@@ -150,12 +147,6 @@ class PidResource(api.PidResource):
         for pid_id in range(highest_id - numPIDs + 1, highest_id + 1):
             pids.append(utils.make_pid(namespace, pid_id))
 
-        if numPIDs == 1:
-            pids_to_log = pids
-        else:
-            pids_to_log = '{}-{}'.format(pids[0], pids[-1])
-        logger.info('Getting new PID(s): %s.', pids_to_log)
-
         return pids
 
 
@@ -164,17 +155,13 @@ class ObjectResourceExport(api.ObjectResourceExport):
     """
     Provide export and objectXML endpoints.
     """
-    def on_get(self, req, resp, pid):
+    def _export_object(self, req, pid):
         """
         Provide a FOXML export.
         """
-        super().on_get(req, resp, pid)
         archival = req.get_param('context') == 'archive'
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                resp.stream = foxml.generate_foxml(pid, archival=archival,
-                                                   cursor=cursor)
-                logger.info('Exporting: %s.', pid)
+        with get_connection() as conn, conn.cursor() as cursor:
+            return foxml.generate_foxml(pid, archival=archival, cursor=cursor)
 
 
 @route('/objects/{pid}/datastreams')
@@ -194,7 +181,7 @@ class DatastreamListResource(api.DatastreamListResource):
             try:
                 object_id = object_info['id']
             except TypeError as e:
-                raise ObjectExistsError(pid) from e
+                raise ObjectDoesNotExistError(pid) from e
             raw_datastreams = ds_reader.datastreams(
                 object_id,
                 cursor=cursor
@@ -218,58 +205,54 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
     """
     Provide the datastream content endpoint.
     """
-    def on_get(self, req, resp, pid, dsid):
+    def _get_ds_dissemination(self, req, pid, dsid):
         """
         Provide datastream content.
         """
-        super().on_get(req, resp, pid, dsid)
         with get_connection() as conn, conn.cursor() as cursor:
             object_info = object_reader.object_id_from_raw(
                 pid,
                 cursor=cursor
             ).fetchone()
-            try:
-                object_id = object_info['id']
-            except TypeError:
-                send_object_404(pid, resp)
-                return
+            if object_info is None:
+                raise ObjectDoesNotExistError(pid)
 
             time = utils.iso8601_to_datetime(req.get_param('asOfDateTime'))
             ds_info = ds_reader.datastream(
-                {'object': object_id, 'dsid': dsid},
+                {'object': object_info['id'], 'dsid': dsid},
                 cursor=cursor
             ).fetchone()
-            self._check_ds(ds_info, dsid, resp, pid)
+            if ds_info is None:
+                raise DatastreamDoesNotExistError(pid, dsid)
             if time is not None:
                 ds_info = ds_reader.datastream_as_of_time(
                     ds_info['id'],
                     time,
                     cursor
                 )
-            self._check_ds(ds_info, dsid, resp, pid, time=time)
+                if ds_info is None:
+                    raise DatastreamDoesNotExistError(pid, dsid, time)
 
-            try:
-                resource_info = ds_reader.resource(
-                    ds_info['resource']
-                ).fetchone()
-            except KeyError:
-                return
+            resource_info = ds_reader.resource(
+                ds_info['resource']
+            ).fetchone()
+            if resource_info is None:
+                return None
 
+            info = {}
             mime_info = ds_reader.mime_from_resource(resource_info['id'],
                                                      cursor=cursor).fetchone()
             if mime_info:
-                resp.content_type = mime_info['mime']
-
+                info['mime'] = mime_info['mime']
             # Redirect if we are a redirect DS.
             if ds_info['control_group'] == 'R':
-                resp.status = falcon.HTTP_307
-                resp.location = resource_info['uri']
-                return
+                info['location'] = source_info['uri']
+            else:
+                # Send data if we are not a redirect DS.
+                file_path = filestore.resolve_uri(resource_info['uri'])
+                info['stream'] = open(file_path, 'rb')
 
-            # Send data if we are not a redirect DS.
-            file_path = filestore.resolve_uri(resource_info['uri'])
-            resp.stream = open(file_path, 'rb')
-            return
+            return info
 
 
 @route('/objects/{pid}/datastreams/{dsid}/history')
@@ -277,21 +260,18 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
     """
     Provide the datastream history endpoint.
     """
-    def _get_datastream_versions(self, pid, dsid, resp):
+    def _get_datastream_versions(self, pid, dsid):
         """
         Get an iterable of datastream versions.
         """
         with get_connection() as conn, conn.cursor() as cursor:
-            try:
-                ds_info = ds_reader.datastream_from_raw(
-                    pid,
-                    dsid,
-                    cursor=cursor
-                ).fetchone()
-            except TypeError as e:
-                raise ObjectExistsError(pid) from e
+            ds_info = ds_reader.datastream_from_raw(
+                pid,
+                dsid,
+                cursor=cursor
+            ).fetchone()
             if ds_info is None:
-                self._send_ds_404(pid, dsid, resp)
+                raise DatastreamDoesNotExistError(pid, dsid)
 
             datastream_versions = []
             old_dss = ds_reader.old_datastreams(ds_info['id'],

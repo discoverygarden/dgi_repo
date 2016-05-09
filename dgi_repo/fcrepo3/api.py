@@ -1,8 +1,5 @@
 """
 Falcon resource abstract base classes.
-
-@TODO: move API level logging/responses from implementations to here.
-@TODO: move passed vars to object attributes.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -10,7 +7,10 @@ from abc import ABC, abstractmethod
 import falcon
 from lxml import etree
 from dgi_repo.utilities import SpooledTemporaryFile
-from dgi_repo.fcrepo3.exceptions import ObjectExistsError
+from dgi_repo.exceptions import (ObjectDoesNotExistError,
+                                 DatastreamDoesNotExistError,
+                                 ObjectConflictsError,
+                                 DatastreamConflictsError, ObjectExistsError)
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,8 @@ class FakeSoapResource(ABC):
     Helper class for pseudo-SOAP endpoints.
 
     The endpoints we need target specifically include:
-    -  :8080/fedora/services/access (for getDatastreamDissemination) and
-    -  :8080/fedora/services/management (for export)
+    - /services/access (for getDatastreamDissemination) and
+    - /services/management (for export)
     """
     SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
 
@@ -47,6 +47,8 @@ class FakeSoapResource(ABC):
                 with xf.element('{{{0}}}Body'.format(self.__class__.SOAP_NS)):
                     for method, kwargs in self._parse(req):
                         self._respond(xf, method, kwargs)
+                        logger.info('Responding to : %s with params %s.',
+                                    method, kwargs)
         length = soap_xml_out.tell()
         soap_xml_out.seek(0)
         resp.set_stream(soap_xml_out, length)
@@ -126,8 +128,10 @@ class PidResource(ABC):
     Falcon "Resource" to allocate PIDs.
     """
     def on_post(self, req, resp):
+        pid = None
         params = dict()
         req.get_param_as_int('numPIDs', min=1, store=params)
+        params.setdefault('numPIDs', 1)
         req.get_param('namespace', store=params)
 
         xml_out = SpooledTemporaryFile()
@@ -140,6 +144,14 @@ class PidResource(ABC):
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
+
+        if params['numPIDs'] == 1:
+            pids_to_log = pid
+        else:
+            pids_to_log = '{} counting back from {}'.format(params['numPIDs'],
+                                                            pid)
+
+        logger.info('Getting new PID(s): %s.', pids_to_log)
 
     @abstractmethod
     def _get_pids(self, numPIDs=1, namespace=None):
@@ -164,17 +176,74 @@ class ObjectResource(ABC):
         """
         Ingest a new object.
         """
+        try:
+            # The PID we have right now may not be the final PID.
+            pid = self._create_object(req, pid)
+        except ObjectExistsError as e:
+            logger.info('Did not ingest %s as it already existed.', e.pid)
+            raise falcon.HTTPError('500 Internal Server Error') from e
         resp.content_type = 'text/plain'
+        resp.body = 'Ingested {}.'.format(pid)
+        logger.info('Ingested %s.', pid)
+
+    @abstractmethod
+    def _create_object(self, req, pid):
+        """
+        Create an object
+
+        Raises:
+            ObjectExistsError: The object already exist.
+        """
+        pass
 
     def on_get(self, req, resp, pid):
         """
         Get object profile.
         """
         resp.content_type = 'application/xml'
+        try:
+            resp.body = self._get_object_profile(*self._get_object(req, pid))
+        except ObjectDoesNotExistError:
+            logger.info('Did not retrieve object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
+        logger.info('Retrieved object: %s.', pid)
+
+    @abstractmethod
+    def _get_object(self, req, pid):
+        """
+        Get params for _get_object_profile.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
+        pass
 
     def on_put(self, req, resp, pid):
         """
         Update an object.
+        """
+        try:
+            self._update_object(req, pid)
+        except ObjectDoesNotExistError:
+            logger.info('Did not update object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
+        except ObjectConflictsError as e:
+            logger.info(('{} lastModifiedDate ({}) is more recent than the '
+                         'request ({}); not modifying object.').format(
+                         e.pid, e.modified_time.isoformat(),
+                         e.request_time.isoformat()))
+            # @XXX Raising HTTPError over HTTPConflict because we
+            # don't have  a title and description for HTTPConflict.
+            raise falcon.HTTPError('409 Conflict') from e
+        logger.info('Updated object: %s.', pid)
+
+    @abstractmethod
+    def _update_object(self, req, pid):
+        """
+        Update an object.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
@@ -183,14 +252,23 @@ class ObjectResource(ABC):
         Purge an object.
         """
         resp.content_type = 'text/plain'
+        try:
+            self._purge_object(req, pid)
+        except ObjectDoesNotExistError:
+            logger.info('Did not purge object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
+        resp.body = 'Purged {}'.format(pid)
+        logger.info('Purged object: %s.', pid)
 
-    def _send_500(self, pid, resp):
+    @abstractmethod
+    def _purge_object(self, req, pid):
         """
-        Send a Fedora like 500 when objects exist.
-        # Object exists return 500; @XXX it's what Fedora does.
+        Purge an object.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
-        logger.info('Did not ingest %s as it already existed.', pid)
-        raise falcon.HTTPError('500 Internal Server Error')
+        pass
 
     def _get_object_profile(self, pid, label, models, created,
                             modified, state, owner):
@@ -265,7 +343,23 @@ class ObjectResourceExport(ABC):
         """
         Dump out FOXML export.
         """
+        try:
+            resp.stream = self._export_object(req, pid)
+        except ObjectDoesNotExistError:
+            logger.info('Did not export object %s as it did not exist.', pid)
+            _send_object_404(pid, resp)
         resp.content_type = 'application/xml'
+        logger.info('Exporting: %s.', pid)
+
+    @abstractmethod
+    def _export_object(self, req):
+        """
+        Get a stream of an object's FOXML.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
+        pass
 
 
 class DatastreamListResource(ABC):
@@ -286,9 +380,9 @@ class DatastreamListResource(ABC):
                         with xf.element('{{{0}}}datastream'.format(
                                 FEDORA_ACCESS_URI), attrib=datastream):
                             pass
-                except ObjectExistsError as e:
+                except ObjectDoesNotExistError:
                     logger.info(('Datastream list not retrieved for %s as '
-                                'object did not exist.'), e.pid)
+                                'object did not exist.'), pid)
                     raise falcon.HTTPNotFound()
         length = xml_out.tell()
         xml_out.seek(0)
@@ -309,7 +403,7 @@ class DatastreamListResource(ABC):
                 label: The datastream label, and
                 mimeType: The datastream MIME-type.
         Raises:
-            ObjectExistsError: The object doesn't exist.
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
@@ -322,6 +416,24 @@ class DatastreamResource(ABC):
         """
         Ingest new datastream.
         """
+        try:
+            self._create_datastream(req, pid, dsid)
+        except ObjectDoesNotExistError:
+            logger.info(('Did not create datastream %s on  %s as the object '
+                         'did not exist.'), dsid, pid)
+            _send_object_404(pid, resp)
+
+        resp.status = falcon.HTTP_201
+        logger.info('Created DS %s on %s.', dsid, pid)
+
+    @abstractmethod
+    def _create_datastream(self, req, pid, dsid):
+        """
+        Create a datastream.
+
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+        """
         pass
 
     def on_get(self, req, resp, pid, dsid):
@@ -329,20 +441,53 @@ class DatastreamResource(ABC):
         Get datastream info.
         """
         xml_out = SpooledTemporaryFile()
-        datastream_info = self._get_datastream_info(pid, dsid, **req.params)
-        if datastream_info is None:
-            self._send_208(pid, dsid, resp)
-        else:
-            with etree.xmlfile(xml_out) as xf:
-                _writeDatastreamProfile(xf, datastream_info)
-            length = xml_out.tell()
-            xml_out.seek(0)
-            resp.set_stream(xml_out, length)
-            resp.content_type = 'application/xml'
+        try:
+            datastream_info = self._get_datastream_info(pid, dsid,
+                                                        **req.params)
+        except DatastreamDoesNotExistError as e:
+                resp.content_type = 'text/plain'
+                logger.info(('Datastream not retrieved: %s not found on %s as'
+                             ' of %s.'), e.dsid, e.pid, e.time)
+                resp.body = 'Datastream {} not found on {} as of {}.'.format(
+                            e.dsid, e.pid, e.time)
+                raise falcon.HTTPNotFound() from e
+        with etree.xmlfile(xml_out) as xf:
+            _writeDatastreamProfile(xf, datastream_info)
+        length = xml_out.tell()
+        xml_out.seek(0)
+        resp.set_stream(xml_out, length)
+        resp.content_type = 'application/xml'
+        return
 
     def on_put(self, req, resp, pid, dsid):
         """
         Update datastream.
+        """
+        try:
+            self._update_datastream(req, pid, dsid)
+            logger.info('Updated DS %s on %s.', dsid, pid)
+        except DatastreamDoesNotExistError as e:
+            logger.info(('Datastream not updated for %s on '
+                         '%s as datastream did not exist.'), dsid, pid)
+            resp.body = ('Datastream not updated for {} on {} as datastream '
+                         'did not exist.').format(dsid, pid)
+            raise falcon.HTTPNotFound() from e
+        except DatastreamConflictsError as e:
+            logger.info(('{} on {} lastModifiedDate ({}) is more recent than '
+                         'the request ({}); not modifying datastream.').format(
+                         e.dsid, e.pid, e.modified_time.isoformat(),
+                         e.request_time.isoformat()))
+            # @XXX Raising HTTPError over HTTPConflict because we
+            # don't have  a title and description for HTTPConflict.
+            raise falcon.HTTPError('409 Conflict') from e
+
+    @abstractmethod
+    def _update_datastream(self, req, pid, dsid):
+        """
+        Update a datastream.
+
+        Raises:
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass
 
@@ -350,16 +495,16 @@ class DatastreamResource(ABC):
         """
         Purge datastream.
         """
-        pass
+        self._delete_datastream(req, pid, dsid)
+        logger.info(('Deleted datastream versions for %s on %s between'
+                     ' %s and %s.'), dsid, pid, start, end)
 
-    def _send_208(self, pid, dsid, resp):
+    @abstractmethod
+    def _delete_datastream(self, req, pid, dsid):
         """
-        Send a Fedora like 208 when datastreams don't exist.
+        Delete a datastream.
         """
-        resp.content_type = 'text/plain'
-        logger.info('Datastream %s not found on %s.', dsid, pid)
-        resp.body = 'Datastream {} not found on {}.'.format(dsid, pid)
-        resp.status = '208'
+        pass
 
     @abstractmethod
     def _get_datastream_info(self, pid, dsid, asOfDateTime=None, **kwargs):
@@ -373,26 +518,58 @@ class DatastreamDisseminationResource(ABC):
     """
     Base Falcon "Resource" to handle datastream dissemination.
     """
-    @abstractmethod
     def on_get(self, req, resp, pid, dsid):
         """
         Dump datastream content.
         """
-        pass
-
-    def _check_ds(self, ds_info, dsid, resp, pid, time=None):
-        """
-        Check if ds_info is populated or send 404.
-        """
-        time = time if time else 'now'
-        if ds_info is None:
+        try:
+            info = self._get_ds_dissemination(req, pid, dsid)
+            if info is None:
+                logger.debug('No location or stream for %s on %s.', dsid, pid)
+                return
+        except ObjectDoesNotExistError:
+            logger.info(('Did not get datastream dissemination for %s as the '
+                         'object %s did not exist.'), dsid, pid)
+            _send_object_404(pid, resp)
+        except DatastreamDoesNotExistError as e:
             resp.content_type = 'text/plain'
-            logger.info('Datastream %s not found on %s as of %s.',
-                        dsid, pid, time)
-            resp.body = 'Datastream {} not found on {} as of {}.'.format(dsid,
-                                                                         pid,
-                                                                         time)
-            raise falcon.HTTPNotFound()
+            logger.info(('Datastream content not retrieved: %s not found on %s'
+                        ' as of %s.'), e.dsid, e.pid, e.time)
+            resp.body = 'Datastream {} not found on {} as of {}.'.format(
+                         e.dsid, e.pid, e.time)
+            raise falcon.HTTPNotFound() from e
+
+        try:
+            resp.content_type = info['mime']
+        except KeyError:
+            pass
+        try:
+            resp.location = info['location']
+            resp.status = falcon.HTTP_307
+        except KeyError:
+            try:
+                resp.stream = info['stream']
+            except KeyError:
+                pass
+
+        logger.info('Retrieved datastream content for %s on %s.', dsid, pid)
+
+    @abstractmethod
+    def _get_ds_dissemination(self, req, pid, dsid):
+        """
+        Prep datastream content response.
+
+        Returns:
+            None if there is no content or a dictionary containing:
+                -mime: the mime
+                And one of:
+                -location: location
+                -stream: stream
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
+            DatastreamDoesNotExistError: The datastream doesn't exist.
+        """
+        pass
 
 
 class DatastreamHistoryResource(ABC):
@@ -408,34 +585,29 @@ class DatastreamHistoryResource(ABC):
             with xf.element('{{0}}datastreamHistory'.format(
                     FEDORA_MANAGEMENT_URI)):
                 try:
-                    for datastream in self._get_datastream_versions(pid, dsid,
-                                                                    resp):
+                    for datastream in self._get_datastream_versions(pid, dsid):
                         _writeDatastreamProfile(xf, datastream)
-                except ObjectExistsError as e:
+                except DatastreamDoesNotExistError as e:
+                    resp.content_type = 'text/xml'
                     logger.info(('Datastream history not retrieved for %s on '
-                                 '%s as object did not exist.'), dsid, e.pid)
-                    raise falcon.HTTPNotFound()
+                                 '%s as datastream did not exist.'), dsid, pid)
+                    resp.body = ('Datastream history not retrieved for {} on '
+                                 '{} as datastream did not exist.').format(
+                                 dsid, pid)
+                    raise falcon.HTTPNotFound() from e
         length = xml_out.tell()
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
         logger.info('Retrieved DS history for %s on %s', dsid, pid)
 
-    def _send_ds_404(self, pid, dsid, resp):
-        """
-        Send a 404 for the datastream not existing.
-        """
-        resp.content_type = 'text/xml'
-        logger.info(('Datastream history not retrieved for %s on %s as '
-                     'datastream did not exist.'), dsid, pid)
-        resp.body = ('Datastream history not retrieved for %s on %s as '
-                     'datastream did not exist.').format(dsid, pid)
-        raise falcon.HTTPNotFound()
-
     @abstractmethod
-    def _get_datastream_versions(self, pid, dsid, resp):
+    def _get_datastream_versions(self, pid, dsid):
         """
         Get an iterable of datastream versions.
+
+        Raises:
+            DatastreamDoesNotExistError: The datastream doesn't exist.
         """
         pass
 
@@ -484,3 +656,12 @@ def _writeDatastreamProfile(xf, datastream_info):
             if value is not None:
                 with xf.element('{{{}}}{}'.format(FEDORA_MANAGEMENT_URI, key)):
                     xf.write(str(value))
+
+
+def _send_object_404(pid, resp):
+    """
+    Send a Fedora like 404 when objects don't exist.
+    """
+    resp.content_type = 'text/plain'
+    resp.body = 'Object not found in low-level storage: {}'.format(pid)
+    raise falcon.HTTPNotFound()
