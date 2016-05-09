@@ -161,7 +161,7 @@ class ObjectResourceExport(api.ObjectResourceExport):
         """
         archival = req.get_param('context') == 'archive'
         with get_connection() as conn, conn.cursor() as cursor:
-            foxml.generate_foxml(pid, archival=archival, cursor=cursor)
+            return foxml.generate_foxml(pid, archival=archival, cursor=cursor)
 
 
 @route('/objects/{pid}/datastreams')
