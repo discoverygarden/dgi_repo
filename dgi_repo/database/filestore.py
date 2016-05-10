@@ -195,17 +195,14 @@ def create_datastream_from_data(datastream_data, data, mime=None,
     return cursor
 
 
-def create_datastream_from_upload(datastream_data, upload_uri, checksums=None,
-                                  old=False, cursor=None):
+def create_datastream_from_upload(datastream_data, upload_uri, mime=None,
+                                  checksums=None, old=False, cursor=None):
     """
     Create a datastream from a resource.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
 
     datastream_reader.resource_from_uri(upload_uri, cursor=cursor)
-    mime_id = cursor.fetchone()['mime_id']
-    datastream_reader.mime(mime_id, cursor)
-    mime = cursor.fetchone()['mime']
 
     with open(resolve_uri(upload_uri), 'rb') as data:
         create_datastream_from_data(datastream_data, data, mime, checksums,

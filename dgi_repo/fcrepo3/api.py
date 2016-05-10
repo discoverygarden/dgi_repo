@@ -91,7 +91,11 @@ class UploadResource(ABC):
     Abstract Falcon "Resource" to handle file uploads.
     """
     def on_post(self, req, resp):
-        uploaded_file = req.get_param('file', required=True).file
+        file_param = req.get_param('file')
+        if file_param is not None:
+            uploaded_file = file_param.file
+        else:
+            uploaded_file = req.stream
         resp.body = self._store(uploaded_file)
         resp.status = falcon.HTTP_202
 
@@ -183,7 +187,7 @@ class ObjectResource(ABC):
             logger.info('Did not ingest %s as it already existed.', e.pid)
             raise falcon.HTTPError('500 Internal Server Error') from e
         resp.content_type = 'text/plain'
-        resp.body = 'Ingested {}.'.format(pid)
+        resp.body = pid
         logger.info('Ingested %s.', pid)
 
     @abstractmethod

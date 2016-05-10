@@ -576,18 +576,21 @@ class FoxmlTarget(object):
         """
         # Create the object.
         if tag == '{{{0}}}objectProperties'.format(FOXML_NAMESPACE):
-            raw_namespace, pid_id = utils.break_pid(self.object_info['PID'])
+            object_db_info = {}
+            raw_namespace, object_db_info['pid_id'] = utils.break_pid(
+                self.object_info['PID']
+            )
             object_reader.namespace_id(raw_namespace, cursor=self.cursor)
             try:
-                namespace = self.cursor.fetchone()['id']
+                object_db_info['namespace'] = self.cursor.fetchone()['id']
             except TypeError:
                 # @XXX burns the first PID in a namespace.
                 object_writer.get_pid_id(raw_namespace, cursor=self.cursor)
-                namespace = self.cursor.fetchone()['id']
+                object_db_info['namespace'] = self.cursor.fetchone()['id']
 
             raw_log = 'Object created through FOXML import.'
             upsert_log(raw_log, cursor=self.cursor)
-            log = self.cursor.fetchone()[0]
+            object_db_info['log'] = self.cursor.fetchone()[0]
 
             raw_owner = self.object_info['{}{}'.format(
                 relations.FEDORA_MODEL_NAMESPACE,
@@ -595,43 +598,49 @@ class FoxmlTarget(object):
             )]
             upsert_user({'name': raw_owner, 'source': self.source},
                         cursor=self.cursor)
-            owner = self.cursor.fetchone()[0]
+            object_db_info['owner'] = self.cursor.fetchone()[0]
 
-            created = self.object_info['{}{}'.format(
-                relations.FEDORA_MODEL_NAMESPACE,
-                relations.CREATED_DATE_PREDICATE
-            )]
+            try:
+                object_db_info['created'] = self.object_info['{}{}'.format(
+                    relations.FEDORA_MODEL_NAMESPACE,
+                    relations.CREATED_DATE_PREDICATE
+                )]
+            except KeyError:
+                pass
 
-            modified = self.object_info['{}{}'.format(
-                relations.FEDORA_VIEW_NAMESPACE,
-                relations.LAST_MODIFIED_DATE_PREDICATE
-            )]
+            try:
+                object_db_info['modified'] = self.object_info['{}{}'.format(
+                    relations.FEDORA_VIEW_NAMESPACE,
+                    relations.LAST_MODIFIED_DATE_PREDICATE
+                )]
+            except KeyError:
+                pass
 
-            state = OBJECT_STATE_LABEL_MAP[self.object_info['{}{}'.format(
-                relations.FEDORA_MODEL_NAMESPACE,
-                relations.STATE_PREDICATE
-            )]]
+            try:
+                object_db_info['state'] = OBJECT_STATE_LABEL_MAP[
+                    self.object_info['{}{}'.format(
+                        relations.FEDORA_MODEL_NAMESPACE,
+                        relations.STATE_PREDICATE
+                    )]]
+            except KeyError:
+                try:
+                    object_db_info['state'] = self.object_info['{}{}'.format(
+                        relations.FEDORA_MODEL_NAMESPACE,
+                        relations.STATE_PREDICATE
+                    )]
+                except KeyError:
+                    pass
 
-            label = self.object_info['{}{}'.format(
+            object_db_info['label'] = self.object_info['{}{}'.format(
                 relations.FEDORA_MODEL_NAMESPACE,
                 relations.LABEL_PREDICATE
             )]
 
-            object_writer.jump_pids(namespace, pid_id, cursor=self.cursor)
+            object_writer.jump_pids(object_db_info['namespace'],
+                                    object_db_info['pid_id'],
+                                    cursor=self.cursor)
             try:
-                object_writer.write_object(
-                    {
-                        'namespace': namespace,
-                        'state': state,
-                        'label': label,
-                        'log': log,
-                        'pid_id': pid_id,
-                        'owner': owner,
-                        'created': created,
-                        'modified': modified,
-                    },
-                    cursor=self.cursor
-                )
+                object_writer.write_object(object_db_info, cursor=self.cursor)
             except IntegrityError:
                 raise ObjectExistsError(self.object_info['PID'])
             self.object_id = self.cursor.fetchone()[0]
@@ -664,7 +673,11 @@ class FoxmlTarget(object):
                 last_ds['actually_created'] = (self.ds_info[self.dsid]
                                                ['versions'][0]['CREATED'])
             except IndexError:
-                last_ds['actually_created'] = last_ds['CREATED']
+                try:
+                    last_ds['actually_created'] = last_ds['CREATED']
+                except KeyError:
+                    last_ds['actually_created'] = None
+                    last_ds['CREATED'] = None
 
             # Populate relations.
             if self.dsid == 'DC':
@@ -705,11 +718,13 @@ class FoxmlTarget(object):
             'versioned': True if ds['VERSIONABLE'] == 'TRUE' else False,
             'control_group': ds['CONTROL_GROUP'],
             'state': ds['STATE'],
-            'modified': ds['CREATED'],
-            'created': ds['actually_created'],
-            'committed': ds['CREATED'],
             'mimetype': ds['MIMETYPE'],
         })
+        if ds['CREATED'] is not None:
+            prepared_ds['modified'] = ds['CREATED']
+            prepared_ds['committed'] = ds['CREATED']
+        if ds['actually_created'] is not None:
+            prepared_ds['created'] = ds['actually_created']
         write_ds(prepared_ds, old=old, cursor=self.cursor)
 
         return self.cursor.fetchone()['id']
@@ -738,18 +753,25 @@ class FoxmlTarget(object):
         Prep for next use.
 
         We retain the current cursor.
+
+        Raises:
+            ValueError when not processing FOXML.
         """
         # Create a default DC DS.
         if self.object_id is not None:
             if 'DC' not in self.ds_info:
-                create_default_dc_ds(self.object_id, self.object_info['PID'])
+                create_default_dc_ds(self.object_id, self.object_info['PID'],
+                                     cursor=self.cursor)
         # Create RELS-INT relations once all DSs are made.
         if self.rels_int is not None:
             internalize_rels_int(self.rels_int, self.object_id, self.source,
                                  purge=False, cursor=self.cursor)
             self.cursor.fetchall()
         # Reset for next use.
-        pid = self.object_info['PID']
+        try:
+            pid = self.object_info['PID']
+        except KeyError as e:
+            raise ValueError from e
         self.__init__(self.cursor, self.source)
 
         return pid
