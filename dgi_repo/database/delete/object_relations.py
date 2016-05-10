@@ -34,7 +34,7 @@ def delete_object_relations(object_id, cursor=None):
     # Delete from general table.
     cursor.execute('''
         DELETE FROM object_relationships
-        WHERE subject = %s
+        WHERE rdf_subject = %s
     ''', (object_id,))
 
     logger.debug(('Deleted any RDF relation about object: %s from the general'

@@ -42,9 +42,9 @@ def upsert_predicate(data, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO predicates (predicate, rdf_namespace_id)
+        INSERT INTO predicates (predicate, rdf_namespace)
         VALUES (%(predicate)s, %(namespace)s)
-        ON CONFLICT (predicate, rdf_namespace_id) DO NOTHING
+        ON CONFLICT (predicate, rdf_namespace) DO NOTHING
         RETURNING id
     ''', data)
 

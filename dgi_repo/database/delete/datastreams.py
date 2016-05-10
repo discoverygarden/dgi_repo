@@ -146,7 +146,7 @@ def delete_datastream_versions(pid, dsid, start=None, end=None, cursor=None):
                                                 cursor=cursor)
             cursor.execute('''
                 DELETE FROM old_datastreams
-                WHERE current_datastream = %s AND committed = %s
+                WHERE datastream = %s AND committed = %s
             ''', (ds_info['id'], ds_replacement['modified']))
 
     # Handle old datastreams.
@@ -154,19 +154,19 @@ def delete_datastream_versions(pid, dsid, start=None, end=None, cursor=None):
         # Remove from dawn of time to specified end.
         cursor.execute('''
             DELETE FROM old_datastreams
-            WHERE current_datastream = %s AND committed <= %s
+            WHERE datastream = %s AND committed <= %s
         ''', (ds_info['id'], end))
     elif end is None:
         # Remove from specified start to end of time.
         cursor.execute('''
             DELETE FROM old_datastreams
-            WHERE current_datastream = %s AND committed >= %s
+            WHERE datastream = %s AND committed >= %s
         ''', (ds_info['id'], start))
     else:
         # Remove items between specified start and end times.
         cursor.execute('''
             DELETE FROM old_datastreams
-            WHERE current_datastream = %s AND committed <= %s AND
+            WHERE datastream = %s AND committed <= %s AND
                 committed >= %s
         ''', (ds_info['id'], end, start))
 

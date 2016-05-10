@@ -14,7 +14,7 @@ def log_id(log, cursor=None):
     cursor.execute('''
         SELECT id
         FROM log
-        WHERE log_entry = %s
+        WHERE log = %s
     ''', (log,))
 
     return cursor

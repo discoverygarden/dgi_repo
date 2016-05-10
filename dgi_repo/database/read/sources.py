@@ -29,7 +29,7 @@ def user_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM users
-        WHERE username = %(name)s AND source_id = %(source)s
+        WHERE username = %(name)s AND source = %(source)s
     ''', data)
 
     return cursor
@@ -59,7 +59,7 @@ def role_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM user_roles
-        WHERE role = %(role)s AND source_id = %(source)s
+        WHERE role = %(role)s AND source = %(source)s
     ''', data)
 
     return cursor

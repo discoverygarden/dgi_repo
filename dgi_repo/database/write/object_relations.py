@@ -52,7 +52,7 @@ def write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO object_relationships (predicate_id, subject, rdf_object)
+        INSERT INTO object_relationships (predicate, rdf_subject, rdf_object)
         VALUES (%s, %s, %s)
         RETURNING id
     ''', (predicate_id, subject, rdf_object))

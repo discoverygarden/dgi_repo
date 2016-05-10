@@ -53,8 +53,8 @@ def write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor=None):
 
     cursor.execute('''
         INSERT INTO datastream_relationships (
-            predicate_id,
-            subject,
+            predicate,
+            rdf_subject,
             rdf_object
         )
         VALUES (%s, %s, %s)

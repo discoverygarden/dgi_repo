@@ -20,9 +20,9 @@ def upsert_log(log, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO log (log_entry)
+        INSERT INTO log (log)
         VALUES (%s)
-        ON CONFLICT (log_entry) DO NOTHING
+        ON CONFLICT (log) DO NOTHING
         RETURNING id
     ''', (log,))
 

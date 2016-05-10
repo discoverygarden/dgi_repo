@@ -75,7 +75,7 @@ def old_object_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM old_objects
-        WHERE current_object = %(object)s AND committed = %(committed)s
+        WHERE object = %(object)s AND committed = %(committed)s
     ''', data)
 
     return cursor

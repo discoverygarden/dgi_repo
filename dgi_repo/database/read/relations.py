@@ -29,7 +29,7 @@ def predicate_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM predicates
-        WHERE rdf_namespace_id = %(namespace)s AND predicate = %(predicate)s
+        WHERE rdf_namespace = %(namespace)s AND predicate = %(predicate)s
     ''', data)
 
     return cursor
@@ -73,17 +73,17 @@ def read_from_general_rdf_table(table, predicate, subject=None,
     if (subject and rdf_object):
         cursor.execute('''
             SELECT * FROM {}
-            WHERE predicate_id = %s and subject = %s and rdf_object = %s
+            WHERE predicate = %s and rdf_subject = %s and rdf_object = %s
         '''.format(table), (predicate, subject, rdf_object))
     elif (subject):
         cursor.execute('''
             SELECT * FROM {}
-            WHERE predicate_id = %s and subject = %s
+            WHERE predicate = %s and rdf_subject = %s
         '''.format(table), (predicate, subject))
     elif (rdf_object):
         cursor.execute('''
             SELECT * FROM {}
-            WHERE predicate_id = %s and rdf_object = %s
+            WHERE predicate = %s and rdf_object = %s
         '''.format(table), (predicate, rdf_object))
     else:
         raise ValueError('Specify either subject, object or both.')
