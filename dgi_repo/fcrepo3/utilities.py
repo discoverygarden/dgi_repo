@@ -47,29 +47,28 @@ def write_ds(ds, old=False, cursor=None):
             cursor=cursor
         )
     elif ds['data_ref'] is not None:
-        if ds['data_ref']['TYPE'] == 'URL':
+        if ds['control_group'] == 'R':
             # Data will remain external.
-            if ds['control_group'] == 'R':
-                ds_writer.upsert_mime(ds['mimetype'], cursor=cursor)
-                ds_writer.upsert_resource(
-                    {
-                        'uri': ds['data_ref']['REF'],
-                        'mime': cursor.fetchone()['id'],
-                    },
-                    cursor=cursor)
-                ds['resource'] = cursor.fetchone()['id']
-                ds_writer.upsert_datastream(ds, cursor=cursor)
-            else:
-                # Data has been uploaded.
-                filestore.create_datastream_from_upload(
-                    ds,
-                    ds['data_ref']['REF'],
-                    mime=ds['mimetype'],
-                    checksums=ds['checksums'],
-                    old=old,
-                    cursor=cursor
-                )
-        elif ds['data_ref']['TYPE'] == 'INTERNAL_ID':
+            ds_writer.upsert_mime(ds['mimetype'], cursor=cursor)
+            ds_writer.upsert_resource(
+                {
+                    'uri': ds['data_ref']['REF'],
+                    'mime': cursor.fetchone()['id'],
+                },
+                cursor=cursor)
+            ds['resource'] = cursor.fetchone()['id']
+            ds_writer.upsert_datastream(ds, cursor=cursor)
+        elif ds['data_ref']['REF'].startswith(filestore.UPLOAD_SCHEME):
+            # Data has been uploaded.
+            filestore.create_datastream_from_upload(
+                ds,
+                ds['data_ref']['REF'],
+                mime=ds['mimetype'],
+                checksums=ds['checksums'],
+                old=old,
+                cursor=cursor
+            )
+        else:
             # We need to fetch data.
             ds_resp = requests.get(
                 ds['data_ref']['REF'], stream=True

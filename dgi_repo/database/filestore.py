@@ -12,7 +12,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
 from dgi_repo.database.utilities import get_connection, check_cursor
-from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.delete.datastreams import delete_resource
 from dgi_repo.database.read.datastreams import resource_uri
 
@@ -26,10 +26,10 @@ NamedTemporaryFile.
 '''
 _URI_MAP = {
     UPLOAD_SCHEME: {
-        'dir': os.path.join(_configuration['data_directory'], 'uploads'),
+        'dir': os.path.join(_config['data_directory'], 'uploads'),
     },
     DATASTREAM_SCHEME: {
-        'dir': os.path.join(_configuration['data_directory'], 'datastreams'),
+        'dir': os.path.join(_config['data_directory'], 'datastreams'),
         'prefix': 'ds'
     }
 }
