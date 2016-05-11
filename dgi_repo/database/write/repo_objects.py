@@ -141,9 +141,9 @@ def upsert_old_object(data, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO old_objects (current_object, log, state, owner, committed)
+        INSERT INTO old_objects (object, log, state, owner, committed)
         VALUES (%(object)s, %(log)s, %(state)s, %(owner)s, %(committed)s)
-        ON CONFLICT (current_object, committed) DO NOTHING
+        ON CONFLICT (object, committed) DO NOTHING
         RETURNING id
     ''', data)
 

@@ -350,8 +350,8 @@ COMMENT ON COLUMN datastream_is_viewable_by_user.rdf_object IS 'User that can vi
 
 CREATE TABLE datastream_relationships (
     id bigint NOT NULL,
-    subject bigint NOT NULL,
-    predicate_id bigint NOT NULL,
+    rdf_subject bigint NOT NULL,
+    predicate bigint NOT NULL,
     rdf_object character varying(1024)
 );
 
@@ -371,17 +371,17 @@ COMMENT ON COLUMN datastream_relationships.id IS 'Database ID of the datastream 
 
 
 --
--- Name: COLUMN datastream_relationships.subject; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_relationships.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_relationships.subject IS 'The subject of the relationship.';
+COMMENT ON COLUMN datastream_relationships.rdf_subject IS 'The subject of the relationship.';
 
 
 --
--- Name: COLUMN datastream_relationships.predicate_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN datastream_relationships.predicate; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN datastream_relationships.predicate_id IS 'The predicate of the relationship.';
+COMMENT ON COLUMN datastream_relationships.predicate IS 'The predicate of the relationship.';
 
 
 --
@@ -2131,7 +2131,7 @@ ALTER SEQUENCE is_sequence_number_of_id_seq OWNED BY is_sequence_number_of.id;
 
 CREATE TABLE log (
     id bigint NOT NULL,
-    log_entry text NOT NULL
+    log text NOT NULL
 );
 
 
@@ -2150,10 +2150,10 @@ COMMENT ON COLUMN log.id IS 'Database ID of the log entry.';
 
 
 --
--- Name: COLUMN log.log_entry; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN log.log; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN log.log_entry IS 'Text of the log entry.';
+COMMENT ON COLUMN log.log IS 'Text of the log entry.';
 
 
 --
@@ -2493,8 +2493,8 @@ COMMENT ON COLUMN object_is_viewable_by_user.rdf_object IS 'User that can view t
 
 CREATE TABLE object_relationships (
     id bigint NOT NULL,
-    subject bigint NOT NULL,
-    predicate_id bigint NOT NULL,
+    rdf_subject bigint NOT NULL,
+    predicate bigint NOT NULL,
     rdf_object character varying(1024)
 );
 
@@ -2514,17 +2514,17 @@ COMMENT ON COLUMN object_relationships.id IS 'Database ID of the object relation
 
 
 --
--- Name: COLUMN object_relationships.subject; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_relationships.rdf_subject; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_relationships.subject IS 'The subject of the relationship.';
+COMMENT ON COLUMN object_relationships.rdf_subject IS 'The subject of the relationship.';
 
 
 --
--- Name: COLUMN object_relationships.predicate_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN object_relationships.predicate; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN object_relationships.predicate_id IS 'Predicate of the relationship.';
+COMMENT ON COLUMN object_relationships.predicate IS 'Predicate of the relationship.';
 
 
 --
@@ -2692,7 +2692,7 @@ ALTER SEQUENCE objects_owner_seq OWNED BY objects.owner;
 
 CREATE TABLE old_datastreams (
     id bigint NOT NULL,
-    current_datastream bigint NOT NULL,
+    datastream bigint NOT NULL,
     log bigint,
     state state NOT NULL,
     label text,
@@ -2716,10 +2716,10 @@ COMMENT ON COLUMN old_datastreams.id IS 'Database ID of the old datastream versi
 
 
 --
--- Name: COLUMN old_datastreams.current_datastream; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN old_datastreams.datastream; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN old_datastreams.current_datastream IS 'Current version of the datastream.';
+COMMENT ON COLUMN old_datastreams.datastream IS 'Current version of the datastream.';
 
 
 --
@@ -2782,7 +2782,7 @@ ALTER SEQUENCE old_datastreams_id_seq OWNED BY old_datastreams.id;
 
 CREATE TABLE old_objects (
     id bigint NOT NULL,
-    current_object bigint NOT NULL,
+    object bigint NOT NULL,
     log bigint,
     state state NOT NULL,
     owner bigint,
@@ -2806,10 +2806,10 @@ COMMENT ON COLUMN old_objects.id IS 'Database ID for the old object version.';
 
 
 --
--- Name: COLUMN old_objects.current_object; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN old_objects.object; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN old_objects.current_object IS 'Current version of the object.';
+COMMENT ON COLUMN old_objects.object IS 'Current version of the object.';
 
 
 --
@@ -2882,7 +2882,7 @@ CREATE SEQUENCE old_objects_object_seq
 -- Name: old_objects_object_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE old_objects_object_seq OWNED BY old_objects.current_object;
+ALTER SEQUENCE old_objects_object_seq OWNED BY old_objects.object;
 
 
 --
@@ -2891,7 +2891,7 @@ ALTER SEQUENCE old_objects_object_seq OWNED BY old_objects.current_object;
 
 CREATE TABLE predicates (
     id bigint NOT NULL,
-    rdf_namespace_id bigint NOT NULL,
+    rdf_namespace bigint NOT NULL,
     predicate character varying(1024) NOT NULL
 );
 
@@ -2911,10 +2911,10 @@ COMMENT ON COLUMN predicates.id IS 'Database ID of the predicate.';
 
 
 --
--- Name: COLUMN predicates.rdf_namespace_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN predicates.rdf_namespace; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN predicates.rdf_namespace_id IS 'Namespace the predicate belongs to.';
+COMMENT ON COLUMN predicates.rdf_namespace IS 'Namespace the predicate belongs to.';
 
 
 --
@@ -2975,10 +2975,10 @@ COMMENT ON COLUMN rdf_namespaces.rdf_namespace IS 'The RDF namespace.';
 
 
 --
--- Name: rdf_namespace_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: rdf_namespace_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE rdf_namespace_id_seq
+CREATE SEQUENCE rdf_namespace_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2987,10 +2987,10 @@ CREATE SEQUENCE rdf_namespace_id_seq
 
 
 --
--- Name: rdf_namespace_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: rdf_namespace_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE rdf_namespace_id_seq OWNED BY rdf_namespaces.id;
+ALTER SEQUENCE rdf_namespace_seq OWNED BY rdf_namespaces.id;
 
 
 --
@@ -3108,7 +3108,7 @@ ALTER SEQUENCE uris_id_seq OWNED BY resources.id;
 CREATE TABLE user_roles (
     id bigint NOT NULL,
     role character varying(1024),
-    source_id bigint NOT NULL
+    source bigint NOT NULL
 );
 
 
@@ -3127,10 +3127,10 @@ COMMENT ON COLUMN user_roles.role IS 'The role string.';
 
 
 --
--- Name: COLUMN user_roles.source_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN user_roles.source; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN user_roles.source_id IS 'The database ID of the source of the role.';
+COMMENT ON COLUMN user_roles.source IS 'The database ID of the source of the role.';
 
 
 --
@@ -3159,7 +3159,7 @@ ALTER SEQUENCE user_roles_id_seq OWNED BY user_roles.id;
 CREATE TABLE users (
     id bigint NOT NULL,
     username text NOT NULL,
-    source_id bigint NOT NULL
+    source bigint NOT NULL
 );
 
 
@@ -3185,10 +3185,10 @@ COMMENT ON COLUMN users.username IS 'Identifier of the user.';
 
 
 --
--- Name: COLUMN users.source_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN users.source; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN users.source_id IS 'Source of the user.';
+COMMENT ON COLUMN users.source IS 'Source of the user.';
 
 
 --
@@ -3226,7 +3226,7 @@ CREATE SEQUENCE users_source_seq
 -- Name: users_source_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE users_source_seq OWNED BY users.source_id;
+ALTER SEQUENCE users_source_seq OWNED BY users.source;
 
 
 --
@@ -3398,10 +3398,10 @@ ALTER TABLE ONLY old_objects ALTER COLUMN id SET DEFAULT nextval('old_objects_id
 
 
 --
--- Name: current_object; Type: DEFAULT; Schema: public; Owner: -
+-- Name: object; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY old_objects ALTER COLUMN current_object SET DEFAULT nextval('old_objects_object_seq'::regclass);
+ALTER TABLE ONLY old_objects ALTER COLUMN object SET DEFAULT nextval('old_objects_object_seq'::regclass);
 
 
 --
@@ -3422,7 +3422,7 @@ ALTER TABLE ONLY predicates ALTER COLUMN id SET DEFAULT nextval('predicates_id_s
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY rdf_namespaces ALTER COLUMN id SET DEFAULT nextval('rdf_namespace_id_seq'::regclass);
+ALTER TABLE ONLY rdf_namespaces ALTER COLUMN id SET DEFAULT nextval('rdf_namespace_seq'::regclass);
 
 
 --
@@ -3454,10 +3454,10 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 
 --
--- Name: source_id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: source; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY users ALTER COLUMN source_id SET DEFAULT nextval('users_source_seq'::regclass);
+ALTER TABLE ONLY users ALTER COLUMN source SET DEFAULT nextval('users_source_seq'::regclass);
 
 
 --
@@ -3864,7 +3864,7 @@ ALTER TABLE ONLY old_objects
 --
 
 ALTER TABLE ONLY old_datastreams
-    ADD CONSTRAINT one_datastream_version_at_a_time UNIQUE (current_datastream, committed);
+    ADD CONSTRAINT one_datastream_version_at_a_time UNIQUE (datastream, committed);
 
 
 --
@@ -3879,7 +3879,7 @@ COMMENT ON CONSTRAINT one_datastream_version_at_a_time ON old_datastreams IS 'On
 --
 
 ALTER TABLE ONLY old_objects
-    ADD CONSTRAINT one_object_version_at_a_time UNIQUE (current_object, committed);
+    ADD CONSTRAINT one_object_version_at_a_time UNIQUE (object, committed);
 
 
 --
@@ -3963,7 +3963,7 @@ COMMENT ON CONSTRAINT unique_ids_in_namespaces ON objects IS 'Namespaces only ha
 --
 
 ALTER TABLE ONLY log
-    ADD CONSTRAINT unique_log_entries UNIQUE (log_entry);
+    ADD CONSTRAINT unique_log_entries UNIQUE (log);
 
 
 --
@@ -4001,7 +4001,7 @@ COMMENT ON CONSTRAINT unique_namespaces ON pid_namespaces IS 'Only one entry per
 --
 
 ALTER TABLE ONLY predicates
-    ADD CONSTRAINT unique_predicates_in_namespaces UNIQUE (rdf_namespace_id, predicate);
+    ADD CONSTRAINT unique_predicates_in_namespaces UNIQUE (rdf_namespace, predicate);
 
 
 --
@@ -4031,7 +4031,7 @@ COMMENT ON CONSTRAINT unique_rdf_namespaces ON rdf_namespaces IS 'Namespaces sho
 --
 
 ALTER TABLE ONLY user_roles
-    ADD CONSTRAINT unique_roles_in_sources UNIQUE (role, source_id);
+    ADD CONSTRAINT unique_roles_in_sources UNIQUE (role, source);
 
 
 --
@@ -4061,7 +4061,7 @@ COMMENT ON CONSTRAINT unique_sequence_numbers ON is_sequence_number_of IS 'Each 
 --
 
 ALTER TABLE ONLY users
-    ADD CONSTRAINT unique_source_user UNIQUE (username, source_id);
+    ADD CONSTRAINT unique_source_user UNIQUE (username, source);
 
 
 --
@@ -4255,14 +4255,14 @@ CREATE INDEX fki_datastream_log_link ON datastreams USING btree (log);
 -- Name: fki_datastream_relationships_datastream_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_datastream_relationships_datastream_link ON datastream_relationships USING btree (subject);
+CREATE INDEX fki_datastream_relationships_datastream_link ON datastream_relationships USING btree (rdf_subject);
 
 
 --
 -- Name: fki_datastream_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_datastream_relationships_predicate_link ON datastream_relationships USING btree (predicate_id);
+CREATE INDEX fki_datastream_relationships_predicate_link ON datastream_relationships USING btree (predicate);
 
 
 --
@@ -4528,14 +4528,14 @@ CREATE INDEX fki_object_namespace_link ON objects USING btree (namespace);
 -- Name: fki_object_relationships_predicate_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_object_relationships_predicate_link ON object_relationships USING btree (predicate_id);
+CREATE INDEX fki_object_relationships_predicate_link ON object_relationships USING btree (predicate);
 
 
 --
 -- Name: fki_object_relationships_subject_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_object_relationships_subject_link ON object_relationships USING btree (subject);
+CREATE INDEX fki_object_relationships_subject_link ON object_relationships USING btree (rdf_subject);
 
 
 --
@@ -4549,7 +4549,7 @@ CREATE INDEX fki_object_user_link ON objects USING btree (owner);
 -- Name: fki_old_datastream_datastream_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_old_datastream_datastream_link ON old_datastreams USING btree (current_datastream);
+CREATE INDEX fki_old_datastream_datastream_link ON old_datastreams USING btree (datastream);
 
 
 --
@@ -4570,7 +4570,7 @@ CREATE INDEX fki_old_datastreams_uri_link ON old_datastreams USING btree (resour
 -- Name: fki_old_object_object_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_old_object_object_link ON old_objects USING btree (current_object);
+CREATE INDEX fki_old_object_object_link ON old_objects USING btree (object);
 
 
 --
@@ -4591,7 +4591,7 @@ CREATE INDEX fki_old_objects_owner_link ON old_objects USING btree (owner);
 -- Name: fki_predicate_rdf_namespace_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_predicate_rdf_namespace_link ON predicates USING btree (rdf_namespace_id);
+CREATE INDEX fki_predicate_rdf_namespace_link ON predicates USING btree (rdf_namespace);
 
 
 --
@@ -4619,7 +4619,7 @@ CREATE INDEX fki_resource_mime_link ON resources USING btree (mime);
 -- Name: fki_user_source_link; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fki_user_source_link ON users USING btree (source_id);
+CREATE INDEX fki_user_source_link ON users USING btree (source);
 
 
 --
@@ -4842,7 +4842,7 @@ COMMENT ON CONSTRAINT datastream_log_link ON datastreams IS 'Datastream versions
 --
 
 ALTER TABLE ONLY datastream_relationships
-    ADD CONSTRAINT datastream_relationships_datastream_link FOREIGN KEY (subject) REFERENCES datastreams(id) ON DELETE CASCADE;
+    ADD CONSTRAINT datastream_relationships_datastream_link FOREIGN KEY (rdf_subject) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -4857,7 +4857,7 @@ COMMENT ON CONSTRAINT datastream_relationships_datastream_link ON datastream_rel
 --
 
 ALTER TABLE ONLY datastream_relationships
-    ADD CONSTRAINT datastream_relationships_predicate_link FOREIGN KEY (predicate_id) REFERENCES predicates(id);
+    ADD CONSTRAINT datastream_relationships_predicate_link FOREIGN KEY (predicate) REFERENCES predicates(id);
 
 
 --
@@ -5521,7 +5521,7 @@ COMMENT ON CONSTRAINT object_namespace_link ON objects IS 'Objects belong to nam
 --
 
 ALTER TABLE ONLY object_relationships
-    ADD CONSTRAINT object_relationships_predicate_link FOREIGN KEY (predicate_id) REFERENCES predicates(id);
+    ADD CONSTRAINT object_relationships_predicate_link FOREIGN KEY (predicate) REFERENCES predicates(id);
 
 
 --
@@ -5536,7 +5536,7 @@ COMMENT ON CONSTRAINT object_relationships_predicate_link ON object_relationship
 --
 
 ALTER TABLE ONLY object_relationships
-    ADD CONSTRAINT object_relationships_subject_link FOREIGN KEY (subject) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT object_relationships_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -5566,7 +5566,7 @@ COMMENT ON CONSTRAINT object_user_link ON objects IS 'Objects can be owned by a 
 --
 
 ALTER TABLE ONLY old_datastreams
-    ADD CONSTRAINT old_datastream_datastream_link FOREIGN KEY (current_datastream) REFERENCES datastreams(id) ON DELETE CASCADE;
+    ADD CONSTRAINT old_datastream_datastream_link FOREIGN KEY (datastream) REFERENCES datastreams(id) ON DELETE CASCADE;
 
 
 --
@@ -5626,7 +5626,7 @@ COMMENT ON CONSTRAINT old_objects_log_link ON old_objects IS 'Old object info ca
 --
 
 ALTER TABLE ONLY old_objects
-    ADD CONSTRAINT old_objects_object_link FOREIGN KEY (current_object) REFERENCES objects(id) ON DELETE CASCADE;
+    ADD CONSTRAINT old_objects_object_link FOREIGN KEY (object) REFERENCES objects(id) ON DELETE CASCADE;
 
 
 --
@@ -5656,7 +5656,7 @@ COMMENT ON CONSTRAINT old_objects_owner_link ON old_objects IS 'Old versions of 
 --
 
 ALTER TABLE ONLY predicates
-    ADD CONSTRAINT predicate_rdf_namespace_link FOREIGN KEY (rdf_namespace_id) REFERENCES rdf_namespaces(id);
+    ADD CONSTRAINT predicate_rdf_namespace_link FOREIGN KEY (rdf_namespace) REFERENCES rdf_namespaces(id);
 
 
 --
@@ -5671,7 +5671,7 @@ COMMENT ON CONSTRAINT predicate_rdf_namespace_link ON predicates IS 'Predicates 
 --
 
 ALTER TABLE ONLY user_roles
-    ADD CONSTRAINT role_source_link FOREIGN KEY (source_id) REFERENCES sources(id);
+    ADD CONSTRAINT role_source_link FOREIGN KEY (source) REFERENCES sources(id);
 
 
 --
@@ -5709,7 +5709,7 @@ COMMENT ON CONSTRAINT uri_datastream_link ON datastreams IS 'Many datastreams or
 --
 
 ALTER TABLE ONLY users
-    ADD CONSTRAINT user_source_link FOREIGN KEY (source_id) REFERENCES sources(id);
+    ADD CONSTRAINT user_source_link FOREIGN KEY (source) REFERENCES sources(id);
 
 
 --

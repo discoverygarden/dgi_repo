@@ -215,7 +215,7 @@ def old_datastreams(ds_db_id, cursor=None):
     cursor.execute('''
         SELECT *
         FROM old_datastreams
-        WHERE current_datastream = %s
+        WHERE datastream = %s
         ORDER BY committed
     ''', (ds_db_id,))
 
@@ -231,7 +231,7 @@ def old_datastream_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM old_datastreams
-        WHERE current_datastream = %(datastream)s AND committed = %(committed)s
+        WHERE datastream = %(datastream)s AND committed = %(committed)s
     ''', data)
 
     return cursor
@@ -246,7 +246,7 @@ def old_datastream_as_of_time(ds_db_id, time, cursor=None):
     cursor.execute('''
         SELECT *
         FROM old_datastreams
-        WHERE current_datastream = %s AND committed <= %s
+        WHERE datastream = %s AND committed <= %s
         ORDER BY committed DESC
         LIMIT 1
     ''', (ds_db_id, time))

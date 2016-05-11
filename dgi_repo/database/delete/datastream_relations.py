@@ -33,7 +33,7 @@ def delete_datastream_relations(ds_db_id, cursor=None):
     # Delete from general table.
     cursor.execute('''
         DELETE FROM datastream_relationships
-        WHERE subject = %s
+        WHERE rdf_subject = %s
     ''', (ds_db_id,))
 
     logger.debug(('Deleted any RDF relation about datastream: %s from the '

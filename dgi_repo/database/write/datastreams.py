@@ -157,7 +157,7 @@ def upsert_old_datastream(data, cursor=None):
 
     cursor.execute('''
         INSERT INTO old_datastreams (
-            current_datastream,
+            datastream,
             log,
             state,
             label,
@@ -172,7 +172,7 @@ def upsert_old_datastream(data, cursor=None):
             %(resource)s,
             %(committed)s
         )
-        ON CONFLICT (current_datastream, committed) DO NOTHING
+        ON CONFLICT (datastream, committed) DO NOTHING
         RETURNING id
     ''', data)
 
