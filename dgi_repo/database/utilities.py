@@ -153,6 +153,11 @@ RELATION_MAP = {
         'upsert message': 'Added a sequence number relation about %s as %s.',
         'delete message': 'Deleted a sequence number relation with ID: %s.',
     },
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.DEFER_DERIVATIVES_PREDICATE): {
+        'table': 'defer_derivatives',
+        'upsert message': 'Added a defer derivatives relation about %s as %s.',
+        'delete message': 'Deleted a defer derivatives relation with ID: %s.',
+    },
 }
 
 DATASTREAM_RELATION_MAP = RELATION_MAP.copy()
