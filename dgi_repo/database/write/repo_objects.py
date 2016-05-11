@@ -7,9 +7,10 @@ control.
 
 import logging
 
-from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import check_cursor
 import dgi_repo.database.read.repo_objects as object_reader
+import dgi_repo.database.read.sources as source_reader
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ def get_pid_id(namespace=None, cursor=None):
     Get an auto-incremented PID from the given namespace.
     """
     if namespace is None:
-        namespace = _configuration['default_namespace']
+        namespace = _config['default_namespace']
 
     cursor = get_pid_ids(namespace, cursor=cursor)
 
@@ -35,7 +36,7 @@ def get_pid_ids(namespace=None, num_pids=1, cursor=None):
     cursor = check_cursor(cursor)
 
     if namespace is None:
-        namespace = _configuration['default_namespace']
+        namespace = _config['default_namespace']
 
     cursor.execute('''
         INSERT INTO pid_namespaces (namespace, highest_id)
@@ -76,7 +77,7 @@ def upsert_object(data, cursor=None):
     Upsert an object in the repository.
     """
     cursor = check_cursor(cursor)
-    data = _set_object_defaults(data)
+    data = _set_object_defaults(data, cursor)
 
     cursor.execute('''
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
@@ -101,7 +102,7 @@ def write_object(data, cursor=None):
     Write an object in the repository.
     """
     cursor = check_cursor(cursor)
-    data = _set_object_defaults(data)
+    data = _set_object_defaults(data, cursor)
 
     cursor.execute('''
         INSERT INTO objects (pid_id, namespace, state, owner, label, versioned,
@@ -119,7 +120,7 @@ def write_object(data, cursor=None):
     return cursor
 
 
-def _set_object_defaults(data):
+def _set_object_defaults(data, cursor):
     """
     Populate defaults if not provided in the data.
     """
@@ -127,9 +128,16 @@ def _set_object_defaults(data):
     data.setdefault('label')
     data.setdefault('state', 'A')
     data.setdefault('versioned', True)
-    data.setdefault('namespace', _configuration['default_namespace'])
     data.setdefault('created', 'now')
     data.setdefault('modified', 'now')
+
+    if 'owner' not in data:
+        source = source_reader.source_id(_config['self']['source'],
+                                         cursor=cursor).fetchone()['id']
+        data['owner'] = source_reader.user_id(
+            {'name': _config['self']['username'], 'source': source},
+            cursor=cursor
+        ).fetchone()['id']
 
     return data
 

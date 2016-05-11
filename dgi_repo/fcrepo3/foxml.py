@@ -592,13 +592,17 @@ class FoxmlTarget(object):
             upsert_log(raw_log, cursor=self.cursor)
             object_db_info['log'] = self.cursor.fetchone()[0]
 
-            raw_owner = self.object_info['{}{}'.format(
-                relations.FEDORA_MODEL_NAMESPACE,
-                relations.OWNER_PREDICATE
-            )]
-            upsert_user({'name': raw_owner, 'source': self.source},
-                        cursor=self.cursor)
-            object_db_info['owner'] = self.cursor.fetchone()[0]
+            try:
+                raw_owner = self.object_info['{}{}'.format(
+                    relations.FEDORA_MODEL_NAMESPACE,
+                    relations.OWNER_PREDICATE
+                )]
+            except KeyError:
+                pass
+            else:
+                upsert_user({'name': raw_owner, 'source': self.source},
+                            cursor=self.cursor)
+                object_db_info['owner'] = self.cursor.fetchone()[0]
 
             try:
                 object_db_info['created'] = self.object_info['{}{}'.format(
