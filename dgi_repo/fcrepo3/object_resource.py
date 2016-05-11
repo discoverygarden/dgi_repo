@@ -138,7 +138,7 @@ class ObjectResource(api.ObjectResource):
                                            model_object_info['pid_id'])
                 models.add('info:fedora/{}'.format(model_pid))
             source_reader.user(object_info['owner'], cursor=cursor)
-            owner = cursor.fetchone()['username']
+            owner = cursor.fetchone()['name']
 
             return (
                 pid,

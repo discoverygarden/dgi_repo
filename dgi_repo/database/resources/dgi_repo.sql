@@ -3216,7 +3216,7 @@ ALTER SEQUENCE user_roles_id_seq OWNED BY user_roles.id;
 
 CREATE TABLE users (
     id bigint NOT NULL,
-    username text NOT NULL,
+    name text NOT NULL,
     source bigint NOT NULL
 );
 
@@ -3236,10 +3236,10 @@ COMMENT ON COLUMN users.id IS 'Database ID of the user.';
 
 
 --
--- Name: COLUMN users.username; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN users.name; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN users.username IS 'Identifier of the user.';
+COMMENT ON COLUMN users.name IS 'Identifier of the user.';
 
 
 --
@@ -4134,7 +4134,7 @@ COMMENT ON CONSTRAINT unique_sequence_numbers ON is_sequence_number_of IS 'Each 
 --
 
 ALTER TABLE ONLY users
-    ADD CONSTRAINT unique_source_user UNIQUE (username, source);
+    ADD CONSTRAINT unique_source_user UNIQUE (name, source);
 
 
 --

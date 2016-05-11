@@ -188,7 +188,7 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
         user(object_info['owner'], cursor=cursor)
         owner_information = cursor.fetchone()
         owner_attributes = {
-            'VALUE': owner_information['username'],
+            'VALUE': owner_information['name'],
             'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
                                   relations.OWNER_PREDICATE),
         }
