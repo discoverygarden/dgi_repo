@@ -1422,6 +1422,64 @@ ALTER SEQUENCE generate_ocr_id_seq OWNED BY generate_ocr.id;
 
 
 --
+-- Name: defer_derivatives; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE defer_derivatives (
+    id bigint NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object boolean NOT NULL
+);
+
+
+--
+-- Name: TABLE defer_derivatives; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE defer_derivatives IS 'Table to represent defer derivatives relations.';
+
+
+--
+-- Name: COLUMN defer_derivatives.id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN defer_derivatives.id IS 'Database ID of the relation.';
+
+
+--
+-- Name: COLUMN defer_derivatives.rdf_subject; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN defer_derivatives.rdf_subject IS 'Subject of the relation.';
+
+
+--
+-- Name: COLUMN defer_derivatives.rdf_object; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN defer_derivatives.rdf_object IS 'Whether or not the item should defer derivatives.';
+
+
+--
+-- Name: defer_derivatives_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE defer_derivatives_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: defer_derivatives_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE defer_derivatives_id_seq OWNED BY defer_derivatives.id;
+
+
+--
 -- Name: has_language; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3268,6 +3326,13 @@ ALTER TABLE ONLY generate_ocr ALTER COLUMN id SET DEFAULT nextval('generate_ocr_
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY defer_derivatives ALTER COLUMN id SET DEFAULT nextval('defer_derivatives_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY has_language ALTER COLUMN id SET DEFAULT nextval('has_language_id_seq'::regclass);
 
 
@@ -3650,6 +3715,14 @@ ALTER TABLE ONLY dc_type
 
 ALTER TABLE ONLY generate_ocr
     ADD CONSTRAINT generate_ocr_primary_key PRIMARY KEY (id);
+
+
+--
+-- Name: defer_derivatives_primary_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY defer_derivatives
+    ADD CONSTRAINT defer_derivatives_primary_key PRIMARY KEY (id);
 
 
 --
@@ -4382,6 +4455,13 @@ CREATE INDEX fki_dc_type_subject_link ON dc_type USING btree (rdf_subject);
 --
 
 CREATE INDEX fki_generate_ocr_subject_link ON generate_ocr USING btree (rdf_subject);
+
+
+--
+-- Name: fki_defer_derivatives_subject_link; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fki_defer_derivatives_subject_link ON defer_derivatives USING btree (rdf_subject);
 
 
 --
@@ -5120,6 +5200,21 @@ ALTER TABLE ONLY generate_ocr
 --
 
 COMMENT ON CONSTRAINT generate_ocr_subject_link ON generate_ocr IS 'Each relation subject is an object.';
+
+
+--
+-- Name: defer_derivatives_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY defer_derivatives
+    ADD CONSTRAINT defer_derivatives_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT defer_derivatives_subject_link ON defer_derivatives; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT defer_derivatives_subject_link ON defer_derivatives IS 'Each relation subject is an object.';
 
 
 --
