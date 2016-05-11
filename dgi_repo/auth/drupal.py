@@ -11,7 +11,7 @@ import logging
 
 import talons.auth.basicauth
 
-from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.database.write import sources
 
@@ -59,7 +59,7 @@ def authenticate(identity):
 
     # Grab the config for the selected site.
     try:
-        db_info = _configuration['drupal_sites'][identity.site]['database']
+        db_info = _config['drupal_sites'][identity.site]['database']
     except KeyError:
         logger.info('Site not in configuration: %s.', identity.site)
         return False
@@ -143,7 +143,7 @@ def get_auth_connection(site):
     """
     Get a connection for the given site.
     """
-    config = _configuration['drupal_sites'][site]['database']
+    config = _config['drupal_sites'][site]['database']
     return _CONNECTORS[config['type']](config['connection'])
 
 
