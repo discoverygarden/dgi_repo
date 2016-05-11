@@ -3083,10 +3083,10 @@ ALTER SEQUENCE sources_id_seq OWNED BY sources.id;
 
 
 --
--- Name: uris_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: resources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE uris_id_seq
+CREATE SEQUENCE resources_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3095,10 +3095,10 @@ CREATE SEQUENCE uris_id_seq
 
 
 --
--- Name: uris_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE uris_id_seq OWNED BY resources.id;
+ALTER SEQUENCE resources_id_seq OWNED BY resources.id;
 
 
 --
@@ -3429,7 +3429,7 @@ ALTER TABLE ONLY rdf_namespaces ALTER COLUMN id SET DEFAULT nextval('rdf_namespa
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY resources ALTER COLUMN id SET DEFAULT nextval('uris_id_seq'::regclass);
+ALTER TABLE ONLY resources ALTER COLUMN id SET DEFAULT nextval('resources_id_seq'::regclass);
 
 
 --
