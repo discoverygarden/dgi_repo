@@ -2726,25 +2726,6 @@ ALTER SEQUENCE objects_id_seq OWNED BY objects.id;
 
 
 --
--- Name: objects_owner_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE objects_owner_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: objects_owner_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE objects_owner_seq OWNED BY objects.owner;
-
-
---
 -- Name: old_datastreams; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2922,25 +2903,6 @@ CREATE SEQUENCE old_objects_id_seq
 --
 
 ALTER SEQUENCE old_objects_id_seq OWNED BY old_objects.id;
-
-
---
--- Name: old_objects_object_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE old_objects_object_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: old_objects_object_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE old_objects_object_seq OWNED BY old_objects.object;
 
 
 --
@@ -3269,25 +3231,6 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: users_source_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE users_source_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: users_source_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE users_source_seq OWNED BY users.source;
-
-
---
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -3442,13 +3385,6 @@ ALTER TABLE ONLY objects ALTER COLUMN id SET DEFAULT nextval('objects_id_seq'::r
 
 
 --
--- Name: owner; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY objects ALTER COLUMN owner SET DEFAULT nextval('objects_owner_seq'::regclass);
-
-
---
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -3460,13 +3396,6 @@ ALTER TABLE ONLY old_datastreams ALTER COLUMN id SET DEFAULT nextval('old_datast
 --
 
 ALTER TABLE ONLY old_objects ALTER COLUMN id SET DEFAULT nextval('old_objects_id_seq'::regclass);
-
-
---
--- Name: object; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY old_objects ALTER COLUMN object SET DEFAULT nextval('old_objects_object_seq'::regclass);
 
 
 --
@@ -3516,13 +3445,6 @@ ALTER TABLE ONLY user_roles ALTER COLUMN id SET DEFAULT nextval('user_roles_id_s
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
-
-
---
--- Name: source; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY users ALTER COLUMN source SET DEFAULT nextval('users_source_seq'::regclass);
 
 
 --
