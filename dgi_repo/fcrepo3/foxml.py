@@ -1,6 +1,7 @@
 """
 Functions to help with FOXML.
 """
+import logging
 import base64
 from io import BytesIO
 
@@ -25,6 +26,8 @@ from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import relations
+
+logger = logging.getLogger(__name__)
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
 RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -566,6 +569,7 @@ class FoxmlTarget(object):
             self.object_info[attributes['NAME']] = attributes['VALUE']
         if tag == '{{{0}}}digitalObject'.format(FOXML_NAMESPACE):
             self.object_info['PID'] = attributes['PID']
+            logger.info('Attempting import of %s.', self.object_info['PID'])
 
     def end(self, tag):
         """
