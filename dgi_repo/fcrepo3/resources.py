@@ -246,7 +246,7 @@ class DatastreamDisseminationResource(api.DatastreamDisseminationResource):
                 info['mime'] = mime_info['mime']
             # Redirect if we are a redirect DS.
             if ds_info['control_group'] == 'R':
-                info['location'] = source_info['uri']
+                info['location'] = resource_info['uri']
             else:
                 # Send data if we are not a redirect DS.
                 file_path = filestore.resolve_uri(resource_info['uri'])
