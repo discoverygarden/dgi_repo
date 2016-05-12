@@ -360,6 +360,8 @@ def _rdf_object_from_element(relation, source, cursor):
             rdf_object = relation.text
     else:
         resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
+        logger.debug('Trying to find resource %s.', resource);
+
         pid = pid_from_fedora_uri(resource)
         dsid = dsid_from_fedora_uri(resource)
         if dsid:
