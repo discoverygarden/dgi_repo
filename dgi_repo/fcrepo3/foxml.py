@@ -20,6 +20,7 @@ import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.exceptions import (ObjectExistsError,
                                  ExternalDatastreamsNotSupported,
+                                 ReferencedObjectDoesNotExistError,
                                  ObjectDoesNotExistError)
 from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
@@ -362,7 +363,6 @@ def _rdf_object_from_element(relation, source, cursor):
             rdf_object = relation.text
     else:
         resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
-        logger.debug('Trying to find resource %s.', resource);
 
         pid = pid_from_fedora_uri(resource)
         dsid = dsid_from_fedora_uri(resource)
@@ -375,8 +375,15 @@ def _rdf_object_from_element(relation, source, cursor):
             )
             rdf_object = cursor.fetchone()['id']
         elif pid:
-            object_reader.object_info_from_raw(pid, cursor=cursor)
-            rdf_object = cursor.fetchone()['id']
+            rdf_info = object_reader.object_info_from_raw(
+                pid,
+                cursor=cursor
+            ).fetchone()
+            try:
+                rdf_object = rdf_info['id']
+            except TypeError as e:
+                logger.error('Referenced object %s does not exist.', pid)
+                raise ReferencedObjectDoesNotExistError(pid) from e
         else:
             rdf_object = resource
     return rdf_object
