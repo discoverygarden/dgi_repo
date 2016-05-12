@@ -73,3 +73,8 @@ class DatastreamDoesNotExistError(Exception):
         self.dsid = dsid
         self.time = time if time is not None else 'now'
         super().__init__(pid, dsid, time)
+
+class ExternalDatastreamsNotSupported(ValueError):
+    """
+    Raised when one tries to create an external datastream.
+    """

@@ -18,7 +18,9 @@ import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
-from dgi_repo.exceptions import ObjectExistsError, ObjectDoesNotExistError
+from dgi_repo.exceptions import (ObjectExistsError,
+                                 ExternalDatastreamsNotSupported,
+                                 ObjectDoesNotExistError)
 from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
@@ -720,6 +722,8 @@ class FoxmlTarget(object):
         """
         Create a datastream on the current object.
         """
+        if ds['CONTROL_GROUP'] == 'E':
+            raise ExternalDatastreamsNotSupported
         prepared_ds = ds.copy()
         prepared_ds.update({
             'object': self.object_id,
