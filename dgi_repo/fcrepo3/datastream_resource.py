@@ -78,6 +78,7 @@ class DatastreamResource(api.DatastreamResource):
             foxml.internalize_rels(pid, dsid,
                                    req.env['wsgi.identity'].source_id,
                                    cursor=cursor)
+        return (start, end)
 
     def _upsert_ds(self, req, pid, dsid, cursor, ds=None):
         """

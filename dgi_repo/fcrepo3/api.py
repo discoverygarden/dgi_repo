@@ -499,7 +499,7 @@ class DatastreamResource(ABC):
         """
         Purge datastream.
         """
-        self._delete_datastream(req, pid, dsid)
+        start, end = self._delete_datastream(req, pid, dsid)
         logger.info(('Deleted datastream versions for %s on %s between'
                      ' %s and %s.'), dsid, pid, start, end)
 
@@ -507,6 +507,11 @@ class DatastreamResource(ABC):
     def _delete_datastream(self, req, pid, dsid):
         """
         Delete a datastream.
+
+        Returns:
+            Tuple containing:
+                -datetime object for start of deletion.
+                -datetime object for end of deletion.
         """
         pass
 
