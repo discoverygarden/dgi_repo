@@ -16,6 +16,12 @@ class ObjectDoesNotExistError(Exception):
         super().__init__(pid)
 
 
+class ReferencedObjectDoesNotExistError(ObjectDoesNotExistError):
+    """
+    Used to indicate a referenced (RELS) object doesn't exist.
+    """
+
+
 class ObjectExistsError(Exception):
     """
     Used to indicate an object already exists when trying to ingest.
@@ -73,6 +79,7 @@ class DatastreamDoesNotExistError(Exception):
         self.dsid = dsid
         self.time = time if time is not None else 'now'
         super().__init__(pid, dsid, time)
+
 
 class ExternalDatastreamsNotSupported(ValueError):
     """
