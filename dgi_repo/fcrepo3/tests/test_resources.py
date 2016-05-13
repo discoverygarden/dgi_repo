@@ -7,7 +7,7 @@ import unittest.mock
 from unittest.mock import MagicMock
 
 from dgi_repo.fcrepo3 import resources
-from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.configuration import configuration as _config
 
 
 class GetNextPidTestCase(unittest.TestCase):
@@ -31,7 +31,7 @@ class GetNextPidTestCase(unittest.TestCase):
 
         self.assertEqual(
             new_pids,
-            ['{}:5'.format(_configuration['default_namespace'])]
+            ['{}:5'.format(_config['default_namespace'])]
         )
 
 if __name__ == '__main__':

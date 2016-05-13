@@ -43,9 +43,9 @@ def upsert_user(data, cursor=None):
     cursor = check_cursor(cursor)
 
     cursor.execute('''
-        INSERT INTO users (username, source)
+        INSERT INTO users (name, source)
         VALUES (%(name)s, %(source)s)
-        ON CONFLICT (username, source) DO NOTHING
+        ON CONFLICT (name, source) DO NOTHING
         RETURNING id
     ''', data)
 

@@ -12,7 +12,8 @@ import dgi_repo.utilities as utils
 import dgi_repo.fcrepo3.utilities as fedora_utils
 from dgi_repo.exceptions import (ObjectDoesNotExistError,
                                  DatastreamDoesNotExistError,
-                                 DatastreamConflictsError)
+                                 DatastreamConflictsError,
+                                 ExternalDatastreamsNotSupported)
 from dgi_repo.fcrepo3 import api, foxml
 from dgi_repo.database.utilities import get_connection
 
@@ -77,6 +78,7 @@ class DatastreamResource(api.DatastreamResource):
             foxml.internalize_rels(pid, dsid,
                                    req.env['wsgi.identity'].source_id,
                                    cursor=cursor)
+        return (start, end)
 
     def _upsert_ds(self, req, pid, dsid, cursor, ds=None):
         """
@@ -92,6 +94,9 @@ class DatastreamResource(api.DatastreamResource):
             raise ObjectDoesNotExistError(pid)
 
         control_group = req.get_param('controlGroup', default='M')
+        if control_group == 'E':
+            raise ExternalDatastreamsNotSupported
+
         ds_location = req.get_param('dsLocation')
         data_ref = None
         data = None

@@ -1,6 +1,7 @@
 """
 Functions to help with FOXML.
 """
+import logging
 import base64
 from io import BytesIO
 
@@ -17,7 +18,9 @@ import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
-from dgi_repo.exceptions import ObjectExistsError, ObjectDoesNotExistError
+from dgi_repo.exceptions import (ObjectExistsError,
+                                 ExternalDatastreamsNotSupported,
+                                 ObjectDoesNotExistError)
 from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import check_cursor
@@ -25,6 +28,8 @@ from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import relations
+
+logger = logging.getLogger(__name__)
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
 RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -188,7 +193,7 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
         user(object_info['owner'], cursor=cursor)
         owner_information = cursor.fetchone()
         owner_attributes = {
-            'VALUE': owner_information['username'],
+            'VALUE': owner_information['name'],
             'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
                                   relations.OWNER_PREDICATE),
         }
@@ -357,6 +362,8 @@ def _rdf_object_from_element(relation, source, cursor):
             rdf_object = relation.text
     else:
         resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
+        logger.debug('Trying to find resource %s.', resource);
+
         pid = pid_from_fedora_uri(resource)
         dsid = dsid_from_fedora_uri(resource)
         if dsid:
@@ -566,6 +573,7 @@ class FoxmlTarget(object):
             self.object_info[attributes['NAME']] = attributes['VALUE']
         if tag == '{{{0}}}digitalObject'.format(FOXML_NAMESPACE):
             self.object_info['PID'] = attributes['PID']
+            logger.info('Attempting import of %s.', self.object_info['PID'])
 
     def end(self, tag):
         """
@@ -592,13 +600,17 @@ class FoxmlTarget(object):
             upsert_log(raw_log, cursor=self.cursor)
             object_db_info['log'] = self.cursor.fetchone()[0]
 
-            raw_owner = self.object_info['{}{}'.format(
-                relations.FEDORA_MODEL_NAMESPACE,
-                relations.OWNER_PREDICATE
-            )]
-            upsert_user({'name': raw_owner, 'source': self.source},
-                        cursor=self.cursor)
-            object_db_info['owner'] = self.cursor.fetchone()[0]
+            try:
+                raw_owner = self.object_info['{}{}'.format(
+                    relations.FEDORA_MODEL_NAMESPACE,
+                    relations.OWNER_PREDICATE
+                )]
+            except KeyError:
+                pass
+            else:
+                upsert_user({'name': raw_owner, 'source': self.source},
+                            cursor=self.cursor)
+                object_db_info['owner'] = self.cursor.fetchone()[0]
 
             try:
                 object_db_info['created'] = self.object_info['{}{}'.format(
@@ -710,6 +722,8 @@ class FoxmlTarget(object):
         """
         Create a datastream on the current object.
         """
+        if ds['CONTROL_GROUP'] == 'E':
+            raise ExternalDatastreamsNotSupported
         prepared_ds = ds.copy()
         prepared_ds.update({
             'object': self.object_id,

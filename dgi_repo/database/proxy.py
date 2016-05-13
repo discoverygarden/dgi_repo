@@ -8,7 +8,7 @@ import falcon
 import simplejson as json
 from psycopg2 import connect, DatabaseError, ProgrammingError
 
-from dgi_repo.configuration import configuration as _configuration
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.utilities import SpooledTemporaryFile
 
 
@@ -73,10 +73,10 @@ class ProxyResource(object):
         Helper to get a connection with reduced permissions.
         """
         connection = connect(
-            host=_configuration['database']['host'],
-            database=_configuration['database']['name'],
-            user=_configuration['db_proxy']['username'],
-            password=_configuration['db_proxy']['password'],
+            host=_config['database']['host'],
+            database=_config['database']['name'],
+            user=_config['db_proxy']['username'],
+            password=_config['db_proxy']['password'],
         )
         connection.set_session(readonly=True)
         return connection

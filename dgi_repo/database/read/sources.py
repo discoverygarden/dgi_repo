@@ -29,7 +29,7 @@ def user_id(data, cursor=None):
     cursor.execute('''
         SELECT id
         FROM users
-        WHERE username = %(name)s AND source = %(source)s
+        WHERE name = %(name)s AND source = %(source)s
     ''', data)
 
     return cursor
