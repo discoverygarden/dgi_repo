@@ -518,7 +518,7 @@ class FoxmlTarget(object):
         self.tree_builder = None
         self.dsid = None
 
-    def start(self, tag, attributes):
+    def start(self, tag, attributes, nsmap):
         """
         Grab data from the start of tags.
         """
@@ -527,7 +527,7 @@ class FoxmlTarget(object):
                 self.dsid != 'AUDIT'):
             self.tree_builder = etree.TreeBuilder()
         elif self.tree_builder is not None:
-            self.tree_builder.start(tag, attributes)
+            self.tree_builder.start(tag, attributes, nsmap)
 
         if tag == '{{{0}}}binaryContent'.format(FOXML_NAMESPACE):
             self.ds_file = utils.SpooledTemporaryFile()
