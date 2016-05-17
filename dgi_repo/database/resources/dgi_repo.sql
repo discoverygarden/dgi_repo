@@ -5696,7 +5696,7 @@ ALTER TABLE ONLY user_roles
 --
 
 ALTER TABLE ONLY checksums
-    ADD CONSTRAINT resource_checksum_link FOREIGN KEY (resource) REFERENCES resources(id);
+    ADD CONSTRAINT resource_checksum_link FOREIGN KEY (resource) REFERENCES resources(id) ON DELETE CASCADE;
 
 
 --
