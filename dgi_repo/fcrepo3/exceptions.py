@@ -8,12 +8,13 @@ import falcon
 logger = logging.getLogger(__name__)
 
 
-def handle_exception(ex, req, resp, params):
+def handle_exception(e, req, resp, params):
     """
     Custom Falcon exception handler that ensures we send 500s.
     """
-    if not isinstance(ex, falcon.HTTPError):
+    if (not isinstance(e, falcon.HTTPError) and
+            not isinstance(e, falcon.HTTPStatus)):
         logger.exception('Uncaught exception:')
-        raise falcon.HTTPError('500 Internal Server Error') from ex
+        raise falcon.HTTPError('500 Internal Server Error') from e
     else:
-        raise ex
+        raise e
