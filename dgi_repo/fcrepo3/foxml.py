@@ -396,18 +396,25 @@ def internalize_rels(pid, dsid, source, cursor=None):
     cursor = check_cursor(cursor)
     if dsid not in ['DC', 'RELS-EXT', 'RELS-INT']:
         return cursor
-    object_reader.object_id_from_raw(pid, cursor)
+    object_reader.object_id_from_raw(pid, cursor=cursor)
     object_id = cursor.fetchone()['id']
     datastream_reader.datastream({'object': object_id, 'dsid': dsid},
                                  cursor=cursor)
     ds_info = cursor.fetchone()
-    if ds_info is None:
+    if ds_info is None or ds_info['resource'] is None:
+        if dsid == 'DC':
+            internalize_rels_dc(None, object_id, cursor=cursor)
+        elif dsid == 'RELS-INT':
+            internalize_rels_int(etree.parse(None), object_id,
+                                 source, cursor=cursor)
+        elif dsid == 'RELS-EXT':
+            internalize_rels_ext(None, object_id, source,
+                                 cursor=cursor)
         return cursor
-    if ds_info['resource'] is None:
-        return cursor
-    datastream_reader.resource(ds_info['resource'], cursor=cursor)
-    resource_info = cursor.fetchone()
-    resource_path = filestore.resolve_uri(resource_info['uri'])
+    else:
+        datastream_reader.resource(ds_info['resource'], cursor=cursor)
+        resource_info = cursor.fetchone()
+        resource_path = filestore.resolve_uri(resource_info['uri'])
 
     with open(resource_path, 'rb') as relations_file:
         if dsid == 'DC':
@@ -425,7 +432,7 @@ def internalize_rels(pid, dsid, source, cursor=None):
 def internalize_rels_int(relation_tree, object_id, source, purge=True,
                          cursor=None):
     """
-    Store the RELS_INT information in the DB.
+    Update the RELS_INT information in the DB.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
 
@@ -439,6 +446,8 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
                 ds_db_id,
                 cursor=cursor
             )
+        if relation_tree is None:
+            return cursor
     # Ingest new relations.
     for description in relation_tree.getroot():
         dsid = dsid_from_fedora_uri(description.attrib['{{{}}}about'.format(
@@ -461,15 +470,17 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
 
 def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
     """
-    Store the DC relation information in the DB.
+    Update the DC relation information in the DB.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
-    relation_tree = etree.parse(relations_file)
 
     if purge:
         # Purge existing relations.
         object_relations_purger.delete_dc_relations(object_id, cursor=cursor)
+        if relations_file is None:
+            return cursor
     # Ingest new relations.
+    relation_tree = etree.parse(relations_file)
     for relation in relation_tree.getroot():
         object_relations_writer.write_relationship(
             relations.DC_NAMESPACE,
@@ -486,10 +497,9 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
 def internalize_rels_ext(relations_file, object_id, source, purge=True,
                          cursor=None):
     """
-    Store the RELS_EXT information in the DB.
+    Update the RELS_EXT information in the DB.
     """
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
-    relation_tree = etree.parse(relations_file)
 
     if purge:
         # Purge existing relations.
@@ -497,7 +507,10 @@ def internalize_rels_ext(relations_file, object_id, source, purge=True,
             object_id,
             cursor=cursor
         )
+        if relations_file is None:
+            return cursor
     # Ingest new relations.
+    relation_tree = etree.parse(relations_file)
     for relation in relation_tree.getroot()[0]:
         rdf_object = _rdf_object_from_element(relation, source, cursor)
         relation_qname = etree.QName(relation)
