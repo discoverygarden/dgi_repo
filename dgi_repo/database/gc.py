@@ -1,3 +1,5 @@
+from dgi_repo.utilities import bootstrap
+bootstrap()
 import logging
 from datetime import timedelta
 
@@ -13,6 +15,8 @@ logger = logging.getLogger(__name__)
 def collect():
     age = timedelta(**_config['unreferenced_age'])
 
+    logger.info('Getting unreferenced objects with an age greater than %s.', age)
+
     with get_connection() as conn, conn.cursor() as cursor:
         cursor.execute("""
             CREATE TEMPORARY TABLE garbage
@@ -26,6 +30,8 @@ def collect():
         named_cursor = conn.cursor('dgi_repo_gc', scrollable=False)
         named_cursor.execute('SELECT id FROM garbage')
         purge_all((resource_id for (resource_id, ) in named_cursor))
+
+    logger.info('Resource garbage collection complete.')
 
 if __name__ == '__main__':
     collect()
