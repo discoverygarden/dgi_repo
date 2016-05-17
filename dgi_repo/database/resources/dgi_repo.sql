@@ -5768,6 +5768,53 @@ ALTER TABLE ONLY object_is_viewable_by_user
     ADD CONSTRAINT viewable_by_user_object_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
 
 
+CREATE TABLE IF NOT EXISTS resource_refcounts (
+  id bigint PRIMARY KEY REFERENCES resources ON DELETE CASCADE,
+  touched timestamp with time zone DEFAULT NOW(),
+  refcount bigint DEFAULT 0
+);
+
+CREATE OR REPLACE FUNCTION resource_refcount()
+  RETURNS TRIGGER
+  VOLATILE
+  AS $$
+    BEGIN
+      IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
+        UPDATE resource_refcounts SET refcount = refcount - 1, touched = now() WHERE id = OLD.resource;
+        IF (TG_OP = 'DELETE') THEN
+          RETURN OLD;
+        END IF;
+        RETURN NEW;
+      END IF;
+      IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+        IF (NEW.resource IS NULL) THEN
+          RETURN NEW;
+        END IF;
+
+        INSERT INTO resource_refcounts (id, refcount)
+        VALUES (NEW.resource, 1)
+        ON CONFLICT (id)
+        DO UPDATE SET refcount = resource_refcounts.refcount + 1, touched = now();
+        RETURN NEW;
+      END IF;
+    END;
+  $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER resource_refcount
+AFTER INSERT OR UPDATE OF resource OR DELETE
+ON datastreams
+  FOR EACH ROW
+  EXECUTE PROCEDURE resource_refcount();
+
+
+CREATE TRIGGER resource_refcount
+AFTER INSERT OR UPDATE OF resource OR DELETE
+ON old_datastreams
+  FOR EACH ROW
+  EXECUTE PROCEDURE resource_refcount();
+
+
+
 --
 -- Name: public; Type: ACL; Schema: -; Owner: -
 --
