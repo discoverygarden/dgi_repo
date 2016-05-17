@@ -31,9 +31,14 @@ setup(
         'python-dateutil',
         'pytz',
         'requests',
+        'click'
     ],
     dependency_links=[(
         'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc9'
         '6dc64b01404f455d3f957f9b98dc0b1ae#egg=falcon_multipart-0.1.0'
-    )]
+    )],
+    entry_points='''
+        [console_scripts]
+        dgi_repo_gc=dgi_repo.database.gc:collect
+    '''
 )
