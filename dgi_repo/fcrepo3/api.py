@@ -552,8 +552,7 @@ class DatastreamDisseminationResource(ABC):
         except KeyError:
             pass
         try:
-            resp.location = info['location']
-            resp.status = falcon.HTTP_307
+            raise falcon.HTTPTemporaryRedirect(info['location'])
         except KeyError:
             try:
                 resp.stream = info['stream']
