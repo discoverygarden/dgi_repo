@@ -91,6 +91,7 @@ download_chunk_size: 4096
 # will be deleted in the next garbage collection pass.
 unreferenced_age:
     # A crontab entry to run dgi_repo_gc daily will likely be desired,
-    # which will delete unreferenced resources older than two days. More
-    # aggressive (lower) values may be desirable during larger ingests.
+    # which will delete unreferenced resources older than two days specified
+    # here (by default). More aggressive (lower) values may be desirable during
+    # larger ingests.
     days: 2
