@@ -12,8 +12,15 @@ from dgi_repo.database.filestore import purge_all
 logger = logging.getLogger(__name__)
 
 @click.command()
-def collect():
-    age = timedelta(**_config['unreferenced_age'])
+@click.option('--age', type=int, help=('The max age (in seconds) of '
+    'unreferenced resources to maintain; older resources will be deleted. '
+    'The value specified here will override that from dgi_repo\'s '
+    'configuration.'))
+def collect(age):
+    if age:
+        age = timedelta(seconds=age)
+    else:
+        age = timedelta(**_config['unreferenced_age'])
 
     logger.info('Getting unreferenced objects with an age greater than %s.', age)
 
