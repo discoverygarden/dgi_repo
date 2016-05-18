@@ -40,6 +40,14 @@ def delete_object_relations(object_id, cursor=None):
     logger.debug(('Deleted any RDF relation about object: %s from the general'
                   ' table.'), object_id)
 
+    # Delete from sequence number of table.
+    cursor.execute('''
+        DELETE FROM is_sequence_number_of
+        WHERE rdf_subject = %s
+    ''', (object_id,))
+    logger.debug(('Deleted any RDF relation about object: %s from the sequence'
+                  ' number of table.'), object_id)
+
     return cursor
 
 
