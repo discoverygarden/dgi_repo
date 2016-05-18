@@ -1,5 +1,3 @@
-from dgi_repo.utilities import bootstrap
-bootstrap()
 import logging
 from datetime import timedelta
 
@@ -8,6 +6,7 @@ import click
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.database.filestore import purge_all
+from dgi_repo.utilities import bootstrap
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +16,7 @@ logger = logging.getLogger(__name__)
     'The value specified here will override that from dgi_repo\'s '
     'configuration.'))
 def collect(age):
+    bootstrap()
     if age:
         age = timedelta(seconds=age)
     else:
