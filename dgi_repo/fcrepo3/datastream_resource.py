@@ -81,7 +81,7 @@ class DatastreamResource(api.DatastreamResource):
                     cursor=cursor
                 ).fetchone()
                 if object_info is None:
-                    # Only raise if the object is missing because Feodra.
+                    # Only raise if the object is missing because Fedora.
                     raise ObjectDoesNotExistError(pid)
 
             foxml.internalize_rels(pid, dsid,
