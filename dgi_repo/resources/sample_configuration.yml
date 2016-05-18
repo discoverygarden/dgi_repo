@@ -63,7 +63,7 @@ WHERE u.name=%s AND u.pass=%s'
                     y: yankee
                     x: xray
 logging:
-    # Refer to https://docs.python.org/2/library/logging.config.html#logging.config.dictConfig
+    # Refer to https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig
     version:                    1
     disable_existing_loggers:   False
     formatters:
@@ -84,3 +84,14 @@ spooled_temp_file_size: 4096
 # When in control of download buffering the chunk size to request. Has the same
 # trade offs as spooled_temp_file_size, but can also effect packet size.
 download_chunk_size: 4096
+
+# A dict passed as kwargs to datetime.timedelta(), see:
+# https://docs.python.org/3/library/datetime.html#datetime.timedelta
+# "resource" entries with a reference count of zero, older than then given age
+# will be deleted in the next garbage collection pass.
+unreferenced_age:
+    # A crontab entry to run dgi_repo_gc daily will likely be desired,
+    # which will delete unreferenced resources older than two days specified
+    # here (by default). More aggressive (lower) values may be desirable during
+    # larger ingests.
+    days: 2

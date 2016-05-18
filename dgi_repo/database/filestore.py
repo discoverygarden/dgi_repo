@@ -119,8 +119,13 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
             return resource_id, uri
     return
 
-
 def purge(*resource_ids):
+    """
+    Helper to handle single IDs.
+    """
+    purge_all(resource_ids)
+
+def purge_all(resource_ids):
     """
     Delete the specified resources.
     """
@@ -130,18 +135,23 @@ def purge(*resource_ids):
         with connection:
             uri = datastream_reader.resource_uri(resource_id,
                                                  cursor).fetchone()[0]
-            path = resolve_uri(uri)
-            if not os.path.exists(path):
-                logger.warning(
-                    'Skipping deletion: %s (%s) does not appear to exist.',
-                    uri,
-                    path
-                )
-                continue
+            try:
+                path = resolve_uri(uri)
+            except KeyError:
+                path = '(non-local/unresolvable URI)'
+                logger.debug('Unknown schema for %s.', uri)
+            else:
+                if not os.path.exists(path):
+                    logger.warning(
+                        'Skipping deletion: %s (%s) does not appear to exist.',
+                        uri,
+                        path
+                    )
+                    continue
 
-            logger.debug('Deleting %s (%s).', uri, path)
-            os.remove(path)
-            logger.debug('Deleted %s (%s).', uri, path)
+                logger.debug('Deleting %s (%s).', uri, path)
+                os.remove(path)
+                logger.debug('Deleted %s (%s).', uri, path)
 
             delete_resource(resource_id, cursor)
             logger.info('Resource ID %s (%s, %s) has been deleted.',
