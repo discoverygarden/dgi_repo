@@ -31,7 +31,7 @@ setup(
         'python-dateutil',
         'pytz',
         'requests',
-        'click'
+        'click',
     ],
     dependency_links=[(
         'git+https://github.com/yohanboniface/falcon-multipart.git@2acabc9'
