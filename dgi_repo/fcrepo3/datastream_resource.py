@@ -76,12 +76,12 @@ class DatastreamResource(api.DatastreamResource):
                 cursor=cursor
             )
             if not cursor.rowcount:
-                # Only except if the object is missing because Feodra.
                 object_info = object_reader.object_id_from_raw(
                     pid,
                     cursor=cursor
                 ).fetchone()
                 if object_info is None:
+                    # Only raise if the object is missing because Feodra.
                     raise ObjectDoesNotExistError(pid)
 
             foxml.internalize_rels(pid, dsid,

@@ -519,6 +519,8 @@ class DatastreamResource(ABC):
             Tuple containing:
                 -datetime object for start of deletion.
                 -datetime object for end of deletion.
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
