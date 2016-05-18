@@ -43,6 +43,13 @@ OBJECT_STATE_LABEL_MAP = {'Active': 'A', 'Inactive': 'I', 'Deleted': 'D'}
 
 FEDORA_URI_PREFIX = 'info:fedora/'
 
+RAW_RDF_OBJECT = 'raw'
+OBJECT_RDF_OBJECT = 'object'
+DATASTREAM_RDF_OBJECT = 'datastream'
+USER_RDF_OBJECT = 'object'
+ROLE_RDF_OBJECT = 'datastream'
+LINKED_RDF_OBJECT_TYPES = [OBJECT_RDF_OBJECT, DATASTREAM_RDF_OBJECT,
+                           USER_RDF_OBJECT, ROLE_RDF_OBJECT]
 
 def is_fedora_uri(candidate):
     """
@@ -329,6 +336,11 @@ def populate_foxml_datastream(foxml, pid, datastream,
 def _rdf_object_from_element(relation, source, cursor):
     """
     Pull out an RDF object form an RDF XML element.
+
+    Returns a tuple of:
+        - the resolved RDF object
+        - the type either RAW_RDF_OBJECT, OBJECT_RDF_OBJECT or
+          DATASTREAM_RDF_OBJECT
     """
     user_tags = [
         '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
@@ -350,15 +362,18 @@ def _rdf_object_from_element(relation, source, cursor):
         '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
                           relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
     ]
+    rdf_type = RAW_RDF_OBJECT
     if relation.text:
         if relation.tag in user_tags:
             upsert_user({'name': relation.text, 'source': source},
                         cursor=cursor)
             rdf_object = cursor.fetchone()['id']
+            rdf_type = USER_RDF_OBJECT
         elif relation.tag in role_tags:
             upsert_role({'role': relation.text, 'source': source},
                         cursor=cursor)
             rdf_object = cursor.fetchone()['id']
+            rdf_type = ROLE_RDF_OBJECT
         else:
             rdf_object = relation.text
     else:
@@ -374,6 +389,7 @@ def _rdf_object_from_element(relation, source, cursor):
                 cursor=cursor
             )
             rdf_object = cursor.fetchone()['id']
+            rdf_type = DATASTREAM_RDF_OBJECT
         elif pid:
             rdf_info = object_reader.object_info_from_raw(
                 pid,
@@ -384,9 +400,11 @@ def _rdf_object_from_element(relation, source, cursor):
             except TypeError as e:
                 logger.error('Referenced object %s does not exist.', pid)
                 raise ReferencedObjectDoesNotExistError(pid) from e
+            else:
+                rdf_type = OBJECT_RDF_OBJECT
         else:
             rdf_object = resource
-    return rdf_object
+    return (rdf_object, rdf_type)
 
 
 def internalize_rels(pid, dsid, source, cursor=None):
@@ -445,7 +463,7 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
             RDF_NAMESPACE
         )])
         for relation in description:
-            rdf_object = _rdf_object_from_element(relation, source, cursor)
+            rdf_object, rdf_type = _rdf_object_from_element(relation, source, cursor)
             relation_qname = etree.QName(relation)
             ds_relations_writer.write_relationship(
                 relation_qname.namespace,
@@ -499,7 +517,11 @@ def internalize_rels_ext(relations_file, object_id, source, purge=True,
         )
     # Ingest new relations.
     for relation in relation_tree.getroot()[0]:
-        rdf_object = _rdf_object_from_element(relation, source, cursor)
+        rdf_object, rdf_type = _rdf_object_from_element(relation, source,
+                                                        cursor)
+        if rdf_type in LINKED_RDF_OBJECT_TYPES:
+            raise TypeError(('Trying to place {} of type {} into the object '
+                             'general table.').format(rdf_object, rdf_type))
         relation_qname = etree.QName(relation)
         object_relations_writer.write_relationship(
             relation_qname.namespace,
