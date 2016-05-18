@@ -52,6 +52,14 @@ def make_pid(pid_namespace, pid_id):
     return '{}{}{}'.format(pid_namespace, PID_SEPARATOR, pid_id)
 
 
+def rreplace(edit, old, new, count=-1):
+    """
+    Python lacks a reverse replace function for strings so here is one.
+    """
+    # Not using str.replace in our rreplace as this is (allegedly) fastest.
+    return new.join(edit.rsplit(old, count))
+
+
 def SpooledTemporaryFile(*args, **kwargs):
     """
     Call tempfile.SpooledTemporaryFile with configured defaults.

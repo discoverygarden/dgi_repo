@@ -7,13 +7,15 @@ control.
 
 import logging
 
-from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.utilities import OBJECT_RELATION_MAP
+from dgi_repo.database.utilities import check_cursor, OBJECT_RELATION_MAP
+from dgi_repo.fcrepo3.relations import ISLANDORA_RELS_EXT_NAMESPACE
+from dgi_repo.database.read.repo_objects import object_id_from_raw
 from dgi_repo.database.write.relations import (
     write_to_standard_relation_table,
     upsert_namespace,
     upsert_predicate
 )
+from dgi_repo.utilities import rreplace
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +34,24 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
             cursor
         )
     except KeyError:
-        cursor = upsert_namespace(namespace, cursor=cursor)
-        namespace_id = cursor.fetchone()['id']
-        cursor = upsert_predicate(
-            {'namespace': namespace_id, 'predicate': predicate},
-            cursor=cursor
-        )
-        predicate_id = cursor.fetchone()['id']
-        cursor = write_to_general_rdf_table(predicate_id, subject, rdf_object,
-                                            cursor=cursor)
+        if (namespace == ISLANDORA_RELS_EXT_NAMESPACE and
+                predicate.startswith('isSequenceNumberOf')):
+            almost_pid = predicate.split('isSequenceNumberOf', 1)[1]
+            paged_pid = rreplace(almost_pid, '_', ':', 1)
+            paged_object = object_id_from_raw(paged_pid, cursor=cursor
+                                              ).fetchone()['id']
+            write_sequence_number(subject, paged_object, rdf_object,
+                                  cursor=cursor)
+        else:
+            cursor = upsert_namespace(namespace, cursor=cursor)
+            namespace_id = cursor.fetchone()['id']
+            cursor = upsert_predicate(
+                {'namespace': namespace_id, 'predicate': predicate},
+                cursor=cursor
+            )
+            predicate_id = cursor.fetchone()['id']
+            cursor = write_to_general_rdf_table(predicate_id, subject,
+                                                rdf_object, cursor=cursor)
 
     return cursor
 
