@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 @click.command()
 @click.option('--age', type=int, help=('The max age (in seconds) of '
     'unreferenced resources to maintain; older resources will be deleted. '
-    'The value specified here will override that from dgi_repo\'s '
+    "The value specified here will override that from dgi_repo's "
     'configuration.'))
 def collect(age):
     bootstrap()
