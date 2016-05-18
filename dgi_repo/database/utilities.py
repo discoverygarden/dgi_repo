@@ -228,6 +228,14 @@ OBJECT_RELATION_MAP.update({
     },
 })
 
+RAW_RDF_OBJECT = 'raw'
+OBJECT_RDF_OBJECT = 'object'
+DATASTREAM_RDF_OBJECT = 'datastream'
+USER_RDF_OBJECT = 'user'
+ROLE_RDF_OBJECT = 'role'
+LINKED_RDF_OBJECT_TYPES = [OBJECT_RDF_OBJECT, DATASTREAM_RDF_OBJECT,
+                           USER_RDF_OBJECT, ROLE_RDF_OBJECT]
+
 
 def get_connection(isolation_level=ISOLATION_LEVEL_REPEATABLE_READ):
     """

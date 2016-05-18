@@ -24,7 +24,10 @@ from dgi_repo.exceptions import (ObjectExistsError,
                                  ObjectDoesNotExistError)
 from dgi_repo.fcrepo3.utilities import write_ds
 from dgi_repo.database.write.sources import upsert_user, upsert_role
-from dgi_repo.database.utilities import check_cursor
+from dgi_repo.database.utilities import (check_cursor, DATASTREAM_RDF_OBJECT,
+                                         OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
+                                         ROLE_RDF_OBJECT, RAW_RDF_OBJECT,
+                                         LINKED_RDF_OBJECT_TYPES)
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
@@ -43,13 +46,6 @@ OBJECT_STATE_LABEL_MAP = {'Active': 'A', 'Inactive': 'I', 'Deleted': 'D'}
 
 FEDORA_URI_PREFIX = 'info:fedora/'
 
-RAW_RDF_OBJECT = 'raw'
-OBJECT_RDF_OBJECT = 'object'
-DATASTREAM_RDF_OBJECT = 'datastream'
-USER_RDF_OBJECT = 'object'
-ROLE_RDF_OBJECT = 'datastream'
-LINKED_RDF_OBJECT_TYPES = [OBJECT_RDF_OBJECT, DATASTREAM_RDF_OBJECT,
-                           USER_RDF_OBJECT, ROLE_RDF_OBJECT]
 
 def is_fedora_uri(candidate):
     """
@@ -479,6 +475,7 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
                 relation_qname.localname,
                 ds_db_ids[dsid],
                 rdf_object,
+                rdf_type,
                 cursor=cursor
             )
             cursor.fetchone()
@@ -505,6 +502,7 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
             etree.QName(relation).localname,
             object_id,
             relation.text,
+            RAW_RDF_OBJECT,
             cursor=cursor
         )
     cursor.fetchall()
@@ -532,15 +530,13 @@ def internalize_rels_ext(relations_file, object_id, source, purge=True,
     for relation in relation_tree.getroot()[0]:
         rdf_object, rdf_type = _rdf_object_from_element(relation, source,
                                                         cursor)
-        if rdf_type in LINKED_RDF_OBJECT_TYPES:
-            raise TypeError(('Trying to place {} of type {} into the object '
-                             'general table.').format(rdf_object, rdf_type))
         relation_qname = etree.QName(relation)
         object_relations_writer.write_relationship(
             relation_qname.namespace,
             relation_qname.localname,
             object_id,
             rdf_object,
+            rdf_type=rdf_type,
             cursor=cursor
         )
         cursor.fetchone()
