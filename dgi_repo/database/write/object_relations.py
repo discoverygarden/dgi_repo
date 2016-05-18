@@ -15,6 +15,7 @@ from dgi_repo.database.write.relations import (
     upsert_namespace,
     upsert_predicate
 )
+from dgi_repo.utilities import rreplace
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
         if (namespace == ISLANDORA_RELS_EXT_NAMESPACE and
                 predicate.startswith('isSequenceNumberOf')):
             almost_pid = predicate.split('isSequenceNumberOf', 1)[1]
-            paged_pid = almost_pid[::-1].replace('_', ':', 1)[::-1]
+            paged_pid = rreplace(almost_pid, '_', ':', 1)
             paged_object = object_id_from_raw(paged_pid, cursor=cursor
                                               ).fetchone()['id']
             write_sequence_number(subject, paged_object, rdf_object,
