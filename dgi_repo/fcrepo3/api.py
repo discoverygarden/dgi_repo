@@ -589,7 +589,7 @@ class DatastreamHistoryResource(ABC):
         """
         xml_out = SpooledTemporaryFile()
         with etree.xmlfile(xml_out) as xf:
-            with xf.element('{{0}}datastreamHistory'.format(
+            with xf.element('{{{}}}datastreamHistory'.format(
                     FEDORA_MANAGEMENT_URI)):
                 try:
                     for datastream in self._get_datastream_versions(pid, dsid):
