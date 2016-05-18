@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.1
--- Dumped by pg_dump version 9.5.1
+-- Dumped from database version 9.5.2
+-- Dumped by pg_dump version 9.5.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -68,6 +68,36 @@ CREATE TYPE state AS ENUM (
 --
 
 COMMENT ON TYPE state IS 'State of the object or datastream.  This is legacy from Fedora.';
+
+
+--
+-- Name: resource_refcount(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION resource_refcount() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
+        UPDATE resource_refcounts SET refcount = refcount - 1, touched = now() WHERE id = OLD.resource;
+        IF (TG_OP = 'DELETE') THEN
+          RETURN OLD;
+        END IF;
+        RETURN NEW;
+      END IF;
+      IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+        IF (NEW.resource IS NULL) THEN
+          RETURN NEW;
+        END IF;
+
+        INSERT INTO resource_refcounts (id, refcount)
+        VALUES (NEW.resource, 1)
+        ON CONFLICT (id)
+        DO UPDATE SET refcount = resource_refcounts.refcount + 1, touched = now();
+        RETURN NEW;
+      END IF;
+    END;
+  $$;
 
 
 SET default_tablespace = '';
@@ -1364,64 +1394,6 @@ COMMENT ON COLUMN dc_type.rdf_object IS 'The subject of the relation.';
 
 
 --
--- Name: generate_ocr; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE generate_ocr (
-    id bigint NOT NULL,
-    rdf_subject bigint NOT NULL,
-    rdf_object boolean NOT NULL
-);
-
-
---
--- Name: TABLE generate_ocr; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE generate_ocr IS 'Table to represent generate OCR relations.';
-
-
---
--- Name: COLUMN generate_ocr.id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN generate_ocr.id IS 'Database ID of the relation.';
-
-
---
--- Name: COLUMN generate_ocr.rdf_subject; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN generate_ocr.rdf_subject IS 'Subject of the relation.';
-
-
---
--- Name: COLUMN generate_ocr.rdf_object; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN generate_ocr.rdf_object IS 'Whether or not the item should compute OCR.';
-
-
---
--- Name: generate_ocr_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE generate_ocr_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: generate_ocr_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE generate_ocr_id_seq OWNED BY generate_ocr.id;
-
-
---
 -- Name: defer_derivatives; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1477,6 +1449,64 @@ CREATE SEQUENCE defer_derivatives_id_seq
 --
 
 ALTER SEQUENCE defer_derivatives_id_seq OWNED BY defer_derivatives.id;
+
+
+--
+-- Name: generate_ocr; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE generate_ocr (
+    id bigint NOT NULL,
+    rdf_subject bigint NOT NULL,
+    rdf_object boolean NOT NULL
+);
+
+
+--
+-- Name: TABLE generate_ocr; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE generate_ocr IS 'Table to represent generate OCR relations.';
+
+
+--
+-- Name: COLUMN generate_ocr.id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN generate_ocr.id IS 'Database ID of the relation.';
+
+
+--
+-- Name: COLUMN generate_ocr.rdf_subject; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN generate_ocr.rdf_subject IS 'Subject of the relation.';
+
+
+--
+-- Name: COLUMN generate_ocr.rdf_object; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN generate_ocr.rdf_object IS 'Whether or not the item should compute OCR.';
+
+
+--
+-- Name: generate_ocr_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE generate_ocr_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: generate_ocr_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE generate_ocr_id_seq OWNED BY generate_ocr.id;
 
 
 --
@@ -3014,6 +3044,17 @@ ALTER SEQUENCE rdf_namespace_seq OWNED BY rdf_namespaces.id;
 
 
 --
+-- Name: resource_refcounts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE resource_refcounts (
+    id bigint NOT NULL,
+    touched timestamp with time zone DEFAULT now(),
+    refcount bigint DEFAULT 0
+);
+
+
+--
 -- Name: resources; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3050,6 +3091,25 @@ COMMENT ON COLUMN resources.uri IS 'URI to the resource.';
 --
 
 COMMENT ON COLUMN resources.mime IS 'Mime of the URI.';
+
+
+--
+-- Name: resources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE resources_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE resources_id_seq OWNED BY resources.id;
 
 
 --
@@ -3100,25 +3160,6 @@ CREATE SEQUENCE sources_id_seq
 --
 
 ALTER SEQUENCE sources_id_seq OWNED BY sources.id;
-
-
---
--- Name: resources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE resources_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE resources_id_seq OWNED BY resources.id;
 
 
 --
@@ -3262,14 +3303,14 @@ ALTER TABLE ONLY date_issued ALTER COLUMN id SET DEFAULT nextval('date_issued_id
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY generate_ocr ALTER COLUMN id SET DEFAULT nextval('generate_ocr_id_seq'::regclass);
+ALTER TABLE ONLY defer_derivatives ALTER COLUMN id SET DEFAULT nextval('defer_derivatives_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY defer_derivatives ALTER COLUMN id SET DEFAULT nextval('defer_derivatives_id_seq'::regclass);
+ALTER TABLE ONLY generate_ocr ALTER COLUMN id SET DEFAULT nextval('generate_ocr_id_seq'::regclass);
 
 
 --
@@ -3632,19 +3673,19 @@ ALTER TABLE ONLY dc_type
 
 
 --
--- Name: generate_ocr_primary_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY generate_ocr
-    ADD CONSTRAINT generate_ocr_primary_key PRIMARY KEY (id);
-
-
---
 -- Name: defer_derivatives_primary_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY defer_derivatives
     ADD CONSTRAINT defer_derivatives_primary_key PRIMARY KEY (id);
+
+
+--
+-- Name: generate_ocr_primary_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY generate_ocr
+    ADD CONSTRAINT generate_ocr_primary_key PRIMARY KEY (id);
 
 
 --
@@ -3898,6 +3939,14 @@ ALTER TABLE ONLY predicates
 
 ALTER TABLE ONLY rdf_namespaces
     ADD CONSTRAINT rdf_namespace_primary_key PRIMARY KEY (id);
+
+
+--
+-- Name: resource_refcounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY resource_refcounts
+    ADD CONSTRAINT resource_refcounts_pkey PRIMARY KEY (id);
 
 
 --
@@ -4373,17 +4422,17 @@ CREATE INDEX fki_dc_type_subject_link ON dc_type USING btree (rdf_subject);
 
 
 --
--- Name: fki_generate_ocr_subject_link; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_generate_ocr_subject_link ON generate_ocr USING btree (rdf_subject);
-
-
---
 -- Name: fki_defer_derivatives_subject_link; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX fki_defer_derivatives_subject_link ON defer_derivatives USING btree (rdf_subject);
+
+
+--
+-- Name: fki_generate_ocr_subject_link; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fki_generate_ocr_subject_link ON generate_ocr USING btree (rdf_subject);
 
 
 --
@@ -4793,6 +4842,20 @@ COMMENT ON INDEX pid_index IS 'There will be much random access on PIDs.';
 
 
 --
+-- Name: resource_refcount; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER resource_refcount AFTER INSERT OR DELETE OR UPDATE OF resource ON datastreams FOR EACH ROW EXECUTE PROCEDURE resource_refcount();
+
+
+--
+-- Name: resource_refcount; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER resource_refcount AFTER INSERT OR DELETE OR UPDATE OF resource ON old_datastreams FOR EACH ROW EXECUTE PROCEDURE resource_refcount();
+
+
+--
 -- Name: datastream_is_manageable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5110,21 +5173,6 @@ COMMENT ON CONSTRAINT dc_type_subject_link ON dc_type IS 'Each relation subject 
 
 
 --
--- Name: generate_ocr_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY generate_ocr
-    ADD CONSTRAINT generate_ocr_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
-
-
---
--- Name: CONSTRAINT generate_ocr_subject_link ON generate_ocr; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON CONSTRAINT generate_ocr_subject_link ON generate_ocr IS 'Each relation subject is an object.';
-
-
---
 -- Name: defer_derivatives_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5137,6 +5185,21 @@ ALTER TABLE ONLY defer_derivatives
 --
 
 COMMENT ON CONSTRAINT defer_derivatives_subject_link ON defer_derivatives IS 'Each relation subject is an object.';
+
+
+--
+-- Name: generate_ocr_subject_link; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY generate_ocr
+    ADD CONSTRAINT generate_ocr_subject_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT generate_ocr_subject_link ON generate_ocr; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT generate_ocr_subject_link ON generate_ocr IS 'Each relation subject is an object.';
 
 
 --
@@ -5457,21 +5520,6 @@ COMMENT ON CONSTRAINT mime_uri_link ON resources IS 'URIs have mimes.';
 
 
 --
--- Name: object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY datastreams
-    ADD CONSTRAINT object_link FOREIGN KEY (object) REFERENCES objects(id) ON DELETE CASCADE;
-
-
---
--- Name: CONSTRAINT object_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON CONSTRAINT object_link ON datastreams IS 'Datastreams belong to objects.';
-
-
---
 -- Name: object_is_manageable_role_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5501,6 +5549,21 @@ ALTER TABLE ONLY object_is_viewable_by_role
 
 ALTER TABLE ONLY object_is_viewable_by_user
     ADD CONSTRAINT object_is_viewable_user_link FOREIGN KEY (rdf_object) REFERENCES users(id);
+
+
+--
+-- Name: object_link; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY datastreams
+    ADD CONSTRAINT object_link FOREIGN KEY (object) REFERENCES objects(id) ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT object_link ON datastreams; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT object_link ON datastreams IS 'Datastreams belong to objects.';
 
 
 --
@@ -5684,14 +5747,6 @@ COMMENT ON CONSTRAINT predicate_rdf_namespace_link ON predicates IS 'Predicates 
 
 
 --
--- Name: role_source_link; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY user_roles
-    ADD CONSTRAINT role_source_link FOREIGN KEY (source) REFERENCES sources(id);
-
-
---
 -- Name: resource_checksum_link; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5704,6 +5759,22 @@ ALTER TABLE ONLY checksums
 --
 
 COMMENT ON CONSTRAINT resource_checksum_link ON checksums IS 'Checksums belong to resources.';
+
+
+--
+-- Name: resource_refcounts_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY resource_refcounts
+    ADD CONSTRAINT resource_refcounts_id_fkey FOREIGN KEY (id) REFERENCES resources(id) ON DELETE CASCADE;
+
+
+--
+-- Name: role_source_link; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY user_roles
+    ADD CONSTRAINT role_source_link FOREIGN KEY (source) REFERENCES sources(id);
 
 
 --
@@ -5766,53 +5837,6 @@ ALTER TABLE ONLY datastream_is_viewable_by_user
 
 ALTER TABLE ONLY object_is_viewable_by_user
     ADD CONSTRAINT viewable_by_user_object_link FOREIGN KEY (rdf_subject) REFERENCES objects(id) ON DELETE CASCADE;
-
-
-CREATE TABLE IF NOT EXISTS resource_refcounts (
-  id bigint PRIMARY KEY REFERENCES resources ON DELETE CASCADE,
-  touched timestamp with time zone DEFAULT NOW(),
-  refcount bigint DEFAULT 0
-);
-
-CREATE OR REPLACE FUNCTION resource_refcount()
-  RETURNS TRIGGER
-  VOLATILE
-  AS $$
-    BEGIN
-      IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
-        UPDATE resource_refcounts SET refcount = refcount - 1, touched = now() WHERE id = OLD.resource;
-        IF (TG_OP = 'DELETE') THEN
-          RETURN OLD;
-        END IF;
-        RETURN NEW;
-      END IF;
-      IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
-        IF (NEW.resource IS NULL) THEN
-          RETURN NEW;
-        END IF;
-
-        INSERT INTO resource_refcounts (id, refcount)
-        VALUES (NEW.resource, 1)
-        ON CONFLICT (id)
-        DO UPDATE SET refcount = resource_refcounts.refcount + 1, touched = now();
-        RETURN NEW;
-      END IF;
-    END;
-  $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER resource_refcount
-AFTER INSERT OR UPDATE OF resource OR DELETE
-ON datastreams
-  FOR EACH ROW
-  EXECUTE PROCEDURE resource_refcount();
-
-
-CREATE TRIGGER resource_refcount
-AFTER INSERT OR UPDATE OF resource OR DELETE
-ON old_datastreams
-  FOR EACH ROW
-  EXECUTE PROCEDURE resource_refcount();
-
 
 
 --
