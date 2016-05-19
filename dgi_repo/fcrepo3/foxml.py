@@ -749,7 +749,8 @@ class FoxmlTarget(object):
             'object': self.object_id,
             'dsid': self.dsid,
             'label': ds['LABEL'],
-            'versioned': True if ds['VERSIONABLE'] == 'TRUE' else False,
+            'versioned': True if ds['VERSIONABLE'].upper() == 'TRUE'
+            else False,
             'control_group': ds['CONTROL_GROUP'],
             'state': ds['STATE'],
             'mimetype': ds['MIMETYPE'],
