@@ -7,6 +7,15 @@ import dgi_repo.database.read.relations as relations_reader
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.utilities import OBJECT_RELATION_MAP
 
+REPO_OBJECT_RDF_OBJECT_TABLES = [
+    'is_member_of_collection',
+    'is_member_of',
+    'is_constituent_of',
+    'has_model',
+    'is_page_of',
+    'is_sequence_number_of',
+]
+
 
 def read_relationship(namespace, predicate, subject=None, rdf_object=None,
                       cursor=None):
@@ -76,3 +85,16 @@ def read_sequence_number(subject=None, paged_object=None, cursor=None):
         raise ValueError('Specify either subject, object or both.')
 
     return cursor
+
+
+def is_object_referenced(object_id, cursor):
+    """
+    Check if an object is referenced by relations.
+    """
+    for table in REPO_OBJECT_RDF_OBJECT_TABLES:
+        cursor.execute('''
+            SELECT EXISTS(SELECT 1 from {} WHERE rdf_object=%s)
+        '''.format(table), (object_id,))
+        if cursor.fetchone()[0]:
+            return True
+    return False
