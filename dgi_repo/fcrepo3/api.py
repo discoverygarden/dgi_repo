@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 
 import falcon
 from lxml import etree
+
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.exceptions import (ObjectDoesNotExistError, ObjectConflictsError,
                                  DatastreamDoesNotExistError,
@@ -122,8 +124,11 @@ class DescribeResource(object):
 <fedoraRepository
   xmlns="{0}">
   <repositoryVersion>{1}</repositoryVersion>
+  <repositoryPID>
+    <PID-namespaceIdentifier>{2}</PID-namespaceIdentifier>
+  </repositoryPID>
 </fedoraRepository>
-""".format(FEDORA_ACCESS_URI, '3.py')
+""".format(FEDORA_ACCESS_URI, '3.py', _config['default_namespace'])
 
 
 class PidResource(ABC):
