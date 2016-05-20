@@ -7,8 +7,8 @@ control.
 
 import logging
 
-from dgi_repo.database.utilities import check_cursor
-from dgi_repo.database.utilities import DATASTREAM_RELATION_MAP
+from dgi_repo.database.utilities import (check_cursor, DATASTREAM_RELATION_MAP,
+                                         LINKED_RDF_OBJECT_TYPES)
 from dgi_repo.database.write.relations import (
     write_to_standard_relation_table,
     upsert_namespace,
@@ -18,7 +18,8 @@ from dgi_repo.database.write.relations import (
 logger = logging.getLogger(__name__)
 
 
-def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
+def write_relationship(namespace, predicate, subject, rdf_object, rdf_type,
+                       cursor=None):
     """
     Write a datastream relation to the repository.
     """
@@ -40,15 +41,19 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
         )
         predicate_id = cursor.fetchone()['id']
         cursor = write_to_general_rdf_table(predicate_id, subject, rdf_object,
-                                            cursor=cursor)
+                                            rdf_type, cursor=cursor)
 
     return cursor
 
 
-def write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor=None):
+def write_to_general_rdf_table(predicate_id, subject, rdf_object, rdf_type,
+                               cursor=None):
     """
     Write to the main datastream RDF table.
     """
+    if rdf_type in LINKED_RDF_OBJECT_TYPES:
+        raise TypeError(('Trying to place {} of type {} into the datastream '
+                         'general table.').format(rdf_object, rdf_type))
     cursor = check_cursor(cursor)
 
     cursor.execute('''
