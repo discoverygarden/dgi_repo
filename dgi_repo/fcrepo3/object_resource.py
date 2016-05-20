@@ -208,8 +208,13 @@ class ObjectResource(api.ObjectResource):
         with get_connection() as conn, conn.cursor() as cursor:
             object_info = object_reader.object_info_from_raw(pid,
                                                              cursor).fetchone()
+
             if object_info is None:
                 raise ObjectDoesNotExistError(pid)
+            if object_relation_reader.is_object_referenced(object_info['id'],
+                                                           cursor):
+                raise ValueError('Not purging {} as it is referenced.'
+                                 .format(pid))
 
             object_purger.delete_object(object_info['id'], cursor)
 
