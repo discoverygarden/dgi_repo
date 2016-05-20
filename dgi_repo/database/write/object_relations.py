@@ -7,7 +7,8 @@ control.
 
 import logging
 
-from dgi_repo.database.utilities import check_cursor, OBJECT_RELATION_MAP
+from dgi_repo.database.utilities import (check_cursor, OBJECT_RELATION_MAP,
+                                         LINKED_RDF_OBJECT_TYPES)
 from dgi_repo.fcrepo3.relations import ISLANDORA_RELS_EXT_NAMESPACE
 from dgi_repo.database.read.repo_objects import object_id_from_raw
 from dgi_repo.database.write.relations import (
@@ -20,7 +21,8 @@ from dgi_repo.utilities import rreplace
 logger = logging.getLogger(__name__)
 
 
-def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
+def write_relationship(namespace, predicate, subject, rdf_object, rdf_type,
+                       cursor=None):
     """
     Write an object relation to the repository.
     """
@@ -51,15 +53,20 @@ def write_relationship(namespace, predicate, subject, rdf_object, cursor=None):
             )
             predicate_id = cursor.fetchone()['id']
             cursor = write_to_general_rdf_table(predicate_id, subject,
-                                                rdf_object, cursor=cursor)
+                                                rdf_object, rdf_type,
+                                                cursor=cursor)
 
     return cursor
 
 
-def write_to_general_rdf_table(predicate_id, subject, rdf_object, cursor=None):
+def write_to_general_rdf_table(predicate_id, subject, rdf_object, rdf_type,
+                               cursor=None):
     """
     Write to the main object RDF table.
     """
+    if rdf_type in LINKED_RDF_OBJECT_TYPES:
+        raise TypeError(('Trying to place {} of type {} into the object '
+                         'general table.').format(rdf_object, rdf_type))
     cursor = check_cursor(cursor)
 
     cursor.execute('''
