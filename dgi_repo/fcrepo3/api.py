@@ -430,9 +430,22 @@ class DatastreamResource(ABC):
             logger.info(('Did not create datastream %s on  %s as the object '
                          'did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
-
-        resp.status = falcon.HTTP_201
+        self._datastream_to_response(pid, dsid, resp)
         logger.info('Created DS %s on %s.', dsid, pid)
+
+    def _datastream_to_response(self, pid, dsid, resp):
+        """
+        Write a datastream profile to a falcon response.
+        """
+        xml_out = SpooledTemporaryFile()
+        datastream_info = self._get_datastream_info(pid, dsid)
+        with etree.xmlfile(xml_out) as xf:
+            _writeDatastreamProfile(xf, datastream_info)
+        length = xml_out.tell()
+        xml_out.seek(0)
+        resp.set_stream(xml_out, length)
+        resp.content_type = 'application/xml'
+        resp.status = falcon.HTTP_201
 
     @abstractmethod
     def _create_datastream(self, req, pid, dsid):
@@ -448,7 +461,6 @@ class DatastreamResource(ABC):
         """
         Get datastream info.
         """
-        xml_out = SpooledTemporaryFile()
         try:
             datastream_info = self._get_datastream_info(pid, dsid,
                                                         **req.params)
@@ -459,13 +471,8 @@ class DatastreamResource(ABC):
                 resp.body = 'Datastream {} not found on {} as of {}.'.format(
                             e.dsid, e.pid, e.time)
                 raise falcon.HTTPNotFound() from e
-        with etree.xmlfile(xml_out) as xf:
-            _writeDatastreamProfile(xf, datastream_info)
-        length = xml_out.tell()
-        xml_out.seek(0)
-        resp.set_stream(xml_out, length)
-        resp.content_type = 'application/xml'
-        return
+        self._datastream_to_response(pid, dsid, resp)
+        logger.info('Retrieved DS %s on %s.', dsid, pid)
 
     def on_put(self, req, resp, pid, dsid):
         """
