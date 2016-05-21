@@ -56,6 +56,11 @@ class DatastreamResource(api.DatastreamResource):
             else:
                 raise DatastreamDoesNotExistError(pid, dsid)
 
+            if ds['resource'] is not None:
+                ds['mimetype'] = ds_reader.mime_from_resource(
+                    ds['resource'],
+                    cursor=cursor
+                ).fetchone['mime']
             self._upsert_ds(req, pid, dsid, cursor, ds=ds_info)
         return
 
@@ -127,15 +132,26 @@ class DatastreamResource(api.DatastreamResource):
             'dsid': dsid,
             'object': object_info['id'],
             'log': fedora_utils.resolve_log(req, cursor),
-            'control_group': control_group,
-            'label': req.get_param('dsLabel'),
-            'versioned': req.get_param('versionable') != 'false',
-            'state': req.get_param('dsState', default='A'),
             'checksums': checksums,
-            'mimetype': req.get_param('mimeType'),
             'data_ref': data_ref,
             'data': data,
         })
+        label_in = req.get_param('dsLabel')
+        if label_in is not None:
+            ds['label'] = label_in
+        ds.setdefault('control_group', control_group)
+        version_in = req.get_param('versionable')
+        if version_in:
+            ds['versioned'] = version_in != 'false'
+        ds.setdefault('versioned', True)
+        mime_in = req.get_param('mimeType')
+        if mime_in:
+            ds['mimetype'] = mime_in
+        state_in = req.get_param('dsState')
+        if state_in:
+            ds['state'] = state_in
+        ds.setdefault('state', 'A')
+
         fedora_utils.write_ds(ds, cursor=cursor)
         foxml.internalize_rels(pid, dsid,
                                req.env['wsgi.identity'].source_id,
