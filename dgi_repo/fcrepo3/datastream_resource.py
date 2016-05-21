@@ -136,17 +136,24 @@ class DatastreamResource(api.DatastreamResource):
             'data_ref': data_ref,
             'data': data,
         })
+
         label_in = req.get_param('dsLabel')
         if label_in is not None:
             ds['label'] = label_in
+
         ds.setdefault('control_group', control_group)
+
         version_in = req.get_param('versionable')
         if version_in:
             ds['versioned'] = version_in != 'false'
         ds.setdefault('versioned', True)
+
         mime_in = req.get_param('mimeType')
         if mime_in:
             ds['mimetype'] = mime_in
+        else:
+            ds['mimetype'] = 'application/octet-stream'
+
         state_in = req.get_param('dsState')
         if state_in:
             ds['state'] = state_in
