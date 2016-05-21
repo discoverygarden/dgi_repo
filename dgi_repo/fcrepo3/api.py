@@ -385,8 +385,10 @@ class DatastreamListResource(ABC):
                     FEDORA_ACCESS_URI)):
                 try:
                     for datastream in self._get_datastreams(**params):
+                        filtered_ds = dict((k, v) for k, v in
+                                           datastream.items() if v is not None)
                         with xf.element('{{{0}}}datastream'.format(
-                                FEDORA_ACCESS_URI), attrib=datastream):
+                                FEDORA_ACCESS_URI), attrib=filtered_ds):
                             pass
                 except ObjectDoesNotExistError:
                     logger.info(('Datastream list not retrieved for %s as '
