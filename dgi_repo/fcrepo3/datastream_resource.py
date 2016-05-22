@@ -120,7 +120,9 @@ class DatastreamResource(api.DatastreamResource):
             try:
                 data = req.get_param('file').file
             except AttributeError:
-                pass
+                # Data can come as the request body.
+                if req.content_length:
+                    data = req.stream
         checksums = None
         checksum = req.get_param('checksum')
         if checksum is not None:
