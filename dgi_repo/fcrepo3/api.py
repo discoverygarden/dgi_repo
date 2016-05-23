@@ -309,12 +309,13 @@ class ObjectResource(ABC):
 
         tree.attrib['pid'] = pid
 
-        if label:
-            label_element = etree.SubElement(
-                tree,
-                '{{{}}}objLabel'.format(FEDORA_ACCESS_URI)
-            )
-            label_element.text = label
+        if label is None:
+            label = ''
+        label_element = etree.SubElement(
+            tree,
+            '{{{}}}objLabel'.format(FEDORA_ACCESS_URI)
+        )
+        label_element.text = label
 
         state_element = etree.SubElement(
             tree,
