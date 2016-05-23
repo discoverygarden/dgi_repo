@@ -129,7 +129,7 @@ def datastream_to_profile(ds_info, cursor, version=0):
         'dsLabel': ds_info['label'],
         'dsCreateDate': ds_info['modified'].isoformat(),
         'dsState': ds_info['state'],
-        'dsMime': mime,
+        'dsMIME': mime,
         'dsControlGroup': ds_info['control_group'],
         'dsVersionable': versionable,
         'dsVersionID': '{}.{}'.format(ds_info['dsid'], version),
