@@ -122,11 +122,13 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
             return resource_id, uri
     return
 
+
 def purge(*resource_ids):
     """
     Helper to handle single IDs.
     """
     purge_all(resource_ids)
+
 
 def purge_all(resource_ids):
     """
