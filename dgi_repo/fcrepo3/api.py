@@ -671,6 +671,10 @@ def _writeDatastreamProfile(xf, datastream_info):
             'dsChecksum': 'none',
         }
     """
+    # Set some defaults that Fedora provides, but we don't expect.
+    datastream_info.setdefault('dsFormatURI', '')
+    datastream_info.setdefault('dsInfoType', '')
+
     with xf.element('{{{}}}datastreamProfile'.format(FEDORA_MANAGEMENT_URI)):
         for key, value in datastream_info.items():
             if value is not None:
