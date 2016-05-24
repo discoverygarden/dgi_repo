@@ -22,12 +22,12 @@ from dgi_repo.exceptions import (ObjectExistsError,
                                  ExternalDatastreamsNotSupported,
                                  ReferencedObjectDoesNotExistError,
                                  ObjectDoesNotExistError)
-from dgi_repo.fcrepo3.utilities import write_ds
+from dgi_repo.fcrepo3.utilities import write_ds, format_date
 from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import (check_cursor, DATASTREAM_RDF_OBJECT,
                                          OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
                                          ROLE_RDF_OBJECT, RAW_RDF_OBJECT,
-                                         LINKED_RDF_OBJECT_TYPES, format_date)
+                                         LINKED_RDF_OBJECT_TYPES)
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils

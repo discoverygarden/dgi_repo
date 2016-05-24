@@ -10,7 +10,7 @@ from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.exceptions import (ObjectDoesNotExistError, ObjectConflictsError,
                                  DatastreamDoesNotExistError,
                                  DatastreamConflictsError, ObjectExistsError)
-from dgi_repo.database.utilities import format_date
+from dgi_repo.fcrepo3.utilities import format_date
 
 logger = logging.getLogger(__name__)
 
