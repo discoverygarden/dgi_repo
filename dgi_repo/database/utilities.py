@@ -253,9 +253,6 @@ def get_connection(isolation_level=ISOLATION_LEVEL_REPEATABLE_READ):
 
     connection.set_isolation_level(isolation_level)
 
-    with connection, connection.cursor() as cursor:
-        cursor.execute('SET SESSION TIME ZONE "utc"')
-
     return connection
 
 
