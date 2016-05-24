@@ -122,13 +122,19 @@ class DescribeResource(object):
         resp.content_type = 'application/xml'
         resp.body = """<?xml version="1.0" encoding="UTF-8"?>
 <fedoraRepository
-  xmlns="{0}">
-  <repositoryVersion>{1}</repositoryVersion>
+  xmlns="{xml_namespace}">
+  <repositoryName>{repo}</repositoryName>
+  <repositoryVersion>{version}</repositoryVersion>
   <repositoryPID>
-    <PID-namespaceIdentifier>{2}</PID-namespaceIdentifier>
+    <PID-namespaceIdentifier>{default_namespace}</PID-namespaceIdentifier>
   </repositoryPID>
 </fedoraRepository>
-""".format(FEDORA_ACCESS_URI, '3.py', _config['default_namespace'])
+""".format(
+    xml_namespace=FEDORA_ACCESS_URI,
+    repo=_config['self']['source'],
+    version='3.py',
+    default_namespace=_config['default_namespace']
+)
 
 
 class PidResource(ABC):
