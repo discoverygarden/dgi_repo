@@ -75,6 +75,15 @@ class DatastreamResource(api.DatastreamResource):
                 end=end,
                 cursor=cursor
             )
+            if not cursor.rowcount:
+                object_info = object_reader.object_id_from_raw(
+                    pid,
+                    cursor=cursor
+                ).fetchone()
+                if object_info is None:
+                    # Only raise if the object is missing because Fedora.
+                    raise ObjectDoesNotExistError(pid)
+
             foxml.internalize_rels(pid, dsid,
                                    req.env['wsgi.identity'].source_id,
                                    cursor=cursor)
