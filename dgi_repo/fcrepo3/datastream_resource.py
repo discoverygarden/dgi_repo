@@ -140,8 +140,9 @@ class DatastreamResource(api.DatastreamResource):
         })
 
         label_in = req.get_param('dsLabel')
-        if label_in is not None:
-            ds['label'] = label_in
+        if label_in is None:
+            label_in = ''
+        ds['label'] = label_in
 
         ds.setdefault('control_group', control_group)
 
