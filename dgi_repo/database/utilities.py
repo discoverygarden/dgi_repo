@@ -8,7 +8,75 @@ from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
 from dgi_repo.configuration import configuration as _config
 import dgi_repo.fcrepo3.relations as rels
 
-RELATION_MAP = {
+DATASTREAM_RELATION_MAP = {
+    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IMAGE_HEIGHT_PREDICATE): {
+        'table': 'image_height',
+        'upsert message': 'Added a height cache relation about %s as %s.',
+        'delete message': 'Deleted a height cache relation with ID: %s.',
+    },
+    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IMAGE_WIDTH_PREDICATE): {
+        'table': 'image_width',
+        'upsert message': 'Added a width cache relation about %s as %s.',
+        'delete message': 'Deleted a width cache relation with ID: %s.',
+    },
+    (rels.ISLANDORA_RELS_INT_NAMESPACE,
+     rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
+        'table': 'datastream_is_manageable_by_role',
+        'upsert message': ('Added a datastream is manageable by role'
+                           ' permission from %s to %s.'),
+        'delete message': ('Deleted a datastream is manageable by role'
+                           ' permission with ID: %s.'),
+    },
+    (rels.ISLANDORA_RELS_INT_NAMESPACE,
+     rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
+        'table': 'datastream_is_manageable_by_user',
+        'upsert message': ('Added a datastream is manageable by user'
+                           ' permission from %s to %s.'),
+        'delete message': ('Deleted a datastream is manageable by user'
+                           ' permission with ID: %s.'),
+    },
+    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IS_VIEWABLE_BY_ROLE_PREDICATE): {
+        'table': 'datastream_is_viewable_by_role',
+        'upsert message': ('Added a datastream is viewable by role permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted a datastream is viewable by role'
+                           ' permission with ID: %s.'),
+    },
+    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IS_VIEWABLE_BY_USER_PREDICATE): {
+        'table': 'datastream_is_viewable_by_user',
+        'upsert message': ('Added a datastream is viewable by user permission'
+                           ' from %s to %s.'),
+        'delete message': ('Deleted a datastream is viewable by user'
+                           ' permission with ID: %s.'),
+    },
+}
+
+OBJECT_RELATION_MAP = {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_PAGE_NUMBER_PREDICATE): {
+        'table': 'is_page_number',
+        'upsert message': 'Added a page number relation about %s as %s.',
+        'delete message': 'Deleted a page number relation with ID: %s.',
+    },
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_PAGE_OF_PREDICATE): {
+        'table': 'is_page_of',
+        'upsert message': 'Added a page of relation about %s to %s.',
+        'delete message': 'Deleted a page of relation with ID: %s.',
+    },
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_SECTION_PREDICATE): {
+        'table': 'is_section',
+        'upsert message': 'Added a section relation about %s as %s.',
+        'delete message': 'Deleted a section relation with ID: %s.',
+    },
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_SEQUENCE_NUMBER_PREDICATE): {
+        'table': 'is_sequence_number',
+        'upsert message': 'Added a sequence number relation about %s as %s.',
+        'delete message': 'Deleted a sequence number relation with ID: %s.',
+    },
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.DEFER_DERIVATIVES_PREDICATE): {
+        'table': 'defer_derivatives',
+        'upsert message': 'Added a defer derivatives relation about %s as %s.',
+        'delete message': 'Deleted a defer derivatives relation with ID: %s.',
+    },
     (rels.FEDORA_RELS_EXT_NAMESPACE, rels.IS_MEMBER_OF_COLLECTION_PREDICATE): {
         'table': 'is_member_of_collection',
         'upsert message': ('Added an "is member of collection" relation from'
@@ -123,79 +191,6 @@ RELATION_MAP = {
         'upsert message': 'Added a language relation about %s as %s.',
         'delete message': 'Deleted a language relation with ID: %s.',
     },
-    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IMAGE_HEIGHT_PREDICATE): {
-        'table': 'image_height',
-        'upsert message': 'Added a height cache relation about %s as %s.',
-        'delete message': 'Deleted a height cache relation with ID: %s.',
-    },
-    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IMAGE_WIDTH_PREDICATE): {
-        'table': 'image_width',
-        'upsert message': 'Added a width cache relation about %s as %s.',
-        'delete message': 'Deleted a width cache relation with ID: %s.',
-    },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_PAGE_NUMBER_PREDICATE): {
-        'table': 'is_page_number',
-        'upsert message': 'Added a page number relation about %s as %s.',
-        'delete message': 'Deleted a page number relation with ID: %s.',
-    },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_PAGE_OF_PREDICATE): {
-        'table': 'is_page_of',
-        'upsert message': 'Added a page of relation about %s to %s.',
-        'delete message': 'Deleted a page of relation with ID: %s.',
-    },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_SECTION_PREDICATE): {
-        'table': 'is_section',
-        'upsert message': 'Added a section relation about %s as %s.',
-        'delete message': 'Deleted a section relation with ID: %s.',
-    },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IS_SEQUENCE_NUMBER_PREDICATE): {
-        'table': 'is_sequence_number',
-        'upsert message': 'Added a sequence number relation about %s as %s.',
-        'delete message': 'Deleted a sequence number relation with ID: %s.',
-    },
-    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.DEFER_DERIVATIVES_PREDICATE): {
-        'table': 'defer_derivatives',
-        'upsert message': 'Added a defer derivatives relation about %s as %s.',
-        'delete message': 'Deleted a defer derivatives relation with ID: %s.',
-    },
-}
-
-DATASTREAM_RELATION_MAP = RELATION_MAP.copy()
-DATASTREAM_RELATION_MAP.update({
-    (rels.ISLANDORA_RELS_INT_NAMESPACE,
-     rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
-        'table': 'datastream_is_manageable_by_role',
-        'upsert message': ('Added a datastream is manageable by role'
-                           ' permission from %s to %s.'),
-        'delete message': ('Deleted a datastream is manageable by role'
-                           ' permission with ID: %s.'),
-    },
-    (rels.ISLANDORA_RELS_INT_NAMESPACE,
-     rels.IS_MANAGEABLE_BY_USER_PREDICATE): {
-        'table': 'datastream_is_manageable_by_user',
-        'upsert message': ('Added a datastream is manageable by user'
-                           ' permission from %s to %s.'),
-        'delete message': ('Deleted a datastream is manageable by user'
-                           ' permission with ID: %s.'),
-    },
-    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IS_VIEWABLE_BY_ROLE_PREDICATE): {
-        'table': 'datastream_is_viewable_by_role',
-        'upsert message': ('Added a datastream is viewable by role permission'
-                           ' from %s to %s.'),
-        'delete message': ('Deleted a datastream is viewable by role'
-                           ' permission with ID: %s.'),
-    },
-    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IS_VIEWABLE_BY_USER_PREDICATE): {
-        'table': 'datastream_is_viewable_by_user',
-        'upsert message': ('Added a datastream is viewable by user permission'
-                           ' from %s to %s.'),
-        'delete message': ('Deleted a datastream is viewable by user'
-                           ' permission with ID: %s.'),
-    },
-})
-
-OBJECT_RELATION_MAP = RELATION_MAP.copy()
-OBJECT_RELATION_MAP.update({
     (rels.ISLANDORA_RELS_EXT_NAMESPACE,
      rels.IS_MANAGEABLE_BY_ROLE_PREDICATE): {
         'table': 'object_is_manageable_by_role',
@@ -226,7 +221,7 @@ OBJECT_RELATION_MAP.update({
         'delete message': ('Deleted an object is viewable by user permission'
                            ' with ID: %s.'),
     },
-})
+}
 
 RAW_RDF_OBJECT = 'raw'
 OBJECT_RDF_OBJECT = 'object'

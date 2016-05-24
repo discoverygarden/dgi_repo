@@ -468,7 +468,8 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
             RDF_NAMESPACE
         )])
         for relation in description:
-            rdf_object, rdf_type = _rdf_object_from_element(relation, source, cursor)
+            rdf_object, rdf_type = _rdf_object_from_element(relation, source,
+                                                            cursor)
             relation_qname = etree.QName(relation)
             ds_relations_writer.write_relationship(
                 relation_qname.namespace,

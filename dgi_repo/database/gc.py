@@ -10,11 +10,14 @@ from dgi_repo.utilities import bootstrap
 
 logger = logging.getLogger(__name__)
 
+
 @click.command()
-@click.option('--age', type=int, help=('The max age (in seconds) of '
+@click.option('--age', type=int, help=(
+    'The max age (in seconds) of '
     'unreferenced resources to maintain; older resources will be deleted. '
     "The value specified here will override that from dgi_repo's "
-    'configuration.'))
+    'configuration.')
+)
 def collect(age):
     bootstrap()
     if age:
@@ -22,7 +25,8 @@ def collect(age):
     else:
         age = timedelta(**_config['unreferenced_age'])
 
-    logger.info('Getting unreferenced objects with an age greater than %s.', age)
+    logger.info('Getting unreferenced objects with an age greater than %s.',
+                age)
 
     with get_connection() as conn, conn.cursor() as cursor:
         cursor.execute("""
