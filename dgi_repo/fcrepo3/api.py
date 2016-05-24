@@ -10,6 +10,7 @@ from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.exceptions import (ObjectDoesNotExistError, ObjectConflictsError,
                                  DatastreamDoesNotExistError,
                                  DatastreamConflictsError, ObjectExistsError)
+from dgi_repo.database.utilities import format_date
 
 logger = logging.getLogger(__name__)
 
@@ -327,13 +328,13 @@ class ObjectResource(ABC):
             tree,
             '{{{}}}objCreateDate'.format(FEDORA_ACCESS_URI)
         )
-        created_element.text = created.isoformat()
+        created_element.text = format_date(created)
 
         modified_element = etree.SubElement(
             tree,
             '{{{}}}objLastModDate'.format(FEDORA_ACCESS_URI)
         )
-        modified_element.text = modified.isoformat()
+        modified_element.text = format_date(modified)
 
         return etree.tostring(tree, xml_declaration=True, encoding="UTF-8")
 

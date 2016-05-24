@@ -27,7 +27,7 @@ from dgi_repo.database.write.sources import upsert_user, upsert_role
 from dgi_repo.database.utilities import (check_cursor, DATASTREAM_RDF_OBJECT,
                                          OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
                                          ROLE_RDF_OBJECT, RAW_RDF_OBJECT,
-                                         LINKED_RDF_OBJECT_TYPES)
+                                         LINKED_RDF_OBJECT_TYPES, format_date)
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
@@ -204,7 +204,7 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
         foxml.write(etree.Element(property_element, owner_attributes))
 
         created_date_attributes = {
-            'VALUE': object_info['created'].isoformat(),
+            'VALUE': format_date(object_info['created']),
             'NAME': '{}{}'.format(relations.FEDORA_MODEL_NAMESPACE,
                                   relations.CREATED_DATE_PREDICATE),
         }
@@ -212,7 +212,7 @@ def populate_foxml_properties(foxml, object_info, cursor=None):
                                   created_date_attributes))
 
         modified_date_attributes = {
-            'VALUE': object_info['modified'].isoformat(),
+            'VALUE': format_date(object_info['modified']),
             'NAME': '{}{}'.format(relations.FEDORA_VIEW_NAMESPACE,
                                   relations.LAST_MODIFIED_DATE_PREDICATE)
         }
@@ -261,9 +261,9 @@ def populate_foxml_datastream(foxml, pid, datastream,
             datastream_reader.mime(resource_info['mime'], cursor=cursor)
             mime_info = cursor.fetchone()
             try:
-                created = version['committed'].isoformat()
+                created = format_date(version['committed'])
             except KeyError:
-                created = datastream['created'].isoformat()
+                created = format_date(datastream['created'])
 
             version_attributes = {
                 'ID': '{}.{}'.format(datastream['dsid'], index),
