@@ -5,6 +5,7 @@ import logging
 
 import requests
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
+import pytz
 
 import dgi_repo.database.write.log as log_writer
 import dgi_repo.database.write.datastreams as ds_writer
@@ -127,7 +128,7 @@ def datastream_to_profile(ds_info, cursor, version=0):
                 cursor.fetchall()
     return {
         'dsLabel': ds_info['label'],
-        'dsCreateDate': ds_info['modified'].isoformat(),
+        'dsCreateDate': format_date(ds_info['modified']),
         'dsState': ds_info['state'],
         'dsMIME': mime,
         'dsControlGroup': ds_info['control_group'],
@@ -139,3 +140,9 @@ def datastream_to_profile(ds_info, cursor, version=0):
         'dsLocation': location,
         'dsLocationType': location_type,
     }
+
+def format_date(dt):
+    """
+    Format a datetime into Zulu time, with terminal "Z".
+    """
+    return dt.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
