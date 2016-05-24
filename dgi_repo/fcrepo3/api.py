@@ -517,7 +517,15 @@ class DatastreamResource(ABC):
         """
         Purge datastream.
         """
-        start, end = self._delete_datastream(req, pid, dsid)
+        resp.content_type = 'text/plain'
+        try:
+            start, end = self._delete_datastream(req, pid, dsid)
+        except ObjectDoesNotExistError as e:
+            logger.info(('Datastream versions not purged for %s on %s as the '
+                         'object did not exist.'), dsid, pid)
+            resp.body = ('Datastream versions not purged for {} on {} as the '
+                         'object did not exist.').format(dsid, pid)
+            raise falcon.HTTPNotFound() from e
         logger.info(('Deleted datastream versions for %s on %s between'
                      ' %s and %s.'), dsid, pid, start, end)
 
@@ -530,6 +538,8 @@ class DatastreamResource(ABC):
             Tuple containing:
                 -datetime object for start of deletion.
                 -datetime object for end of deletion.
+        Raises:
+            ObjectDoesNotExistError: The object doesn't exist.
         """
         pass
 
