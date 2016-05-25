@@ -91,6 +91,13 @@ def write_ds(ds, old=False, cursor=None):
                 cursor=cursor
             )
     else:
+        # Update mime.
+        mime = ds_writer.upsert_mime(ds['mimetype'], cursor=cursor
+                                     ).fetchone()['id']
+        uri = ds_reader.resource(ds['resource'], cursor=cursor
+                                 ).fetchone()['uri']
+        ds_writer.upsert_resource({'uri': uri, 'mime': mime}, cursor=cursor)
+        # @TODO: Update checksums.
         ds_writer.upsert_datastream(ds, cursor=cursor)
 
     return cursor
