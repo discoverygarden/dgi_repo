@@ -644,6 +644,8 @@ class DatastreamHistoryResource(ABC):
         """
         Get an iterable of datastream versions.
 
+        The order of the elements is important; they must be from youngest to oldest.
+
         Raises:
             DatastreamDoesNotExistError: The datastream doesn't exist.
         """
