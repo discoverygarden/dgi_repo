@@ -436,12 +436,12 @@ class DatastreamResource(ABC):
         """
         try:
             self._create_datastream(req, pid, dsid)
+            logger.info('Created DS %s on %s.', dsid, pid)
         except ObjectDoesNotExistError:
             logger.info(('Did not create datastream %s on  %s as the object '
                          'did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
         self._datastream_to_response(pid, dsid, resp)
-        logger.info('Created DS %s on %s.', dsid, pid)
 
     def _datastream_to_response(self, pid, dsid, resp, **kwargs):
         """
@@ -503,6 +503,7 @@ class DatastreamResource(ABC):
             # @XXX Raising HTTPError over HTTPConflict because we
             # don't have  a title and description for HTTPConflict.
             raise falcon.HTTPError('409 Conflict') from e
+        self._datastream_to_response(pid, dsid, resp)
 
     @abstractmethod
     def _update_datastream(self, req, pid, dsid):
