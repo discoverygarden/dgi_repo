@@ -60,7 +60,7 @@ class DatastreamResource(api.DatastreamResource):
                 ds['mimetype'] = ds_reader.mime_from_resource(
                     ds['resource'],
                     cursor=cursor
-                ).fetchone['mime']
+                ).fetchone()['mime']
             self._upsert_ds(req, pid, dsid, cursor, ds=ds_info)
         return
 
