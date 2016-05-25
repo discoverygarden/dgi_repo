@@ -130,12 +130,10 @@ class DescribeResource(object):
     <PID-namespaceIdentifier>{default_namespace}</PID-namespaceIdentifier>
   </repositoryPID>
 </fedoraRepository>
-""".format(
-    xml_namespace=FEDORA_ACCESS_URI,
-    repo=_config['self']['source'],
-    version='3.py',
-    default_namespace=_config['default_namespace']
-)
+""".format(xml_namespace=FEDORA_ACCESS_URI,
+           repo=_config['self']['source'],
+           version='3.py',
+           default_namespace=_config['default_namespace'])
 
 
 class PidResource(ABC):
@@ -644,7 +642,8 @@ class DatastreamHistoryResource(ABC):
         """
         Get an iterable of datastream versions.
 
-        The order of the elements is important; they must be from youngest to oldest.
+        The order of the elements is important; they must be from youngest to
+        oldest.
 
         Raises:
             DatastreamDoesNotExistError: The datastream doesn't exist.
