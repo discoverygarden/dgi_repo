@@ -223,6 +223,8 @@ OBJECT_RELATION_MAP = {
     },
 }
 
+LITERAL_RDF_OBJECT = 'literal'
+URI_RDF_OBJECT = 'uri'
 RAW_RDF_OBJECT = 'raw'
 OBJECT_RDF_OBJECT = 'object'
 DATASTREAM_RDF_OBJECT = 'datastream'

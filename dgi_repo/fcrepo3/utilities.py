@@ -17,6 +17,10 @@ from dgi_repo import utilities as utils
 
 logger = logging.getLogger(__name__)
 
+RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+
+FEDORA_URI_PREFIX = 'info:fedora/'
+
 
 def resolve_log(req, cursor):
     """
@@ -146,3 +150,45 @@ def format_date(dt):
     Format a datetime into Zulu time, with terminal "Z".
     """
     return dt.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+
+def is_fedora_uri(candidate):
+    """
+    Check if a string is a Fedora URI.
+
+    @XXX the check is incomplete; it may have false positives.
+    """
+    return candidate.startswith(FEDORA_URI_PREFIX)
+
+
+def cut_fedora_prefix(uri):
+    """
+    Cut the Fedora URI prefix from a URI.
+    """
+    return uri[len(FEDORA_URI_PREFIX):]
+
+
+def pid_from_fedora_uri(uri):
+    """
+    Retrieve a PID from a Fedora URI.
+    """
+    if not is_fedora_uri(uri):
+        return None
+    stripped_uri = cut_fedora_prefix(uri)
+    try:
+        return stripped_uri[:stripped_uri.index('/')]
+    except ValueError:
+        return stripped_uri
+
+
+def dsid_from_fedora_uri(uri):
+    """
+    Retrieve a PID from a Fedora URI.
+    """
+    if not is_fedora_uri(uri):
+        return None
+    stripped_uri = cut_fedora_prefix(uri)
+    if '/' in stripped_uri:
+        return stripped_uri[stripped_uri.find('/') + 1:]
+    else:
+        return False
