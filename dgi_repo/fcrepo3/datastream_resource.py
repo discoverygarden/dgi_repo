@@ -39,22 +39,22 @@ class DatastreamResource(api.DatastreamResource):
         with conn, conn.cursor() as cursor:
             ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
             ds_info = cursor.fetchone()
-            if ds_info is not None:
-                ds = dict(ds_info)
-                ds['committed'] = ds['modified']
-                ds['datastream'] = ds['id']
-                del ds['id']
-                # Check modified date param, exiting if needed.
-                modified_date = req.get_param('lastModifiedDate')
-                if modified_date is not None:
-                    modified_date = utils.iso8601_to_datetime(modified_date)
-                    if ds['committed'] > modified_date:
-                        raise DatastreamConflictsError(pid, dsid,
-                                                       ds['committed'],
-                                                       modified_date)
-                ds_writer.upsert_old_datastream(ds, cursor=cursor)
-            else:
+            if ds_info is None:
                 raise DatastreamDoesNotExistError(pid, dsid)
+            ds = dict(ds_info)
+            ds['committed'] = ds['modified']
+            ds['datastream'] = ds['id']
+            del ds['id']
+            # Check modified date param, exiting if needed.
+            modified_date = req.get_param('lastModifiedDate')
+            if modified_date is not None:
+                modified_date = utils.iso8601_to_datetime(modified_date)
+                if ds['committed'] > modified_date:
+                    raise DatastreamConflictsError(pid, dsid, ds['committed'],
+                                                   modified_date)
+            versionable = req.get_param('versionable')
+            if versionable or (ds_info['versioned'] and versionable is None):
+                ds_writer.upsert_old_datastream(ds, cursor=cursor)
 
             if ds['resource'] is not None:
                 ds['mimetype'] = ds_reader.mime_from_resource(
