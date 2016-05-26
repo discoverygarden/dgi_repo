@@ -30,12 +30,17 @@ class ObjectResource(api.ObjectResource):
         """
         conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
         with conn, conn.cursor() as cursor:
+            if not pid or pid == 'new':
+                import_pid = None
+            else:
+                import_pid = pid
             xml = req.get_param('file')
             if xml is not None:
                 # Import FOXML, getting PID.
                 pid = foxml.import_foxml(
                     xml.file,
                     req.env['wsgi.identity'].source_id,
+                    pid=import_pid,
                     cursor=cursor
                 )
             else:
@@ -44,6 +49,7 @@ class ObjectResource(api.ObjectResource):
                     pid = foxml.import_foxml(
                         req.stream,
                         req.env['wsgi.identity'].source_id,
+                        pid=import_pid,
                         cursor=cursor
                     )
                 except ValueError:

@@ -89,12 +89,14 @@ def dsid_from_fedora_uri(uri):
         return False
 
 
-def import_foxml(xml, source, cursor=None):
+def import_foxml(xml, source, pid=None, cursor=None):
     """
     Create a repo object out of a FOXML file.
     """
-    foxml_importer = etree.XMLParser(target=FoxmlTarget(source, cursor=cursor),
-                                     huge_tree=True)
+    foxml_importer = etree.XMLParser(
+        target=FoxmlTarget(source, pid=pid, cursor=cursor),
+        huge_tree=True
+    )
     return etree.parse(xml, foxml_importer)
 
 
@@ -550,13 +552,13 @@ class FoxmlTarget(object):
     Parser target for incremental reading/ingest of FOXML.
     """
 
-    def __init__(self, source, cursor=None):
+    def __init__(self, source, pid=None, cursor=None):
         """
         Prep for use.
         """
         self.cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
         self.source = source
-        self.object_info = {}
+        self.object_info = {'PID': pid}
         self.ds_info = {}
         self.object_id = None
         self.rels_int = None
@@ -611,7 +613,8 @@ class FoxmlTarget(object):
         if tag == '{{{0}}}property'.format(FOXML_NAMESPACE):
             self.object_info[attributes['NAME']] = attributes['VALUE']
         if tag == '{{{0}}}digitalObject'.format(FOXML_NAMESPACE):
-            self.object_info['PID'] = attributes['PID']
+            if self.object_info['PID'] is None:
+                self.object_info['PID'] = attributes['PID']
             logger.info('Attempting import of %s.', self.object_info['PID'])
 
     def end(self, tag):
