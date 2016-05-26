@@ -52,8 +52,7 @@ class DatastreamResource(api.DatastreamResource):
                 if ds['committed'] > modified_date:
                     raise DatastreamConflictsError(pid, dsid, ds['committed'],
                                                    modified_date)
-            versionable = req.get_param('versionable')
-            if versionable or (ds_info['versioned'] and versionable is None):
+            if ds_info['versioned']:
                 ds_writer.upsert_old_datastream(ds, cursor=cursor)
 
             if ds['resource'] is not None:
