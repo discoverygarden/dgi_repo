@@ -101,7 +101,12 @@ class DatastreamResource(api.DatastreamResource):
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
         """
-        ds = dict(ds) if ds is not None else {}
+        if ds is not None:
+            ds = dict(ds)
+            del ds['modified']
+        else:
+            ds = {}
+
         object_info = object_reader.object_id_from_raw(
             pid, cursor=cursor).fetchone()
         if object_info is None:
