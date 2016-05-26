@@ -285,8 +285,6 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
-
-
 def internalize_rels(pid, dsid, source, cursor=None):
     """
     Internalize rels given a ds_db_id.
@@ -352,8 +350,9 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
             RDF_NAMESPACE
         )])
         for relation in description:
-            rdf_object, rdf_type = datastream_rdf_object_from_element(relation, source,
-                                                            cursor)
+            rdf_object, rdf_type = datastream_rdf_object_from_element(relation,
+                                                                      source,
+                                                                      cursor)
             relation_qname = etree.QName(relation)
             ds_relations_writer.write_relationship(
                 relation_qname.namespace,

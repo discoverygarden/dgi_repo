@@ -28,7 +28,9 @@ class FedoraUriTestCase(unittest.TestCase):
             'stuff:and_things'
         )
         self.assertEqual(
-            utilities.pid_from_fedora_uri('info:fedora/stuff:and_things/items'),
+            utilities.pid_from_fedora_uri(
+                'info:fedora/stuff:and_things/items'
+            ),
             'stuff:and_things'
         )
 

@@ -145,6 +145,7 @@ def datastream_to_profile(ds_info, cursor, version=0):
         'dsLocationType': location_type,
     }
 
+
 def format_date(dt):
     """
     Format a datetime into Zulu time, with terminal "Z".

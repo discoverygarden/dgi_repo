@@ -12,6 +12,7 @@ from dgi_repo.database.utilities import (DATASTREAM_RELATION_MAP,
                                          OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
                                          ROLE_RDF_OBJECT, RAW_RDF_OBJECT)
 
+
 def _element_predicate(relation):
     """
     Helper; get the namespace and localname tuple for the element's name.
@@ -19,11 +20,14 @@ def _element_predicate(relation):
     qname = etree.QName(relation)
     return (qname.namespace, qname.localname)
 
+
 def repo_object_rdf_object_from_element(relation, *args, **kwargs):
     return _require_mapped(relation, OBJECT_RELATION_MAP, *args, **kwargs)
 
+
 def datastream_rdf_object_from_element(relation, *args, **kwargs):
     return _require_mapped(relation, DATASTREAM_RELATION_MAP, *args, **kwargs)
+
 
 def _require_mapped(relation, rel_map, *args, **kwargs):
     """
@@ -34,21 +38,30 @@ def _require_mapped(relation, rel_map, *args, **kwargs):
         return _rdf_object_from_element(predicate, relation, *args, **kwargs)
 
     try:
-        return (URI_RDF_OBJECT, relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)])
+        return (URI_RDF_OBJECT, relation.attrib['{{{}}}resource'.format(
+            RDF_NAMESPACE
+        )])
     except KeyError:
         return (LITERAL_RDF_OBJECT, relation.text)
+
 
 def _rdf_object_from_element(predicate, relation, source, cursor):
     """
     Pull out an RDF object form an RDF XML element.
 
-    Returns a tuple of:
+    Returns:
+        A tuple of:
         - the resolved RDF object
         - the type; one of:
             - OBJECT_RDF_OBJECT
             - DATASTREAM_RDF_OBJECT
             - USER_RDF_OBJECT
             - ROLE_RDF_OBJECT
+
+    Raises:
+        ReferencedObjectDoesNotExistError: If the value appeared to
+            reference a repo object, but it could not be found.
+        ValueError: If the value could not be resolved in general.
     """
     user_tags = frozenset([
         (relations.ISLANDORA_RELS_EXT_NAMESPACE,
@@ -79,7 +92,8 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
             upsert_role({'role': relation.text, 'source': source},
                         cursor=cursor)
             return (cursor.fetchone()['id'], ROLE_RDF_OBJECT)
-        raise ValueError('Failed to resolve relationship %s with value %s.', predicate, relation.text)
+        raise ValueError('Failed to resolve relationship %s with value %s.',
+                         predicate, relation.text)
     else:
         resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
 
@@ -104,4 +118,5 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
                 logger.error('Referenced object %s does not exist.', pid)
                 raise ReferencedObjectDoesNotExistError(pid) from e
 
-        raise ValueError('Failed to resolve relationship %s with value %s.', predicate, resource)
+        raise ValueError('Failed to resolve relationship %s with value %s.',
+                         predicate, resource)
