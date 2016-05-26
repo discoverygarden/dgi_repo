@@ -200,8 +200,7 @@ class ObjectResource(api.ObjectResource):
                 new_object_info['owner'] = self._resolve_owner(req, cursor)
             if req.get_param('logMessage') is not None:
                 new_object_info['log'] = resolve_log(req, cursor)
-            else:
-                del new_object_info['modified']
+            del new_object_info['modified']
             object_id = object_writer.upsert_object(new_object_info,
                                                     cursor=cursor
                                                     ).fetchone()['id']
