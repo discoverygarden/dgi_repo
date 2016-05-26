@@ -197,7 +197,11 @@ class ObjectResource(api.ObjectResource):
                 new_object_info['log'] = resolve_log(req, cursor)
             else:
                 del new_object_info['modified']
-            object_writer.upsert_object(new_object_info, cursor=cursor)
+            object_id = object_writer.upsert_object(new_object_info,
+                                                    cursor=cursor
+                                                    ).fetchone()['id']
+            return object_reader.object_info(object_id, cursor=cursor
+                                             ).fetchone()['modified']
 
     def _purge_object(self, req, pid):
         """

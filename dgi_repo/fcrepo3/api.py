@@ -236,7 +236,7 @@ class ObjectResource(ABC):
         Update an object.
         """
         try:
-            self._update_object(req, pid)
+            resp.body = format_date(self._update_object(req, pid))
         except ObjectDoesNotExistError:
             logger.info('Did not update object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
@@ -254,6 +254,9 @@ class ObjectResource(ABC):
     def _update_object(self, req, pid):
         """
         Update an object.
+
+        Returns:
+            A datetime object for the modification.
 
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
