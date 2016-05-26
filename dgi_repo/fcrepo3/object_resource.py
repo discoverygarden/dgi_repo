@@ -34,17 +34,16 @@ class ObjectResource(api.ObjectResource):
                 import_pid = None
             else:
                 import_pid = pid
-            xml = req.get_param('file')
-            if xml is not None:
+            try:
                 # Import FOXML, getting PID.
                 pid = foxml.import_foxml(
-                    xml.file,
+                    req.get_param('file').file,
                     req.env['wsgi.identity'].source_id,
                     pid=import_pid,
                     cursor=cursor
                 )
-            else:
-                try:
+            except AttributeError:
+                if req.content_length:
                     # Try to import FOXML from request body.
                     pid = foxml.import_foxml(
                         req.stream,
@@ -52,7 +51,7 @@ class ObjectResource(api.ObjectResource):
                         pid=import_pid,
                         cursor=cursor
                     )
-                except ValueError:
+                else:
                     if not pid or pid == 'new':
                         # Generate PID.
                         raw_namespace = req.get_param(
