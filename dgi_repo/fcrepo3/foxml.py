@@ -20,73 +20,29 @@ import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.exceptions import (ObjectExistsError,
                                  ExternalDatastreamsNotSupported,
-                                 ReferencedObjectDoesNotExistError,
                                  ObjectDoesNotExistError)
-from dgi_repo.fcrepo3.utilities import write_ds, format_date
-from dgi_repo.database.write.sources import upsert_user, upsert_role
-from dgi_repo.database.utilities import (check_cursor, DATASTREAM_RDF_OBJECT,
-                                         OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
-                                         ROLE_RDF_OBJECT, RAW_RDF_OBJECT,
-                                         LINKED_RDF_OBJECT_TYPES)
+from dgi_repo.fcrepo3.utilities import (write_ds, format_date, RDF_NAMESPACE,
+                                        dsid_from_fedora_uri)
+from dgi_repo.database.write.sources import upsert_user
+from dgi_repo.database.utilities import (check_cursor, LITERAL_RDF_OBJECT)
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
 from dgi_repo.fcrepo3 import relations
+from dgi_repo.database.relationships import (
+    repo_object_rdf_object_from_element,
+    datastream_rdf_object_from_element
+)
 
 logger = logging.getLogger(__name__)
 
 FOXML_NAMESPACE = 'info:fedora/fedora-system:def/foxml#'
-RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 SCHEMA_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance'
 SCHEMA_LOCATION = ('info:fedora/fedora-system:def/foxml# '
                    'http://www.fedora.info/definitions/1/0/foxml1-1.xsd')
 
 OBJECT_STATE_MAP = {'A': 'Active', 'I': 'Inactive', 'D': 'Deleted'}
 OBJECT_STATE_LABEL_MAP = {'Active': 'A', 'Inactive': 'I', 'Deleted': 'D'}
-
-FEDORA_URI_PREFIX = 'info:fedora/'
-
-
-def is_fedora_uri(candidate):
-    """
-    Check if a string is a Fedora URI.
-
-    @XXX the check is incomplete; it may have false positives.
-    """
-    return candidate.startswith(FEDORA_URI_PREFIX)
-
-
-def cut_fedora_prefix(uri):
-    """
-    Cut the Fedora URI prefix from a URI.
-    """
-    return uri[len(FEDORA_URI_PREFIX):]
-
-
-def pid_from_fedora_uri(uri):
-    """
-    Retrieve a PID from a Fedora URI.
-    """
-    if not is_fedora_uri(uri):
-        return None
-    stripped_uri = cut_fedora_prefix(uri)
-    try:
-        return stripped_uri[:stripped_uri.index('/')]
-    except ValueError:
-        return stripped_uri
-
-
-def dsid_from_fedora_uri(uri):
-    """
-    Retrieve a PID from a Fedora URI.
-    """
-    if not is_fedora_uri(uri):
-        return None
-    stripped_uri = cut_fedora_prefix(uri)
-    if '/' in stripped_uri:
-        return stripped_uri[stripped_uri.find('/') + 1:]
-    else:
-        return False
 
 
 def import_foxml(xml, source, cursor=None):
@@ -329,80 +285,6 @@ def populate_foxml_datastream(foxml, pid, datastream,
                     ))
 
 
-def _rdf_object_from_element(relation, source, cursor):
-    """
-    Pull out an RDF object form an RDF XML element.
-
-    Returns a tuple of:
-        - the resolved RDF object
-        - the type either RAW_RDF_OBJECT, OBJECT_RDF_OBJECT or
-          DATASTREAM_RDF_OBJECT
-    """
-    user_tags = [
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
-                          relations.IS_VIEWABLE_BY_USER_PREDICATE),
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
-                          relations.IS_VIEWABLE_BY_USER_PREDICATE),
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
-                          relations.IS_MANAGEABLE_BY_USER_PREDICATE),
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
-                          relations.IS_MANAGEABLE_BY_USER_PREDICATE),
-    ]
-    role_tags = [
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
-                          relations.IS_VIEWABLE_BY_ROLE_PREDICATE),
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
-                          relations.IS_VIEWABLE_BY_ROLE_PREDICATE),
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_EXT_NAMESPACE,
-                          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
-        '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE,
-                          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
-    ]
-    rdf_type = RAW_RDF_OBJECT
-    if relation.text:
-        if relation.tag in user_tags:
-            upsert_user({'name': relation.text, 'source': source},
-                        cursor=cursor)
-            rdf_object = cursor.fetchone()['id']
-            rdf_type = USER_RDF_OBJECT
-        elif relation.tag in role_tags:
-            upsert_role({'role': relation.text, 'source': source},
-                        cursor=cursor)
-            rdf_object = cursor.fetchone()['id']
-            rdf_type = ROLE_RDF_OBJECT
-        else:
-            rdf_object = relation.text
-    else:
-        resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
-
-        pid = pid_from_fedora_uri(resource)
-        dsid = dsid_from_fedora_uri(resource)
-        if dsid:
-            object_reader.object_info_from_raw(pid, cursor=cursor)
-            object_id = cursor.fetchone()['id']
-            datastream_reader.datastream_id(
-                {'object_id': object_id, 'dsid': dsid},
-                cursor=cursor
-            )
-            rdf_object = cursor.fetchone()['id']
-            rdf_type = DATASTREAM_RDF_OBJECT
-        elif pid:
-            rdf_info = object_reader.object_info_from_raw(
-                pid,
-                cursor=cursor
-            ).fetchone()
-            try:
-                rdf_object = rdf_info['id']
-            except TypeError as e:
-                logger.error('Referenced object %s does not exist.', pid)
-                raise ReferencedObjectDoesNotExistError(pid) from e
-            else:
-                rdf_type = OBJECT_RDF_OBJECT
-        else:
-            rdf_object = resource
-    return (rdf_object, rdf_type)
-
-
 def internalize_rels(pid, dsid, source, cursor=None):
     """
     Internalize rels given a ds_db_id.
@@ -468,8 +350,9 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
             RDF_NAMESPACE
         )])
         for relation in description:
-            rdf_object, rdf_type = _rdf_object_from_element(relation, source,
-                                                            cursor)
+            rdf_object, rdf_type = datastream_rdf_object_from_element(relation,
+                                                                      source,
+                                                                      cursor)
             relation_qname = etree.QName(relation)
             ds_relations_writer.write_relationship(
                 relation_qname.namespace,
@@ -503,7 +386,7 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
             etree.QName(relation).localname,
             object_id,
             relation.text,
-            RAW_RDF_OBJECT,
+            LITERAL_RDF_OBJECT,
             cursor=cursor
         )
     cursor.fetchall()
@@ -529,8 +412,11 @@ def internalize_rels_ext(relations_file, object_id, source, purge=True,
     # Ingest new relations.
     relation_tree = etree.parse(relations_file)
     for relation in relation_tree.getroot()[0]:
-        rdf_object, rdf_type = _rdf_object_from_element(relation, source,
-                                                        cursor)
+        rdf_object, rdf_type = repo_object_rdf_object_from_element(
+            relation,
+            source,
+            cursor
+        )
         relation_qname = etree.QName(relation)
         object_relations_writer.write_relationship(
             relation_qname.namespace,

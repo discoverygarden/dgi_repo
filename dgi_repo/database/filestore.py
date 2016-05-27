@@ -14,7 +14,6 @@ import dgi_repo.database.read.datastreams as datastream_reader
 from dgi_repo.database.utilities import get_connection, check_cursor
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.delete.datastreams import delete_resource
-from dgi_repo.database.read.datastreams import resource_uri
 
 logger = logging.getLogger(__name__)
 

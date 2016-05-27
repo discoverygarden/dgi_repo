@@ -154,7 +154,6 @@ class ObjectResource(api.ObjectResource):
         """
         Commit the object modification.
         """
-        modified = None
         with get_connection() as conn, conn.cursor() as cursor:
             # Get current object info.
             object_info = object_reader.object_info_from_raw(pid, cursor=cursor

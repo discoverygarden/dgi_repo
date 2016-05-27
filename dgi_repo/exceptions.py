@@ -81,6 +81,12 @@ class DatastreamDoesNotExistError(Exception):
         super().__init__(pid, dsid, time)
 
 
+class ReferencedDatastreamDoesNotExist(DatastreamDoesNotExistError):
+    """
+    Used to indicate a referenced (RELS) datastream does not exist.
+    """
+
+
 class ExternalDatastreamsNotSupported(ValueError):
     """
     Raised when one tries to create an external datastream.
