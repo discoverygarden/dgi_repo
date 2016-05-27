@@ -16,7 +16,7 @@ from dgi_repo.database.utilities import (DATASTREAM_RELATION_MAP,
                                          LITERAL_RDF_OBJECT, URI_RDF_OBJECT,
                                          DATASTREAM_RDF_OBJECT,
                                          OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
-                                         ROLE_RDF_OBJECT, RAW_RDF_OBJECT)
+                                         ROLE_RDF_OBJECT)
 
 
 def _element_predicate(relation):

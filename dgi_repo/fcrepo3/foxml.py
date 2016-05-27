@@ -20,10 +20,9 @@ import dgi_repo.database.filestore as filestore
 from dgi_repo.database.read.repo_objects import object_info_from_raw
 from dgi_repo.exceptions import (ObjectExistsError,
                                  ExternalDatastreamsNotSupported,
-                                 ReferencedObjectDoesNotExistError,
                                  ObjectDoesNotExistError)
 from dgi_repo.fcrepo3.utilities import write_ds, format_date, RDF_NAMESPACE
-from dgi_repo.database.write.sources import upsert_user, upsert_role
+from dgi_repo.database.write.sources import upsert_user
 from dgi_repo.database.utilities import (check_cursor, LITERAL_RDF_OBJECT)
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
