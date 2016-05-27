@@ -294,4 +294,4 @@ class DatastreamHistoryResource(api.DatastreamHistoryResource):
                 version=version
             ))
 
-            return datastream_versions
+            return reversed(datastream_versions)

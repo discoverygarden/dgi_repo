@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 
 import falcon
 from lxml import etree
+
+from dgi_repo.configuration import configuration as _config
 from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.exceptions import (ObjectDoesNotExistError, ObjectConflictsError,
                                  DatastreamDoesNotExistError,
@@ -121,10 +123,17 @@ class DescribeResource(object):
         resp.content_type = 'application/xml'
         resp.body = """<?xml version="1.0" encoding="UTF-8"?>
 <fedoraRepository
-  xmlns="{0}">
-  <repositoryVersion>{1}</repositoryVersion>
+  xmlns="{xml_namespace}">
+  <repositoryName>{repo}</repositoryName>
+  <repositoryVersion>{version}</repositoryVersion>
+  <repositoryPID>
+    <PID-namespaceIdentifier>{default_namespace}</PID-namespaceIdentifier>
+  </repositoryPID>
 </fedoraRepository>
-""".format(FEDORA_ACCESS_URI, '3.py')
+""".format(xml_namespace=FEDORA_ACCESS_URI,
+           repo=_config['self']['source'],
+           version='3.py',
+           default_namespace=_config['default_namespace'])
 
 
 class PidResource(ABC):
@@ -227,7 +236,7 @@ class ObjectResource(ABC):
         Update an object.
         """
         try:
-            self._update_object(req, pid)
+            resp.body = format_date(self._update_object(req, pid))
         except ObjectDoesNotExistError:
             logger.info('Did not update object %s as it did not exist.', pid)
             _send_object_404(pid, resp)
@@ -245,6 +254,9 @@ class ObjectResource(ABC):
     def _update_object(self, req, pid):
         """
         Update an object.
+
+        Returns:
+            A datetime object for the modification.
 
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
@@ -305,12 +317,13 @@ class ObjectResource(ABC):
 
         tree.attrib['pid'] = pid
 
-        if label:
-            label_element = etree.SubElement(
-                tree,
-                '{{{}}}objLabel'.format(FEDORA_ACCESS_URI)
-            )
-            label_element.text = label
+        if label is None:
+            label = ''
+        label_element = etree.SubElement(
+            tree,
+            '{{{}}}objLabel'.format(FEDORA_ACCESS_URI)
+        )
+        label_element.text = label
 
         state_element = etree.SubElement(
             tree,
@@ -381,8 +394,10 @@ class DatastreamListResource(ABC):
                     FEDORA_ACCESS_URI)):
                 try:
                     for datastream in self._get_datastreams(**params):
+                        filtered_ds = dict((k, v) for k, v in
+                                           datastream.items() if v is not None)
                         with xf.element('{{{0}}}datastream'.format(
-                                FEDORA_ACCESS_URI), attrib=datastream):
+                                FEDORA_ACCESS_URI), attrib=filtered_ds):
                             pass
                 except ObjectDoesNotExistError:
                     logger.info(('Datastream list not retrieved for %s as '
@@ -422,13 +437,26 @@ class DatastreamResource(ABC):
         """
         try:
             self._create_datastream(req, pid, dsid)
+            logger.info('Created DS %s on %s.', dsid, pid)
         except ObjectDoesNotExistError:
             logger.info(('Did not create datastream %s on  %s as the object '
                          'did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
+        self._datastream_to_response(pid, dsid, resp)
 
+    def _datastream_to_response(self, pid, dsid, resp, **kwargs):
+        """
+        Write a datastream profile to a falcon response.
+        """
+        xml_out = SpooledTemporaryFile()
+        datastream_info = self._get_datastream_info(pid, dsid, **kwargs)
+        with etree.xmlfile(xml_out) as xf:
+            _writeDatastreamProfile(xf, datastream_info)
+        length = xml_out.tell()
+        xml_out.seek(0)
+        resp.set_stream(xml_out, length)
+        resp.content_type = 'application/xml'
         resp.status = falcon.HTTP_201
-        logger.info('Created DS %s on %s.', dsid, pid)
 
     @abstractmethod
     def _create_datastream(self, req, pid, dsid):
@@ -444,10 +472,8 @@ class DatastreamResource(ABC):
         """
         Get datastream info.
         """
-        xml_out = SpooledTemporaryFile()
         try:
-            datastream_info = self._get_datastream_info(pid, dsid,
-                                                        **req.params)
+            self._datastream_to_response(pid, dsid, resp, **req.params)
         except DatastreamDoesNotExistError as e:
                 resp.content_type = 'text/plain'
                 logger.info(('Datastream not retrieved: %s not found on %s as'
@@ -455,13 +481,7 @@ class DatastreamResource(ABC):
                 resp.body = 'Datastream {} not found on {} as of {}.'.format(
                             e.dsid, e.pid, e.time)
                 raise falcon.HTTPNotFound() from e
-        with etree.xmlfile(xml_out) as xf:
-            _writeDatastreamProfile(xf, datastream_info)
-        length = xml_out.tell()
-        xml_out.seek(0)
-        resp.set_stream(xml_out, length)
-        resp.content_type = 'application/xml'
-        return
+        logger.info('Retrieved DS %s on %s.', dsid, pid)
 
     def on_put(self, req, resp, pid, dsid):
         """
@@ -484,6 +504,7 @@ class DatastreamResource(ABC):
             # @XXX Raising HTTPError over HTTPConflict because we
             # don't have  a title and description for HTTPConflict.
             raise falcon.HTTPError('409 Conflict') from e
+        self._datastream_to_response(pid, dsid, resp)
 
     @abstractmethod
     def _update_datastream(self, req, pid, dsid):
@@ -624,6 +645,9 @@ class DatastreamHistoryResource(ABC):
         """
         Get an iterable of datastream versions.
 
+        The order of the elements is important; they must be from youngest to
+        oldest.
+
         Raises:
             DatastreamDoesNotExistError: The datastream doesn't exist.
         """
@@ -643,7 +667,7 @@ def _writeDatastreamProfile(xf, datastream_info):
             'dsVersionID': 'DC1.0',
             'dsCreateDate': '2016-02-19T08:02.5000Z',
             'dsState': 'A',
-            'dsMime': 'application/xml',
+            'dsMIME': 'application/xml',
             'dsFormatURI': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
             'dsControlGroup': 'X',
             'dsSize': '387',
@@ -659,7 +683,7 @@ def _writeDatastreamProfile(xf, datastream_info):
             'dsLabel': 'DC Record',
             'dsCreateDate': '2016-02-19T08:02.5000Z',
             'dsState': 'A',
-            'dsMime': 'application/xml',
+            'dsMIME': 'application/xml',
             'dsControlGroup': 'X',
             'dsSize': '387',
             'dsVersionable': 'true',
@@ -669,6 +693,10 @@ def _writeDatastreamProfile(xf, datastream_info):
             'dsChecksum': 'none',
         }
     """
+    # Set some defaults that Fedora provides, but we don't expect.
+    datastream_info.setdefault('dsFormatURI', '')
+    datastream_info.setdefault('dsInfoType', '')
+
     with xf.element('{{{}}}datastreamProfile'.format(FEDORA_MANAGEMENT_URI)):
         for key, value in datastream_info.items():
             if value is not None:

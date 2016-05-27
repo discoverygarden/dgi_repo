@@ -73,6 +73,9 @@ def stash(data, destination_scheme=UPLOAD_SCHEME,
         """
         if hasattr(data, 'read'):
             logger.debug('Data appears file-like.')
+            # A readable item may not have an exit, so lets read and wrap it.
+            if not hasattr(data, '__exit__'):
+                return BytesIO(data.read())
             return data
         elif hasattr(data, 'encode'):
             logger.debug('Data appears to be an (encodable) string.')

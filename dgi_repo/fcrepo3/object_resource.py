@@ -30,23 +30,28 @@ class ObjectResource(api.ObjectResource):
         """
         conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
         with conn, conn.cursor() as cursor:
-            xml = req.get_param('file')
-            if xml is not None:
+            if not pid or pid == 'new':
+                import_pid = None
+            else:
+                import_pid = pid
+            try:
                 # Import FOXML, getting PID.
                 pid = foxml.import_foxml(
-                    xml.file,
+                    req.get_param('file').file,
                     req.env['wsgi.identity'].source_id,
+                    pid=import_pid,
                     cursor=cursor
                 )
-            else:
-                try:
+            except AttributeError:
+                if req.content_length:
                     # Try to import FOXML from request body.
                     pid = foxml.import_foxml(
                         req.stream,
                         req.env['wsgi.identity'].source_id,
+                        pid=import_pid,
                         cursor=cursor
                     )
-                except ValueError:
+                else:
                     if not pid or pid == 'new':
                         # Generate PID.
                         raw_namespace = req.get_param(
@@ -194,9 +199,12 @@ class ObjectResource(api.ObjectResource):
                 new_object_info['owner'] = self._resolve_owner(req, cursor)
             if req.get_param('logMessage') is not None:
                 new_object_info['log'] = resolve_log(req, cursor)
-            else:
-                del new_object_info['modified']
-            object_writer.upsert_object(new_object_info, cursor=cursor)
+            del new_object_info['modified']
+            object_id = object_writer.upsert_object(new_object_info,
+                                                    cursor=cursor
+                                                    ).fetchone()['id']
+            return object_reader.object_info(object_id, cursor=cursor
+                                             ).fetchone()['modified']
 
     def _purge_object(self, req, pid):
         """

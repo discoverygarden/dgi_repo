@@ -39,23 +39,27 @@ class DatastreamResource(api.DatastreamResource):
         with conn, conn.cursor() as cursor:
             ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
             ds_info = cursor.fetchone()
-            if ds_info is not None:
-                ds = dict(ds_info)
-                ds['committed'] = ds['modified']
-                ds['datastream'] = ds['id']
-                del ds['id']
-                # Check modified date param, exiting if needed.
-                modified_date = req.get_param('lastModifiedDate')
-                if modified_date is not None:
-                    modified_date = utils.iso8601_to_datetime(modified_date)
-                    if ds['committed'] > modified_date:
-                        raise DatastreamConflictsError(pid, dsid,
-                                                       ds['committed'],
-                                                       modified_date)
-                ds_writer.upsert_old_datastream(ds, cursor=cursor)
-            else:
+            if ds_info is None:
                 raise DatastreamDoesNotExistError(pid, dsid)
+            ds = dict(ds_info)
+            ds['committed'] = ds['modified']
+            ds['datastream'] = ds['id']
+            del ds['id']
+            # Check modified date param, exiting if needed.
+            modified_date = req.get_param('lastModifiedDate')
+            if modified_date is not None:
+                modified_date = utils.iso8601_to_datetime(modified_date)
+                if ds['committed'] > modified_date:
+                    raise DatastreamConflictsError(pid, dsid, ds['committed'],
+                                                   modified_date)
+            if ds_info['versioned']:
+                ds_writer.upsert_old_datastream(ds, cursor=cursor)
 
+            if ds['resource'] is not None:
+                ds['mimetype'] = ds_reader.mime_from_resource(
+                    ds['resource'],
+                    cursor=cursor
+                ).fetchone()['mime']
             self._upsert_ds(req, pid, dsid, cursor, ds=ds_info)
         return
 
@@ -96,7 +100,12 @@ class DatastreamResource(api.DatastreamResource):
         Raises:
             ObjectDoesNotExistError: The object doesn't exist.
         """
-        ds = dict(ds) if ds is not None else {}
+        if ds is not None:
+            ds = dict(ds)
+            del ds['modified']
+        else:
+            ds = {}
+
         object_info = object_reader.object_id_from_raw(
             pid, cursor=cursor).fetchone()
         if object_info is None:
@@ -124,7 +133,9 @@ class DatastreamResource(api.DatastreamResource):
             try:
                 data = req.get_param('file').file
             except AttributeError:
-                pass
+                # Data can come as the request body.
+                if req.content_length:
+                    data = req.stream
         checksums = None
         checksum = req.get_param('checksum')
         if checksum is not None:
@@ -136,15 +147,34 @@ class DatastreamResource(api.DatastreamResource):
             'dsid': dsid,
             'object': object_info['id'],
             'log': fedora_utils.resolve_log(req, cursor),
-            'control_group': control_group,
-            'label': req.get_param('dsLabel'),
-            'versioned': req.get_param('versionable') != 'false',
-            'state': req.get_param('dsState', default='A'),
             'checksums': checksums,
-            'mimetype': req.get_param('mimeType'),
             'data_ref': data_ref,
             'data': data,
         })
+
+        label_in = req.get_param('dsLabel')
+        if label_in is None:
+            label_in = ''
+        ds['label'] = label_in
+
+        ds.setdefault('control_group', control_group)
+
+        version_in = req.get_param('versionable')
+        if version_in:
+            ds['versioned'] = version_in != 'false'
+        ds.setdefault('versioned', True)
+
+        mime_in = req.get_param('mimeType')
+        if mime_in:
+            ds['mimetype'] = mime_in
+        else:
+            ds['mimetype'] = 'application/octet-stream'
+
+        state_in = req.get_param('dsState')
+        if state_in:
+            ds['state'] = state_in
+        ds.setdefault('state', 'A')
+
         fedora_utils.write_ds(ds, cursor=cursor)
         foxml.internalize_rels(pid, dsid,
                                req.env['wsgi.identity'].source_id,
