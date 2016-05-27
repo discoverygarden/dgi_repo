@@ -23,14 +23,13 @@ class DatabaseRelationshipTestCase(unittest.TestCase):
     def setUp(self):
         self.namespace = 'http://example.org'
         self.name = 'example'
-        self.element = etree.Element('{{{}}}{}'.format(self.namespace, self.name))
+        self.element = etree.Element('{{{}}}{}'.format(self.namespace,
+                                                       self.name))
         self.pred_map = dict()
-
 
     def test_parse_tuple(self):
         self.assertEqual(relationships._element_predicate(self.element),
                          (self.namespace, self.name))
-
 
     def test_text_predicate(self):
         text = "Some text"
@@ -47,14 +46,18 @@ class DatabaseRelationshipTestCase(unittest.TestCase):
 
     @patch('dgi_repo.database.write.sources.upsert_user')
     def test_user_predicate(self, upsert_user):
-        self.element.tag = '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE, relations.IS_VIEWABLE_BY_USER_PREDICATE)
+        self.element.tag = '{{{}}}{}'.format(
+            relations.ISLANDORA_RELS_INT_NAMESPACE,
+            relations.IS_VIEWABLE_BY_USER_PREDICATE
+        )
         self.element.text = 'Bob Loblaw'
         uid = 132
         upsert_user.return_value = self._get_mock_cursor_fetchone({
             'id': uid
         })
         self.assertEqual(self._base_lookup(), (uid, USER_RDF_OBJECT))
-        upsert_user.assert_called_with({'name': self.element.text, 'source': None}, cursor=None)
+        upsert_user.assert_called_with({'name': self.element.text,
+                                        'source': None}, cursor=None)
 
     @patch('dgi_repo.database.write.sources.upsert_role')
     def test_role_predicate(self, upsert_role):
@@ -62,11 +65,14 @@ class DatabaseRelationshipTestCase(unittest.TestCase):
         upsert_role.return_value = self._get_mock_cursor_fetchone({
             'id': rid
         })
-        self.element.tag = '{{{}}}{}'.format(relations.ISLANDORA_RELS_INT_NAMESPACE, relations.IS_VIEWABLE_BY_ROLE_PREDICATE)
+        self.element.tag = '{{{}}}{}'.format(
+            relations.ISLANDORA_RELS_INT_NAMESPACE,
+            relations.IS_VIEWABLE_BY_ROLE_PREDICATE
+        )
         self.element.text = 'Those Guys'
         self.assertEqual(self._base_lookup(), (rid, ROLE_RDF_OBJECT))
-        upsert_role.assert_called_with({'role': self.element.text, 'source': None}, cursor=None)
-
+        upsert_role.assert_called_with({'role': self.element.text,
+                                        'source': None}, cursor=None)
 
     def _patch_object_info_from_raw(self, object_info_from_raw, object_id=42):
         object_info_from_raw.return_value = self._get_mock_cursor_fetchone({
@@ -77,7 +83,6 @@ class DatabaseRelationshipTestCase(unittest.TestCase):
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = data
         return mock_cursor
-
 
     @patch('dgi_repo.database.read.repo_objects.object_info_from_raw')
     def test_object_predicate(self, object_info_from_raw):
@@ -99,21 +104,29 @@ class DatabaseRelationshipTestCase(unittest.TestCase):
 
         uri = 'info:fedora/that:object/SOME_DATASTREAM_ID'
         self.element.set('{{{}}}resource'.format(RDF_NAMESPACE), uri)
-        # XXX: Shit is fucked, because cursor reuse.
-        self.assertEqual(self._base_lookup(), (ds_db_id, DATASTREAM_RDF_OBJECT))
-
-
+        self.assertEqual(self._base_lookup(), (ds_db_id,
+                                               DATASTREAM_RDF_OBJECT))
 
     def _add_to_map(self):
+        """
+        Helper; add the current element to the map.
+
+        Future calls to self._map_lookup() should return the same result as
+        self._base_lookup().
+        """
         self.pred_map[relationships._element_predicate(self.element)] = True
 
-
     def _map_lookup(self):
+        """
+        Helper; attempt resolution using table mapping.
+        """
         return relationships._require_mapped(self.element, self.pred_map, None,
                                              None)
 
-
     def _base_lookup(self):
+        """
+        Helper; attempt resolution.
+        """
         return relationships._rdf_object_from_element(
             relationships._element_predicate(self.element),
             self.element, None, None)

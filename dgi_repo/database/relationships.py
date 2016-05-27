@@ -48,8 +48,8 @@ def _require_mapped(relation, rel_map, *args, **kwargs):
             return (relation.text, LITERAL_RDF_OBJECT)
         else:
             raise ValueError(('Empty relationship node; we require either a '
-                             'populated text node or resource reference for '
-                             '%s.'), predicate)
+                              'populated text node or resource reference for '
+                              '%s.'), predicate)
 
 
 def _rdf_object_from_element(predicate, relation, source, cursor):
@@ -129,7 +129,9 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
                             pid,
                             dsid
                         )
-                        raise ReferencedDatastreamDoesNotExist(pid, dsid) from e
+                        raise ReferencedDatastreamDoesNotExist(pid,
+                                                               dsid) from e
+
                 return (object_id, OBJECT_RDF_OBJECT)
 
         raise ValueError('Failed to resolve relationship %s with value %s.',
