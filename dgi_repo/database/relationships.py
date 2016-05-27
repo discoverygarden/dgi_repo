@@ -2,7 +2,10 @@ from lxml import etree
 
 import dgi_repo.fcrepo3.relations as relations
 import dgi_repo.database.read.repo_objects as object_reader
-from dgi_repo.exceptions import ReferencedObjectDoesNotExistError
+import dgi_repo.database.read.datastreams as datastream_reader
+import dgi_repo.database.write.sources as source_writer
+from dgi_repo.exceptions import (ReferencedObjectDoesNotExistError,
+                                 ReferencedDatastreamDoesNotExist)
 from dgi_repo.fcrepo3.utilities import (RDF_NAMESPACE, pid_from_fedora_uri,
                                         dsid_from_fedora_uri)
 from dgi_repo.database.utilities import (DATASTREAM_RELATION_MAP,
@@ -38,11 +41,15 @@ def _require_mapped(relation, rel_map, *args, **kwargs):
         return _rdf_object_from_element(predicate, relation, *args, **kwargs)
 
     try:
-        return (URI_RDF_OBJECT, relation.attrib['{{{}}}resource'.format(
-            RDF_NAMESPACE
-        )])
+        return (relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)],
+                URI_RDF_OBJECT)
     except KeyError:
-        return (LITERAL_RDF_OBJECT, relation.text)
+        if relation.text:
+            return (relation.text, LITERAL_RDF_OBJECT)
+        else:
+            raise ValueError(('Empty relationship node; we require either a '
+                             'populated text node or resource reference for '
+                             '%s.'), predicate)
 
 
 def _rdf_object_from_element(predicate, relation, source, cursor):
@@ -84,13 +91,15 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
          relations.IS_MANAGEABLE_BY_ROLE_PREDICATE),
     ])
     if relation.text:
-        if relation.tag in user_tags:
-            upsert_user({'name': relation.text, 'source': source},
-                        cursor=cursor)
+        if predicate in user_tags:
+            cursor = source_writer.upsert_user({'name': relation.text,
+                                                'source': source},
+                                               cursor=cursor)
             return (cursor.fetchone()['id'], USER_RDF_OBJECT)
-        elif relation.tag in role_tags:
-            upsert_role({'role': relation.text, 'source': source},
-                        cursor=cursor)
+        elif predicate in role_tags:
+            cursor = source_writer.upsert_role({'role': relation.text,
+                                                'source': source},
+                                               cursor=cursor)
             return (cursor.fetchone()['id'], ROLE_RDF_OBJECT)
         raise ValueError('Failed to resolve relationship %s with value %s.',
                          predicate, relation.text)
@@ -99,24 +108,29 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
 
         pid = pid_from_fedora_uri(resource)
         dsid = dsid_from_fedora_uri(resource)
-        if dsid:
-            object_reader.object_info_from_raw(pid, cursor=cursor)
-            object_id = cursor.fetchone()['id']
-            datastream_reader.datastream_id(
-                {'object_id': object_id, 'dsid': dsid},
-                cursor=cursor
-            )
-            return (cursor.fetchone()['id'], DATASTREAM_RDF_OBJECT)
-        elif pid:
-            rdf_info = object_reader.object_info_from_raw(
-                pid,
-                cursor=cursor
-            ).fetchone()
+        if pid:
+            cursor = object_reader.object_info_from_raw(pid, cursor=cursor)
             try:
-                return (rdf_info['id'], OBJECT_RDF_OBJECT)
+                object_id = cursor.fetchone()['id']
             except TypeError as e:
                 logger.error('Referenced object %s does not exist.', pid)
                 raise ReferencedObjectDoesNotExistError(pid) from e
+            else:
+                if dsid:
+                    try:
+                        cursor = datastream_reader.datastream_id(
+                            {'object_id': object_id, 'dsid': dsid},
+                            cursor=cursor
+                        )
+                        return (cursor.fetchone()['id'], DATASTREAM_RDF_OBJECT)
+                    except TypeError as e:
+                        logger.error(
+                            'Referenced datastream %s/%s does not exist.',
+                            pid,
+                            dsid
+                        )
+                        raise ReferencedDatastreamDoesNotExist(pid, dsid) from e
+                return (object_id, OBJECT_RDF_OBJECT)
 
         raise ValueError('Failed to resolve relationship %s with value %s.',
                          predicate, resource)

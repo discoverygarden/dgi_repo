@@ -80,6 +80,11 @@ class DatastreamDoesNotExistError(Exception):
         self.time = time if time is not None else 'now'
         super().__init__(pid, dsid, time)
 
+class ReferencedDatastreamDoesNotExist(DatastreamDoesNotExistError):
+    """
+    Used to indicate a referenced (RELS) datastream does not exist.
+    """
+
 
 class ExternalDatastreamsNotSupported(ValueError):
     """
