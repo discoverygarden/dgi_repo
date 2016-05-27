@@ -1,5 +1,5 @@
 """
-Tests FOXML functionality.
+Tests relationship resolution functionality.
 """
 
 import unittest
@@ -17,7 +17,7 @@ from dgi_repo.database import relationships
 
 class DatabaseRelationshipTestCase(unittest.TestCase):
     """
-    Tests Fedora URI parsing.
+    Tests relationship parsing.
     """
 
     def setUp(self):

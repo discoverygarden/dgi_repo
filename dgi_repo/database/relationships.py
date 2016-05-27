@@ -1,3 +1,6 @@
+"""
+Relationship resolution.
+"""
 from lxml import etree
 
 import dgi_repo.fcrepo3.relations as relations
@@ -25,10 +28,16 @@ def _element_predicate(relation):
 
 
 def repo_object_rdf_object_from_element(relation, *args, **kwargs):
+    """
+    Resolve a repo object's relationship object.
+    """
     return _require_mapped(relation, OBJECT_RELATION_MAP, *args, **kwargs)
 
 
 def datastream_rdf_object_from_element(relation, *args, **kwargs):
+    """
+    Resolve a datastream's relationship object.
+    """
     return _require_mapped(relation, DATASTREAM_RELATION_MAP, *args, **kwargs)
 
 
