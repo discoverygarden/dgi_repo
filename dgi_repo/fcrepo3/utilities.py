@@ -95,6 +95,13 @@ def write_ds(ds, old=False, cursor=None):
                 cursor=cursor
             )
     else:
+        # Update mime.
+        mime = ds_writer.upsert_mime(ds['mimetype'], cursor=cursor
+                                     ).fetchone()['id']
+        uri = ds_reader.resource(ds['resource'], cursor=cursor
+                                 ).fetchone()['uri']
+        ds_writer.upsert_resource({'uri': uri, 'mime': mime}, cursor=cursor)
+        # @TODO: Update checksums.
         ds_writer.upsert_datastream(ds, cursor=cursor)
 
     return cursor
@@ -134,7 +141,7 @@ def datastream_to_profile(ds_info, cursor, version=0):
         'dsLabel': ds_info['label'],
         'dsCreateDate': format_date(ds_info['modified']),
         'dsState': ds_info['state'],
-        'dsMime': mime,
+        'dsMIME': mime,
         'dsControlGroup': ds_info['control_group'],
         'dsVersionable': versionable,
         'dsVersionID': '{}.{}'.format(ds_info['dsid'], version),
