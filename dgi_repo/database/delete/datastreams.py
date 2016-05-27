@@ -133,7 +133,7 @@ def delete_datastream_versions(pid, dsid, start=None, end=None, cursor=None):
     # Handle base datastream.
     if end is None and start is None:
         return delete_datastream(ds_info['id'], cursor=cursor)
-    elif end is None or end > ds_info['modified']:
+    elif end is None or end >= ds_info['modified']:
         # Find youngest surviving version and make it current.
         ds_replacement = datastream_reader.datastream_as_of_time(
             ds_info['id'],
