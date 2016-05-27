@@ -1,6 +1,8 @@
 """
 Relationship resolution.
 """
+import logging
+
 from lxml import etree
 
 import dgi_repo.fcrepo3.relations as relations
@@ -18,6 +20,7 @@ from dgi_repo.database.utilities import (DATASTREAM_RELATION_MAP,
                                          OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
                                          ROLE_RDF_OBJECT)
 
+logger = logging.getLogger(__name__)
 
 def _element_predicate(relation):
     """
