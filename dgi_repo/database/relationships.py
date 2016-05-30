@@ -18,7 +18,7 @@ from dgi_repo.database.utilities import (DATASTREAM_RELATION_MAP,
                                          LITERAL_RDF_OBJECT, URI_RDF_OBJECT,
                                          DATASTREAM_RDF_OBJECT,
                                          OBJECT_RDF_OBJECT, USER_RDF_OBJECT,
-                                         ROLE_RDF_OBJECT)
+                                         ROLE_RDF_OBJECT, RAW_RDF_OBJECT)
 
 logger = logging.getLogger(__name__)
 
@@ -114,8 +114,10 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
                                                 'source': source},
                                                cursor=cursor)
             return (cursor.fetchone()['id'], ROLE_RDF_OBJECT)
-        raise ValueError('Failed to resolve relationship %s with value %s.',
-                         predicate, relation.text)
+        else:
+            logger.debug(('No dereferencing performed for relationship %s for '
+                          'value %s.'), predicate, relation.text)
+            return (relation.text, RAW_RDF_OBJECT)
     else:
         resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
 
