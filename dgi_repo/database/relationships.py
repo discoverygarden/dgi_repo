@@ -115,7 +115,8 @@ def _rdf_object_from_element(predicate, relation, source, cursor):
                                                cursor=cursor)
             return (cursor.fetchone()['id'], ROLE_RDF_OBJECT)
         else:
-            logger.debug('No dereferencing performed for relationship %s for value %s.', predicate, relation.text)
+            logger.debug(('No dereferencing performed for relationship %s for '
+                          'value %s.'), predicate, relation.text)
             return (relation.text, RAW_RDF_OBJECT)
     else:
         resource = relation.attrib['{{{}}}resource'.format(RDF_NAMESPACE)]
