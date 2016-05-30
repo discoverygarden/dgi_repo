@@ -583,9 +583,11 @@ class DatastreamDisseminationResource(ABC):
             resp.content_type = info['mime']
         except KeyError:
             pass
-        try:
+        if 'location' in info:
+            logger.info('Redirecting %s on %s to %s.', dsid, pid,
+                        info['location'])
             raise falcon.HTTPTemporaryRedirect(info['location'])
-        except KeyError:
+        else:
             try:
                 resp.stream = info['stream']
             except KeyError:
