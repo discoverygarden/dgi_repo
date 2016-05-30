@@ -508,7 +508,7 @@ class FoxmlTarget(object):
         Internalize data at the end of tags.
 
         Raises:
-            ObjectDoesExistsError: The object already exists.
+            ObjectExistsError: The object already exists.
         """
         # Create the object.
         if tag == '{{{0}}}objectProperties'.format(FOXML_NAMESPACE):
