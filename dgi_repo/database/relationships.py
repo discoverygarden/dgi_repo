@@ -22,6 +22,7 @@ from dgi_repo.database.utilities import (DATASTREAM_RELATION_MAP,
 
 logger = logging.getLogger(__name__)
 
+
 def _element_predicate(relation):
     """
     Helper; get the namespace and localname tuple for the element's name.
