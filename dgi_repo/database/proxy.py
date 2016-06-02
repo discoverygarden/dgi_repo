@@ -10,6 +10,7 @@ from psycopg2 import connect, DatabaseError, ProgrammingError
 
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.utilities import SpooledTemporaryFile
+from dgi_repo.fcrepo3.utilities import serialize_to_json
 
 
 class ProxyResource(object):
@@ -66,7 +67,7 @@ class ProxyResource(object):
                 raise falcon.HTTPInternalServerError('Query failed',
                                                      de.diag.message_primary)
             else:
-                json.dump(cursor, resp.stream, iterable_as_array=True)
+                json.dump(cursor, resp.stream, iterable_as_array=True, default=serialize_to_json)
 
     def _get_connection(self):
         """

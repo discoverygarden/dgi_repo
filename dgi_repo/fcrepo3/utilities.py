@@ -1,6 +1,7 @@
 """
 Utility functions to assist with the Fedora 3 spoofing.
 """
+import datetime
 import logging
 
 import requests
@@ -151,6 +152,16 @@ def datastream_to_profile(ds_info, cursor, version=0):
         'dsLocation': location,
         'dsLocationType': location_type,
     }
+
+
+def serialize_to_json(obj):
+    """
+    JSON serializer for datetime objects that respects format_date().
+    """
+
+    if isinstance(obj, datetime.datetime):
+        return format_date(obj)
+    raise TypeError ("Type not serializable")
 
 
 def format_date(dt):
