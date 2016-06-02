@@ -52,7 +52,7 @@ class ProxyResource(object):
                 if 'replacements' in info:
                     try:
                         cursor.execute(info['query'], info['replacements'])
-                    except TypeError:
+                    except (TypeError, IndexError):
                         raise falcon.HTTPBadRequest(
                             'Bad query',
                             ('Query placeholders invalid for the given'
