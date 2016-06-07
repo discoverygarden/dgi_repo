@@ -3,12 +3,12 @@ Authorize actions.
 """
 import falcon
 from talons.auth import middleware
-from talons.auth.external import Authorizer
 
 from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier
 from dgi_repo.auth.drupal import authenticate as drupal_auth
-from dgi_repo.auth.system import authenticate as system_auth
-from dgi_repo.auth.utilities import Authenticator
+from dgi_repo.auth.system import (authenticate as system_authenticator,
+                                  Authorize as SystemAuthorize)
+from dgi_repo.auth.utilities import Authenticator, Authorizor
 
 
 def authorize(identity, action):
@@ -38,12 +38,16 @@ class AuthMiddleware(object):
         """
         authenticator = Authenticator(
             drupal_auth,
-            system_auth
+            system_authenticator
+        )
+        authorizer = Authorizor(
+          authorize,
+          SystemAuthorize()
         )
         self._auth_middleware = middleware.create_middleware(
             identify_with=[Identifier],
             authenticate_with=authenticator,
-            authorize_with=Authorizer(external_authz_callable=authorize)
+            authorize_with=authorizer
         )
 
         self._auth_middleware.raise_401_no_identity = self._raise_no_ident

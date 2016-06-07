@@ -135,6 +135,10 @@ class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
                 # Sniff custom header to identify the particular origin site.
                 us, sep, site = req.user_agent.partition('/')
                 identity.site = site if us == 'Tuque' else None
+            else:
+                identity.site = None
+
+            identity.remote_addr = req.remote_addr
 
         return result
 
