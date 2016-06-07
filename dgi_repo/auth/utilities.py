@@ -2,9 +2,9 @@ import logging
 
 from talons.auth import interfaces
 
-from dgi_repo.configuration import configuration as _config
 
 logger = logging.getLogger(__name__)
+
 
 class Authenticator(interfaces.Authenticates):
     def __init__(self, *callables):
@@ -16,6 +16,7 @@ class Authenticator(interfaces.Authenticates):
 
     def sets_group(self):
         return True
+
 
 class Authorizor(interfaces.Authorizes):
     def __init__(self, *callables):

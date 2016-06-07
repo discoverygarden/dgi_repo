@@ -3,6 +3,7 @@ from crypt import crypt
 
 from dgi_repo.configuration import configuration as _config
 
+
 def authenticate(identity):
     if identity.site is not None:
         return None
@@ -16,6 +17,7 @@ def authenticate(identity):
             identity.site = _config['self']['source']
             return True
         return False
+
 
 class Authorize:
     def __init__(self):
