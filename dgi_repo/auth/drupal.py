@@ -44,8 +44,8 @@ def authenticate(identity):
         A boolean indicating if the given identity authenticates.
     """
     if not hasattr(identity, 'site') or identity.site is None:
-        logger.warning('Got request without site token.')
-        return False
+        logger.debug('Got request without site token.')
+        return None
 
     if identity.login == 'anonymous' and identity.key == 'anonymous':
         # Quick anonymous check...

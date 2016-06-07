@@ -161,7 +161,7 @@ def serialize_to_json(obj):
 
     if isinstance(obj, datetime.datetime):
         return format_date(obj)
-    raise TypeError ("Type not serializable")
+    raise TypeError("Type not serializable")
 
 
 def format_date(dt):
