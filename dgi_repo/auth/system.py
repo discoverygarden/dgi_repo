@@ -9,12 +9,12 @@ def authenticate(identity):
         return None
 
     try:
-        password = _config['self']['others']['users'][identity.login]
+        password = _config['configured_users']['users'][identity.login]
     except KeyError:
         return None
     else:
         if password == crypt(identity.key, password):
-            identity.site = _config['self']['source']
+            identity.site = _config['configured_users']['source']
             return True
         return False
 
@@ -24,14 +24,14 @@ class Authorize:
         self._ipv4 = []
         self._ipv6 = []
 
-        for ip in _config['self']['others']['ips']:
+        for ip in _config['configured_users']['ips']:
             try:
                 self._ipv4.append(ipaddress.IPv4Network(ip, False))
             except ipaddress.AddressValueError:
                 self._ipv6.append(ipaddress.IPv6Network(ip, False))
 
     def __call__(self, identity, resource):
-        if identity.site == _config['self']['source']:
+        if identity.site == _config['configured_users']['source']:
             return self._test_ip(resource.request.remote_addr)
 
     def _test_ip(self, remote_addr):
