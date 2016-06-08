@@ -67,7 +67,8 @@ class ProxyResource(object):
                 raise falcon.HTTPInternalServerError('Query failed',
                                                      de.diag.message_primary)
             else:
-                json.dump(cursor, resp.stream, iterable_as_array=True, default=serialize_to_json)
+                json.dump(cursor, resp.stream, iterable_as_array=True,
+                          default=serialize_to_json)
 
     def _get_connection(self):
         """

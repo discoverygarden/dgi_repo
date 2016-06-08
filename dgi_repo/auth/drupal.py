@@ -44,8 +44,8 @@ def authenticate(identity):
         A boolean indicating if the given identity authenticates.
     """
     if not hasattr(identity, 'site') or identity.site is None:
-        logger.warning('Got request without site token.')
-        return False
+        logger.debug('Got request without site token.')
+        return None
 
     if identity.login == 'anonymous' and identity.key == 'anonymous':
         # Quick anonymous check...
@@ -135,6 +135,8 @@ class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
                 # Sniff custom header to identify the particular origin site.
                 us, sep, site = req.user_agent.partition('/')
                 identity.site = site if us == 'Tuque' else None
+            else:
+                identity.site = None
 
         return result
 

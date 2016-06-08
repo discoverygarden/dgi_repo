@@ -18,6 +18,20 @@ db_proxy:
 self:
     source: dgi_repo
     username: dgi_repo
+
+configured_users:
+    source: configured
+    ips:
+        # List of IP network specifications: configured users are only
+        # authorized for requests made from these networks.
+        - 127.0.0.1/8
+        - 192.168.0.0/16
+    users:
+        # Mapping of usernames to crypt'd password strings.
+        fedoraAdmin: !!python/object/apply:crypt.crypt('islandora')
+        # Instead of including the plain-text pass as above it would be better to use the hash as below:
+        # fedoraAdmin: '$6$SFlUn5Q1RBkSIgIM$6UtgFyLzlZ.s592BEfztP9qE1IFlqQF5Ii2BIO4gwEcJ.Ma.HvTbhcIko8/priFM/t9x7KwQTouaN/C4f5vC9/'
+
 drupal_sites:
     # Site ID. User-Agent in inbound requests should match 'Tuque/{name}',
     # like 'Tuque/alpha' for this one
