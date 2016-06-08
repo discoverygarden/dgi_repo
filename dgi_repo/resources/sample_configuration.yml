@@ -29,7 +29,7 @@ configured_users:
     users:
         # Mapping of usernames to crypt'd password strings.
         fedoraAdmin: !!python/object/apply:crypt.crypt('islandora')
-        # Instead of the call to generate, would be better being the hash string proper, like:
+        # Instead of including the plain-text pass as above it would be better to use the hash as below:
         # fedoraAdmin: '$6$SFlUn5Q1RBkSIgIM$6UtgFyLzlZ.s592BEfztP9qE1IFlqQF5Ii2BIO4gwEcJ.Ma.HvTbhcIko8/priFM/t9x7KwQTouaN/C4f5vC9/'
 
 drupal_sites:
