@@ -42,7 +42,7 @@ class AuthMiddleware(object):
         )
         authorizer = Authorizor(
           authorize,
-          SystemAuthorize()
+          SystemAuthorize().authorize
         )
         self._auth_middleware = middleware.create_middleware(
             identify_with=[Identifier],

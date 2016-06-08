@@ -1,10 +1,19 @@
+"""
+System/configured user auth functionality.
+"""
 import ipaddress
+from ipaddress import IPv4Network, IPv4Address
 from crypt import crypt
+
+from talons.auth import interfaces
 
 from dgi_repo.configuration import configuration as _config
 
 
 def authenticate(identity):
+    """
+    Authenication callback.
+    """
     if identity.site is not None:
         return None
 
@@ -19,30 +28,52 @@ def authenticate(identity):
         return False
 
 
-class Authorize:
+class Authorize(interfaces.Authorizes):
+    """
+    Callable authorization class.
+    """
     def __init__(self):
+        self._networks = IPNetworkSet(_config['configured_users']['ips'])
+
+    def authorize(self, identity, resource):
+        if identity.site == _config['configured_users']['source']:
+            return resource.request.remote_addr in self._networks
+
+
+class IPNetworkSet(object):
+    """
+    Represent a set of IP networks, both v4 and v6.
+    """
+    def __init__(self, ips):
+        """
+        Constructor.
+
+        Params:
+            ips: An iterable of network specifications in either CIDR notation
+                or with the network and subnet masks separated by a slash, for
+                example: 127.0.0.0/8 and 127.0.0.0/255.0.0.0 would be
+                equivalent.
+        """
         self._ipv4 = []
         self._ipv6 = []
 
-        for ip in _config['configured_users']['ips']:
-            try:
-                self._ipv4.append(ipaddress.IPv4Network(ip, False))
-            except ipaddress.AddressValueError:
-                self._ipv6.append(ipaddress.IPv6Network(ip, False))
+        for ip in ips:
+            network = ipaddress.ip_network(ip, False)
+            if isinstance(network, IPv4Network):
+                self._ipv4.append(network)
+            else:
+                self._ipv6.append(network)
 
-    def __call__(self, identity, resource):
-        if identity.site == _config['configured_users']['source']:
-            return self._test_ip(resource.request.remote_addr)
+        self._ipv4 = set(ipaddress.collapse_addresses(self._ipv4))
+        self._ipv6 = set(ipaddress.collapse_addresses(self._ipv6))
 
-    def _test_ip(self, remote_addr):
-        try:
-            ip = ipaddress.IPv4Address(remote_addr)
-            for net in self._ipv4:
-                if ip in net:
-                    return True
-        except ipaddress.AddressValueError:
-            ip = ipaddress.IPv6Address(remote_addr)
-            for net in self._ipv6:
-                if ip in net:
-                    return True
+    def __contains__(self, addr):
+        """
+        Test if the given IP is contained in our set of networks.
+        """
+        ip = ipaddress.ip_address(addr)
+        networks = self._ipv4 if isinstance(ip, IPv4Address) else self._ipv6
+        for net in networks:
+            if ip in net:
+                return True
         return False
