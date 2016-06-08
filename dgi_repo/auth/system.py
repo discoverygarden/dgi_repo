@@ -24,6 +24,7 @@ def authenticate(identity):
         return None
     else:
         if compare_hash(password, crypt(identity.key, password)):
+            # The site value will be used during authorization.
             identity.site = _config['configured_users']['source']
             return True
         return False
@@ -37,6 +38,7 @@ class Authorize(interfaces.Authorizes):
         self._networks = IPNetworkSet(_config['configured_users']['ips'])
 
     def authorize(self, identity, resource):
+        # We only authorize our identities.
         if identity.site == _config['configured_users']['source']:
             return resource.request.remote_addr in self._networks
 
