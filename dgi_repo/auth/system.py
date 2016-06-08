@@ -4,6 +4,7 @@ System/configured user auth functionality.
 import ipaddress
 from ipaddress import IPv4Network, IPv4Address
 from crypt import crypt
+from hmac import compare_digest as compare_hash
 
 from talons.auth import interfaces
 
@@ -22,7 +23,7 @@ def authenticate(identity):
     except KeyError:
         return None
     else:
-        if password == crypt(identity.key, password):
+        if compare_hash(password, crypt(identity.key, password)):
             identity.site = _config['configured_users']['source']
             return True
         return False
