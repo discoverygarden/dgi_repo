@@ -138,8 +138,6 @@ class SiteBasicIdentifier(talons.auth.basicauth.Identifier):
             else:
                 identity.site = None
 
-            identity.remote_addr = req.remote_addr
-
         return result
 
 
