@@ -1,5 +1,8 @@
 """
 Auth utility classes and functions.
+
+We need our own Authenticator and Authorizer implementations to facilite the
+the combination of results from multiple sources.
 """
 from talons.auth import interfaces
 
