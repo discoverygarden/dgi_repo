@@ -8,7 +8,7 @@ from dgi_repo.auth.drupal import SiteBasicIdentifier as Identifier
 from dgi_repo.auth.drupal import authenticate as drupal_auth
 from dgi_repo.auth.system import (authenticate as system_authenticator,
                                   Authorize as SystemAuthorize)
-from dgi_repo.auth.utilities import Authenticator, Authorizor
+from dgi_repo.auth.utilities import Authenticator, Authorizer
 
 
 def authorize(identity, action):
@@ -40,7 +40,7 @@ class AuthMiddleware(object):
             drupal_auth,
             system_authenticator
         )
-        authorizer = Authorizor(
+        authorizer = Authorizer(
           authorize,
           SystemAuthorize().authorize
         )

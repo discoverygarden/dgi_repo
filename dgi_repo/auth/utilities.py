@@ -62,7 +62,7 @@ class Authenticator(interfaces.Authenticates):
         return True
 
 
-class Authorizor(interfaces.Authorizes):
+class Authorizer(interfaces.Authorizes):
     def __init__(self, *callables):
         """
         Constructor.
