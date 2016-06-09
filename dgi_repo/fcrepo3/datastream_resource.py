@@ -60,7 +60,7 @@ class DatastreamResource(api.DatastreamResource):
                     ds['resource'],
                     cursor=cursor
                 ).fetchone()['mime']
-            self._upsert_ds(req, pid, dsid, cursor, ds=ds_info)
+            self._upsert_ds(req, pid, dsid, cursor, ds=ds)
         return
 
     def _delete_datastream(self, req, pid, dsid):
@@ -153,9 +153,9 @@ class DatastreamResource(api.DatastreamResource):
         })
 
         label_in = req.get_param('dsLabel')
-        if label_in is None:
-            label_in = ''
-        ds['label'] = label_in
+        if label_in is not None:
+            ds['label'] = label_in
+        ds.setdefault('label', '')
 
         ds.setdefault('control_group', control_group)
 
@@ -167,8 +167,7 @@ class DatastreamResource(api.DatastreamResource):
         mime_in = req.get_param('mimeType')
         if mime_in:
             ds['mimetype'] = mime_in
-        else:
-            ds['mimetype'] = 'application/octet-stream'
+        ds.setdefault('mimetype', 'application/octet-stream')
 
         state_in = req.get_param('dsState')
         if state_in:
