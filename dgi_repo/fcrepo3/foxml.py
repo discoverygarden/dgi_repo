@@ -383,11 +383,15 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
     # Ingest new relations.
     relation_tree = etree.parse(relations_file)
     for relation in relation_tree.getroot().iter(tag=etree.Element):
+        if relation.text is None:
+            rdf_object = ''
+        else:
+            rdf_object = relation.text
         object_relations_writer.write_relationship(
             relations.DC_NAMESPACE,
             etree.QName(relation).localname,
             object_id,
-            relation.text,
+            rdf_object,
             LITERAL_RDF_OBJECT,
             cursor=cursor
         )
