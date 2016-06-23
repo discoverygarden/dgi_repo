@@ -61,11 +61,17 @@ class ProxyResource(object):
                 else:
                     cursor.execute(info['query'])
             except ProgrammingError as pe:
-                raise falcon.HTTPBadRequest('Bad query',
-                                            pe.diag.message_primary)
+                raise falcon.HTTPBadRequest(
+                    'Bad query',
+                    (pe.diag.message_primary if pe.diag.message_primary
+                     else str(pe))
+                )
             except DatabaseError as de:
-                raise falcon.HTTPInternalServerError('Query failed',
-                                                     de.diag.message_primary)
+                raise falcon.HTTPInternalServerError(
+                    'Query failed',
+                    (de.diag.message_primary if de.diag.message_primary
+                     else str(de))
+                )
             else:
                 json.dump(cursor, resp.stream, iterable_as_array=True,
                           default=serialize_to_json)
