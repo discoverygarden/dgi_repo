@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a drop in replacement for Fedora in the context of most of Islandora.
+This is an alternative to Fedora 3 in the context of most of Islandora.
 
 ## Requirements
 
