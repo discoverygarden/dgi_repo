@@ -6,7 +6,7 @@ This is an alternative to Fedora 3 in the context of most of Islandora.
 
 ## Requirements
 
-This module requires the following:
+This package requires the following:
 
 * [Python 3.4.3+](https://www.python.org/)
 * [PostgreSQL](http://www.postgresql.org/)
