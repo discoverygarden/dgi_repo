@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name='dgi_repo',
-    version='1.x',
+    version='0.0.0',
     description="discoverygarden's repository software",
     author='discoverygarden',
     author_email='dev@discoverygarden.ca',
