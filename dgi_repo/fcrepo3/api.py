@@ -3,6 +3,7 @@ Falcon resource abstract base classes.
 """
 import logging
 from abc import ABC, abstractmethod
+from os.path import getsize
 
 import falcon
 from lxml import etree
@@ -596,6 +597,7 @@ class DatastreamDisseminationResource(ABC):
         else:
             try:
                 resp.stream = info['stream']
+                resp.stream_len = getsize(info['stream'].name)
             except KeyError:
                 pass
 
