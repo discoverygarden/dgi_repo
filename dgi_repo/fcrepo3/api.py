@@ -10,8 +10,9 @@ from lxml import etree
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.utilities import SpooledTemporaryFile
 from dgi_repo.exceptions import (ObjectDoesNotExistError, ObjectConflictsError,
+                                 DatastreamExistsError, ObjectExistsError,
                                  DatastreamDoesNotExistError,
-                                 DatastreamConflictsError, ObjectExistsError)
+                                 DatastreamConflictsError)
 from dgi_repo.fcrepo3.utilities import format_date
 
 logger = logging.getLogger(__name__)
@@ -442,6 +443,11 @@ class DatastreamResource(ABC):
             logger.info(('Did not create datastream %s on  %s as the object '
                          'did not exist.'), dsid, pid)
             _send_object_404(pid, resp)
+        except DatastreamExistsError as e:
+            logger.info(('Did not create datasteam %s on %s as it already '
+                         'exists.'), dsid, pid)
+            raise falcon.HTTPMethodNotAllowed(['PUT', 'HEAD',
+                                               'GET', 'DELETE']) from e
         self._datastream_to_response(pid, dsid, resp)
 
     def _datastream_to_response(self, pid, dsid, resp, **kwargs):

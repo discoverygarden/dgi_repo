@@ -12,6 +12,7 @@ import dgi_repo.utilities as utils
 import dgi_repo.fcrepo3.utilities as fedora_utils
 from dgi_repo.exceptions import (ObjectDoesNotExistError,
                                  DatastreamDoesNotExistError,
+                                 DatastreamExistsError,
                                  DatastreamConflictsError,
                                  ExternalDatastreamsNotSupported)
 from dgi_repo.fcrepo3 import api, foxml
@@ -26,9 +27,16 @@ class DatastreamResource(api.DatastreamResource):
     def _create_datastream(self, req, pid, dsid):
         """
         Persist the new datastream.
+
+        Raises:
+            DatastreamExistsError: The object doesn't exist.
         """
         conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
         with conn, conn.cursor() as cursor:
+            ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
+            ds_info = cursor.fetchone()
+            if ds_info:
+                raise DatastreamExistsError(pid, dsid)
             self._upsert_ds(req, pid, dsid, cursor)
 
     def _update_datastream(self, req, pid, dsid):

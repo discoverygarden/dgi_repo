@@ -81,6 +81,20 @@ class DatastreamDoesNotExistError(Exception):
         super().__init__(pid, dsid, time)
 
 
+class DatastreamExistsError(Exception):
+    """
+    Used to indicate that a datastream expected to not exist does.
+    """
+
+    def __init__(self, pid, dsid):
+        """
+        Constructor for exception.
+        """
+        self.pid = pid
+        self.dsid = dsid
+        super().__init__(pid, dsid)
+
+
 class ReferencedDatastreamDoesNotExist(DatastreamDoesNotExistError):
     """
     Used to indicate a referenced (RELS) datastream does not exist.
