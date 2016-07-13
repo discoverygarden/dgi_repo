@@ -11,6 +11,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
+from dgi_repo.utilities import checksum_file
 from dgi_repo.database.utilities import get_connection, check_cursor
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.delete.datastreams import delete_resource
@@ -197,12 +198,7 @@ def create_datastream_from_data(datastream_data, data, mime=None,
     cursor = check_cursor(cursor, ISOLATION_LEVEL_READ_COMMITTED)
 
     datastream_data['resource'] = stash(data, DATASTREAM_SCHEME, mime)[0]
-
-    if checksums is not None:
-        for checksum in checksums:
-            checksum['resource'] = datastream_data['resource']
-            datastream_writer.upsert_checksum(checksum, cursor=cursor)
-            cursor.fetchone()
+    update_checksums(datastream_data['resource'], checksums, cursor=cursor)
 
     _create_datastream_from_filestore(datastream_data, old, cursor=cursor)
 
@@ -243,3 +239,41 @@ def _create_datastream_from_filestore(datastream_data, old=False, cursor=None):
         raise e
 
     return cursor
+
+
+def update_checksums(resource, checksums, cursor=None):
+    """
+    Bring a resource's checksums up to date.
+
+    Raises:
+        ValueError: On checksum mismatch.
+    """
+    if checksums is not None:
+        old_checksums = datastream_reader.checksums(resource, cursor=cursor
+                                                    ).fetchall()
+        for checksum in checksums:
+            # Only set or validate checksums if they have changed.
+            update_checksum = True
+            for old_checksum in old_checksums:
+                # If we get checksums with no type it is the old.
+                if not checksum['type']:
+                    checksum['type'] = old_checksum['type']
+                if (old_checksum['type'] == checksum['type'] and
+                        old_checksum['checksum'] == checksum['checksum']):
+                    update_checksum = False
+
+            if update_checksum:
+                checksum['resource'] = resource
+                file_path = resolve_uri(datastream_reader.resource(
+                    resource,
+                    cursor=cursor).fetchone()['uri'])
+                checksum_value = checksum_file(file_path, checksum['type'])
+
+                if not checksum['checksum']:
+                    # Set checksum.
+                    checksum['checksum'] = checksum_value
+                elif checksum_value != checksum['checksum']:
+                    raise ValueError('Checksum mismatch.')
+
+                datastream_writer.upsert_checksum(checksum, cursor=cursor)
+                cursor.fetchone()

@@ -176,9 +176,9 @@ def mime_id(mime, cursor=None):
     return cursor
 
 
-def checksum_id(resource_id, cursor=None):
+def checksum_ids(resource_id, cursor=None):
     """
-    Query for a checksum record from the repository.
+    Query for checksum IDs from the repository.
     """
     cursor = check_cursor(cursor)
 

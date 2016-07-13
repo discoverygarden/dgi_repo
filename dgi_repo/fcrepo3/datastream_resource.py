@@ -33,8 +33,8 @@ class DatastreamResource(api.DatastreamResource):
         """
         conn = get_connection(ISOLATION_LEVEL_READ_COMMITTED)
         with conn, conn.cursor() as cursor:
-            ds_reader.datastream_from_raw(pid, dsid, cursor=cursor)
-            ds_info = cursor.fetchone()
+            ds_info = ds_reader.datastream_from_raw(pid, dsid,
+                                                    cursor=cursor).fetchone()
             if ds_info:
                 raise DatastreamExistsError(pid, dsid)
             self._upsert_ds(req, pid, dsid, cursor)
@@ -144,13 +144,16 @@ class DatastreamResource(api.DatastreamResource):
                 # Data can come as the request body.
                 if req.content_length:
                     data = req.stream
-        checksums = None
+
+        checksums = []
         checksum = req.get_param('checksum')
-        if checksum is not None:
+        checksum_type = req.get_param('checksumType')
+        if checksum is not None or checksum_type is not None:
             checksums.append({
                 'checksum': checksum,
-                'type': req.get_param('checksumType'),
+                'type': checksum_type,
             }),
+
         ds.update({
             'dsid': dsid,
             'object': object_info['id'],
