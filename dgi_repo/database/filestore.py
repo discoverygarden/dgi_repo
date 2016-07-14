@@ -11,6 +11,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 
 import dgi_repo.database.write.datastreams as datastream_writer
 import dgi_repo.database.read.datastreams as datastream_reader
+import dgi_repo.database.delete.datastreams as datastream_purger
 from dgi_repo.utilities import checksum_file
 from dgi_repo.database.utilities import get_connection, check_cursor
 from dgi_repo.configuration import configuration as _config
@@ -248,10 +249,30 @@ def update_checksums(resource, checksums, cursor=None):
     Raises:
         ValueError: On checksum mismatch.
     """
+    # Fedora hash types mapped to the names that hashlib uses.
+    hash_type_map = {
+        'MD5': 'md5',
+        'SHA-1': 'sha1',
+        'SHA-256': 'sha256',
+        'SHA-384': 'sha384',
+        'SHA-512': 'sha512'
+    }
+
     if checksums is not None:
         old_checksums = datastream_reader.checksums(resource, cursor=cursor
                                                     ).fetchall()
         for checksum in checksums:
+            # Resolve default checksum.
+            if checksum['type'] == 'DEFAULT':
+                checksum['type'] = _config['default_hash_algorithm']
+
+            # Checksums can be disabled.
+            if checksum['type'] == 'DISABLED':
+                for old_checksum in old_checksums:
+                    datastream_purger.delete_checksum(old_checksum['id'],
+                                                      cursor=cursor)
+                continue
+
             # Only set or validate checksums if they have changed.
             update_checksum = True
             for old_checksum in old_checksums:
@@ -267,7 +288,10 @@ def update_checksums(resource, checksums, cursor=None):
                 file_path = resolve_uri(datastream_reader.resource(
                     resource,
                     cursor=cursor).fetchone()['uri'])
-                checksum_value = checksum_file(file_path, checksum['type'])
+                checksum_value = checksum_file(
+                    file_path,
+                    hash_type_map[checksum['type']]
+                )
 
                 if not checksum['checksum']:
                     # Set checksum.
