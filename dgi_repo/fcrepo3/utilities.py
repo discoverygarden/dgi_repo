@@ -53,6 +53,7 @@ def write_ds(ds, old=False, cursor=None):
             cursor=cursor
         )
     elif ds['data_ref'] is not None:
+        # There is data but not in the request.
         if ds['control_group'] == 'R':
             # Data will remain external.
             ds_writer.upsert_mime(ds['mimetype'], cursor=cursor)
@@ -96,13 +97,14 @@ def write_ds(ds, old=False, cursor=None):
                 cursor=cursor
             )
     else:
-        # Update mime.
+        # There is no data change.
         mime = ds_writer.upsert_mime(ds['mimetype'], cursor=cursor
                                      ).fetchone()['id']
         uri = ds_reader.resource(ds['resource'], cursor=cursor
                                  ).fetchone()['uri']
         ds_writer.upsert_resource({'uri': uri, 'mime': mime}, cursor=cursor)
-        # @TODO: Update checksums.
+        filestore.update_checksums(ds['resource'], ds['checksums'],
+                                   cursor=cursor)
         ds_writer.upsert_datastream(ds, cursor=cursor)
 
     return cursor

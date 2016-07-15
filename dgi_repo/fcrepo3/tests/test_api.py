@@ -3,8 +3,9 @@ Tests API functionality.
 """
 
 import unittest
-import datetime
+from datetime import datetime
 
+import pytz
 from lxml import etree
 
 from dgi_repo.fcrepo3 import object_resource
@@ -25,8 +26,8 @@ class GetObjectProfileTestCase(unittest.TestCase):
             'boaty:mcboatface',
             'intertubes',
             ['do:thereisnotry'],
-            datetime.datetime.now(),
-            datetime.datetime.now(),
+            datetime.now(pytz.utc),
+            datetime.now(pytz.utc),
             'A',
             'dr who'
         )

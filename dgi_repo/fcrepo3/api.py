@@ -449,6 +449,7 @@ class DatastreamResource(ABC):
                          'exists.'), dsid, pid)
             raise falcon.HTTPMethodNotAllowed(['PUT', 'HEAD',
                                                'GET', 'DELETE']) from e
+        resp.status = falcon.HTTP_201
         self._datastream_to_response(pid, dsid, resp)
 
     def _datastream_to_response(self, pid, dsid, resp, **kwargs):
@@ -463,7 +464,6 @@ class DatastreamResource(ABC):
         xml_out.seek(0)
         resp.set_stream(xml_out, length)
         resp.content_type = 'application/xml'
-        resp.status = falcon.HTTP_201
 
     @abstractmethod
     def _create_datastream(self, req, pid, dsid):

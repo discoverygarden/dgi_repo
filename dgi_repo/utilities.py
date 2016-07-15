@@ -1,6 +1,7 @@
 """
 Utility functions.
 """
+import hashlib
 from tempfile import SpooledTemporaryFile as _SpooledTemporaryFile
 
 import dateutil.parser
@@ -99,3 +100,15 @@ def check_datetime_timezone(check):
         our_timezone = timezone(_config['timezone'])
         check = our_timezone.localize(check)
     return check
+
+
+def checksum_file(path, hash_type):
+    """
+    Get the checksum of a file.
+    """
+    with open(path, 'rb') as fp:
+        hasher = hashlib.new(hash_type)
+        for chunk in iter(lambda: fp.read(_config['checksum_chunk_size']),
+                          b''):
+            hasher.update(chunk)
+        return hasher.hexdigest()
