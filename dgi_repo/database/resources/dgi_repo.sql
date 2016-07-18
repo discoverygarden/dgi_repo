@@ -23,6 +23,7 @@ CREATE TYPE checksum_algorithims AS ENUM (
     'MD5',
     'SHA-1',
     'SHA-256',
+    'SHA-384',
     'SHA-512'
 );
 
