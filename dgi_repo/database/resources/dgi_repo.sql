@@ -102,9 +102,7 @@ CREATE FUNCTION resource_refcount() RETURNS trigger
         DO UPDATE SET refcount = resource_refcounts.refcount + 1, touched = now();
       END IF;
 
-      IF (TG_OP = 'UPDATE') THEN
-        RETURN NEW;
-      END IF;
+      RETURN NEW;
     END;
   $$;
 
