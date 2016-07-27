@@ -79,12 +79,17 @@ CREATE FUNCTION resource_refcount() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
+      IF (TG_OP = 'UPDATE') THEN
+        IF (NEW.resource = OLD.resource) THEN
+          RETURN NEW;
+        END IF;
+      END IF;
+
       IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
         UPDATE resource_refcounts SET refcount = refcount - 1, touched = now() WHERE id = OLD.resource;
         IF (TG_OP = 'DELETE') THEN
           RETURN OLD;
         END IF;
-        RETURN NEW;
       END IF;
       IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
         IF (NEW.resource IS NULL) THEN
@@ -95,6 +100,9 @@ CREATE FUNCTION resource_refcount() RETURNS trigger
         VALUES (NEW.resource, 1)
         ON CONFLICT (id)
         DO UPDATE SET refcount = resource_refcounts.refcount + 1, touched = now();
+      END IF;
+
+      IF (TG_OP = 'UPDATE') THEN
         RETURN NEW;
       END IF;
     END;
