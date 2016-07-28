@@ -4,10 +4,16 @@ Functions to help with FOXML.
 import logging
 import base64
 from io import BytesIO
+import os
+try:
+    from os import scandir as scandir
+except ImportError:
+    from scandir import scandir
 
 from lxml import etree
 from psycopg2 import IntegrityError
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
+import click
 
 import dgi_repo.database.delete.datastream_relations as ds_relations_purger
 import dgi_repo.database.write.datastream_relations as ds_relations_writer
@@ -17,14 +23,16 @@ import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
-from dgi_repo.database.read.repo_objects import object_info_from_raw
+from dgi_repo.database.read.repo_objects import (object_info_from_raw,
+                                                 object_id_from_raw)
 from dgi_repo.exceptions import (ObjectExistsError,
                                  ExternalDatastreamsNotSupported,
                                  ObjectDoesNotExistError)
 from dgi_repo.fcrepo3.utilities import (write_ds, format_date, RDF_NAMESPACE,
                                         dsid_from_fedora_uri)
-from dgi_repo.database.write.sources import upsert_user
-from dgi_repo.database.utilities import (check_cursor, LITERAL_RDF_OBJECT)
+from dgi_repo.database.write.sources import upsert_user, upsert_source
+from dgi_repo.database.utilities import (check_cursor, LITERAL_RDF_OBJECT,
+                                         get_connection)
 from dgi_repo.database.write.log import upsert_log
 from dgi_repo.database.read.sources import user
 from dgi_repo import utilities as utils
@@ -33,6 +41,8 @@ from dgi_repo.database.relationships import (
     repo_object_rdf_object_from_element,
     datastream_rdf_object_from_element
 )
+from dgi_repo.configuration import configuration as _config
+from dgi_repo.database.delete.repo_objects import delete_object
 
 logger = logging.getLogger(__name__)
 
@@ -722,3 +732,63 @@ class FoxmlTarget(object):
         self.__init__(self.cursor, self.source)
 
         return pid
+
+
+@click.command(help=('Ingest FOXML, passed as "F". "F" can indicate either a '
+                     'directory structure containing FOXML files, or a single'
+                     ' FOXML file to ingest.'))
+@click.argument('info', metavar='f', type=click.Path(exists=True))
+@click.option('--source', default=None, type=int,
+              help=('The ID of the source as which to ingest the files. '
+                    'Defaults to the "system" source.'))
+@click.option('--force', is_flag=True, default=False, type=bool,
+              help=('Force the ingest of the object, purging first if need '
+                    'be.'))
+def import_file(info, source, force):
+    utils.bootstrap()
+
+    def scan(directory):
+        for entry in scandir(directory):
+            if entry.is_dir():
+                yield from scan(entry.path)
+            else:
+                yield entry
+
+    def get_paths():
+        if os.path.isdir(info):
+            return sorted(ent.path for ent in scan(info) if ent.is_file())
+        else:
+            return [info]
+    paths = get_paths()
+
+    conn = get_connection(isolation_level=ISOLATION_LEVEL_READ_COMMITTED)
+    savepoint = 'subtransaction'
+    with conn, conn.cursor() as cursor:
+        if source is None:
+            source = upsert_source(
+                _config['self']['source'],
+                cursor=cursor
+            ).fetchone()['id']
+
+        for path in paths:
+            try:
+                cursor.execute('SAVEPOINT {}'.format(savepoint))
+                pid = import_foxml(path, source, cursor=cursor)
+                logger.info('Ingested %s.', pid)
+            except ObjectExistsError as e:
+                logger.warning('Object already exists "%s".', e.pid)
+                cursor.execute('ROLLBACK TO SAVEPOINT {}'.format(savepoint))
+                if force:
+                    logger.debug('Purging and reingesting %s.', e.pid)
+
+                    object_id_from_raw(e.pid, cursor=cursor)
+                    object_id = cursor.fetchone()[0]
+
+                    # Out with the old.
+                    delete_object(object_id, cursor=cursor)
+
+                    # In with the new.
+                    pid = import_foxml(path, source, cursor=cursor)
+                    logger.info('Ingested %s.', pid)
+            finally:
+                cursor.execute('RELEASE SAVEPOINT {}'.format(savepoint))
