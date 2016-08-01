@@ -9,6 +9,7 @@ try:
     from os import scandir as scandir
 except ImportError:
     from scandir import scandir
+import requests
 
 from lxml import etree
 from psycopg2 import IntegrityError
@@ -743,9 +744,42 @@ class FoxmlTarget(object):
                     'Defaults to the "system" source.'))
 @click.option('--force', is_flag=True, default=False, type=bool,
               help=('Force the ingest of the object, purging first if need '
-                    'be.'))
-def import_file(info, source, force):
+                    'be.'), show_default=True)
+@click.option('--index', is_flag=True, default=False, type=bool,
+              help=('Index objects after ingest.'), show_default=True)
+@click.option('--gsearch-url', show_default=True,
+              default='http://localhost:8080/fedoragsearch/rest',
+              help=('The URL to the GSearch endpoint, to index objects post'
+                    'ingest.'))
+@click.option('--gsearch-user', default='fedoraAdmin', show_default=True,
+              help='Username to hit the GSearch endpoint.')
+@click.option('--gsearch-password', default='islandora', show_default=True,
+              help='Password to hit the GSearch endpoint.')
+def import_file(info, source, force, index, gsearch_url, gsearch_user,
+                gsearch_password):
     utils.bootstrap()
+
+    if index:
+        s = requests.Session()
+
+        def _import_foxml(*args, **kwargs):
+            pid = import_foxml(*args, **kwargs)
+            logger.info('Ingested %s.', pid)
+            r = s.get(gsearch_url, auth=(gsearch_user, gsearch_password),
+                      params={
+                          'operation': 'updateIndex',
+                          'action': 'fromPid',
+                          'value': pid,
+                      })
+            if (r.status_codes == requests.codes.okay and
+                    'exception' not in r.text):
+                logger.debug('Indexed %s.', pid)
+            else:
+                logger.warning('Failed to index %s.', pid)
+    else:
+        def _import_foxml(*args, **kwargs):
+            pid = import_foxml(*args, **kwargs)
+            logger.info('Ingested %s.', pid)
 
     def scan(directory):
         for entry in scandir(directory):
@@ -773,8 +807,7 @@ def import_file(info, source, force):
         for path in paths:
             try:
                 cursor.execute('SAVEPOINT {}'.format(savepoint))
-                pid = import_foxml(path, source, cursor=cursor)
-                logger.info('Ingested %s.', pid)
+                _import_foxml(path, source, cursor=cursor)
             except ObjectExistsError as e:
                 logger.warning('Object already exists "%s".', e.pid)
                 cursor.execute('ROLLBACK TO SAVEPOINT {}'.format(savepoint))
@@ -788,7 +821,6 @@ def import_file(info, source, force):
                     delete_object(object_id, cursor=cursor)
 
                     # In with the new.
-                    pid = import_foxml(path, source, cursor=cursor)
-                    logger.info('Ingested %s.', pid)
+                    _import_foxml(path, source, cursor=cursor)
             finally:
                 cursor.execute('RELEASE SAVEPOINT {}'.format(savepoint))
