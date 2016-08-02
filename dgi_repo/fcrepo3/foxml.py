@@ -761,22 +761,12 @@ def import_file(info, source, force, index, gsearch_url, gsearch_user,
     utils.bootstrap()
 
     if index:
-        s = requests.Session()
+        pids = list()
 
         def _import_foxml(*args, **kwargs):
             pid = import_foxml(*args, **kwargs)
             logger.info('Ingested %s.', pid)
-            r = s.get(gsearch_url, auth=(gsearch_user, gsearch_password),
-                      params={
-                          'operation': 'updateIndex',
-                          'action': 'fromPid',
-                          'value': pid,
-                      })
-            if (r.status_code == requests.codes.okay and
-                    'exception' not in r.text):
-                logger.debug('Indexed %s.', pid)
-            else:
-                logger.warning('Failed to index %s.', pid)
+            pids.append(pid)
     else:
         def _import_foxml(*args, **kwargs):
             pid = import_foxml(*args, **kwargs)
@@ -794,7 +784,6 @@ def import_file(info, source, force, index, gsearch_url, gsearch_user,
             return sorted(ent.path for ent in scan(info) if ent.is_file())
         else:
             return [info]
-    paths = get_paths()
 
     conn = get_connection(isolation_level=ISOLATION_LEVEL_READ_COMMITTED)
     savepoint = 'subtransaction'
@@ -805,7 +794,7 @@ def import_file(info, source, force, index, gsearch_url, gsearch_user,
                 cursor=cursor
             ).fetchone()['id']
 
-        for path in paths:
+        for path in get_paths():
             try:
                 cursor.execute('SAVEPOINT {}'.format(savepoint))
                 _import_foxml(path, source, cursor=cursor)
@@ -825,3 +814,18 @@ def import_file(info, source, force, index, gsearch_url, gsearch_user,
                     _import_foxml(path, source, cursor=cursor)
             finally:
                 cursor.execute('RELEASE SAVEPOINT {}'.format(savepoint))
+
+    if index:
+        s = requests.Session()
+        for pid in pids:
+            r = s.get(gsearch_url, auth=(gsearch_user, gsearch_password),
+                      params={
+                          'operation': 'updateIndex',
+                          'action': 'fromPid',
+                          'value': pid,
+                      })
+            if (r.status_code == requests.codes.okay and
+                    'exception' not in r.text):
+                logger.debug('Indexed %s.', pid)
+            else:
+                logger.warning('Failed to index %s.', pid)
