@@ -753,7 +753,8 @@ class FoxmlTarget(object):
                     'ingest.'))
 @click.option('--gsearch-user', default='fedoraAdmin', show_default=True,
               help='Username to hit the GSearch endpoint.')
-@click.option('--gsearch-password', default='islandora', show_default=True,
+@click.option('--gsearch-password', defautl='islandora', show_default=True,
+              envvar='GSEARCH_PASSWORD',
               help='Password to hit the GSearch endpoint.')
 def import_file(info, source, force, index, gsearch_url, gsearch_user,
                 gsearch_password):
