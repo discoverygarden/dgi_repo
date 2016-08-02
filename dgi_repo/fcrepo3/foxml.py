@@ -771,7 +771,7 @@ def import_file(info, source, force, index, gsearch_url, gsearch_user,
                           'action': 'fromPid',
                           'value': pid,
                       })
-            if (r.status_codes == requests.codes.okay and
+            if (r.status_code == requests.codes.okay and
                     'exception' not in r.text):
                 logger.debug('Indexed %s.', pid)
             else:
