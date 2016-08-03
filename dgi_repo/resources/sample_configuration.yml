@@ -9,6 +9,11 @@ database:
     host:       localhost
     username:   not_a_user
     password:   not_a_pass
+    # Some database results can be safely cached.
+    # This value determines the number of entries for any database cache of which there are several.
+    # To disable this feature set the size to 0.
+    # The cache will perform the best if the size is a power of 2.
+    cache_size: 1024
 
 db_proxy:
     # Should be a user with only SELECT permissions on a limited set of tables.
