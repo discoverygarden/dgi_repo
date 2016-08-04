@@ -22,6 +22,13 @@ def no_none_cache(func):
     return wrapper
 
 
+def clear_cache():
+    """
+    Clear all the caches.
+    """
+    repo_object_namespace_id.cache_clear()
+
+
 @no_none_cache
 @lru_cache(maxsize=_config['database']['cache_size'])
 def repo_object_namespace_id(namespace, cursor=None):

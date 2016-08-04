@@ -6,6 +6,8 @@ import logging
 import falcon
 from psycopg2.extensions import TransactionRollbackError
 
+from dgi_repo.database.read import cache
+
 logger = logging.getLogger(__name__)
 
 
@@ -13,6 +15,9 @@ def handle_exception(e, req, resp, params):
     """
     Custom Falcon exception handler that ensures we send relevant HTTP codes.
     """
+    # Clear all registered caches because the data could be rolled back.
+    cache.clear_cache()
+
     if isinstance(e, TransactionRollbackError):
         logger.exception('Transaction issue:')
         raise falcon.HTTPError('409 Conflict') from e
