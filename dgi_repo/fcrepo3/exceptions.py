@@ -6,7 +6,7 @@ import logging
 import falcon
 from psycopg2.extensions import TransactionRollbackError
 
-from dgi_repo.database.read import cache
+from dgi_repo.database import cache
 
 logger = logging.getLogger(__name__)
 

@@ -4,8 +4,8 @@ Cache enabled database reads.
 
 from functools import lru_cache, wraps
 
+import dgi_repo.database.write.repo_objects as object_writer
 from dgi_repo.database.read import repo_objects as object_reader
-from dgi_repo.database.read import relations as relation_reader
 from dgi_repo.configuration import configuration as _config
 
 
@@ -33,11 +33,12 @@ def clear_cache():
 @lru_cache(maxsize=_config['database']['cache_size'])
 def repo_object_namespace_id(namespace, cursor=None):
     """
-    Get a repo object namespace ID, using a configurable cache if available.
+    Get a repo object namespace ID creating it if necessary.
     """
     cursor = object_reader.namespace_id(namespace, cursor=cursor)
 
     if not cursor.rowcount:
-        return None
+        # @XXX burns the first PID in a namespace.
+        object_writer.get_pid_id(namespace, cursor=cursor)
 
     return cursor.fetchone()['id']

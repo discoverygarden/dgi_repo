@@ -24,6 +24,7 @@ import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.filestore as filestore
+from dgi_repo.database import cache
 from dgi_repo.database.read.repo_objects import (object_info_from_raw,
                                                  object_id_from_raw)
 from dgi_repo.exceptions import (ObjectExistsError,
@@ -528,16 +529,14 @@ class FoxmlTarget(object):
         # Create the object.
         if tag == '{{{0}}}objectProperties'.format(FOXML_NAMESPACE):
             object_db_info = {}
+
             raw_namespace, object_db_info['pid_id'] = utils.break_pid(
                 self.object_info['PID']
             )
-            object_reader.namespace_id(raw_namespace, cursor=self.cursor)
-            try:
-                object_db_info['namespace'] = self.cursor.fetchone()['id']
-            except TypeError:
-                # @XXX burns the first PID in a namespace.
-                object_writer.get_pid_id(raw_namespace, cursor=self.cursor)
-                object_db_info['namespace'] = self.cursor.fetchone()['id']
+            object_db_info['namespace'] = cache.repo_object_namespace_id(
+                raw_namespace,
+                cursor=self.cursor
+            )
 
             raw_log = 'Object created through FOXML import.'
             upsert_log(raw_log, cursor=self.cursor)
