@@ -799,6 +799,7 @@ def import_file(info, source, force, index, gsearch_url, gsearch_user,
                 _import_foxml(path, source, cursor=cursor)
             except ObjectExistsError as e:
                 logger.warning('Object already exists "%s".', e.pid)
+                cache.clear_cache()
                 cursor.execute('ROLLBACK TO SAVEPOINT {}'.format(savepoint))
                 if force:
                     logger.debug('Purging and reingesting %s.', e.pid)
