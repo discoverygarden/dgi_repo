@@ -22,6 +22,7 @@ installation_requirements = [
     'pytz',
     'requests',
     'click',
+    'cachetools',
 ]
 if python_version_tuple() < ('3', '5', '0'):
     # os.scandir was only introduced in version 3.5.

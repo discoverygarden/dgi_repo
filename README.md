@@ -20,6 +20,7 @@ This package requires the following:
 * [python-dateutil](https://pypi.python.org/pypi/python-dateutil/)
 * [pytz](https://pypi.python.org/pypi/pytz)
 * [requests](https://pypi.python.org/pypi/requests)
+* [cachetools](https://pypi.python.org/pypi/cachetools)
 * [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation

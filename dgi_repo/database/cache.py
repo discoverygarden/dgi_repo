@@ -2,7 +2,9 @@
 Cache enabled database reads.
 """
 
-from functools import lru_cache, wraps
+from functools import wraps
+
+from cachetools import LRUCache, cached, hashkey
 
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
@@ -10,6 +12,13 @@ import dgi_repo.database.read.relations as relations_reader
 import dgi_repo.database.write.relations as relations_writer
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.configuration import configuration as _config
+
+
+# Create caches.
+object_ns_cache = LRUCache(maxsize=_config['database']['cache_size'])
+rdf_ns_cache = LRUCache(maxsize=_config['database']['cache_size'])
+predicate_cache = LRUCache(maxsize=_config['database']['cache_size'])
+raw_predicate_cache = LRUCache(maxsize=_config['database']['cache_size'])
 
 
 def no_none_cache(func):
@@ -36,7 +45,7 @@ def clear_cache():
 
 
 @no_none_cache
-@lru_cache(maxsize=_config['database']['cache_size'])
+@cached(object_ns_cache, key=lambda namespace, cursor=None: hashkey(namespace))
 def repo_object_namespace_id(namespace, cursor=None):
     """
     Get a repo object namespace, ID creating it if necessary.
@@ -51,7 +60,7 @@ def repo_object_namespace_id(namespace, cursor=None):
 
 
 @no_none_cache
-@lru_cache(maxsize=_config['database']['cache_size'])
+@cached(rdf_ns_cache, key=lambda namespace, cursor=None: hashkey(namespace))
 def rdf_namespace_id(namespace, cursor=None):
     """
     Get a RDF namespace ID, creating it if necessary.
@@ -65,7 +74,10 @@ def rdf_namespace_id(namespace, cursor=None):
 
 
 @no_none_cache
-@lru_cache(maxsize=_config['database']['cache_size'])
+@cached(
+    predicate_cache,
+    key=lambda namespace, predicate, cursor=None: hashkey(namespace, predicate)
+)
 def predicate_id(namespace, predicate, cursor=None):
     """
     Get a RDF predicate ID, creating it if necessary.
@@ -80,7 +92,10 @@ def predicate_id(namespace, predicate, cursor=None):
 
 
 @no_none_cache
-@lru_cache(maxsize=_config['database']['cache_size'])
+@cached(
+    raw_predicate_cache,
+    key=lambda namespace, predicate, cursor=None: hashkey(namespace, predicate)
+)
 def predicate_id_from_raw(namespace, predicate, cursor=None):
     """
     Get a RDF predicate ID from string values, creating it if necessary.
@@ -90,3 +105,9 @@ def predicate_id_from_raw(namespace, predicate, cursor=None):
     namespace_id = rdf_namespace_id(namespace, cursor=cursor)
 
     return predicate_id(namespace_id, predicate, cursor=cursor)
+
+# Add cache_clear tooling to functions.
+repo_object_namespace_id.cache_clear = lambda: object_ns_cache.clear()
+rdf_namespace_id.cache_clear = lambda: rdf_ns_cache.clear()
+predicate_id.cache_clear = lambda: predicate_cache.clear()
+predicate_id_from_raw.cache_clear = lambda: raw_predicate_cache.clear()
