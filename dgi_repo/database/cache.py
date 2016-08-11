@@ -16,35 +16,52 @@ from dgi_repo.configuration import configuration as _config
 
 _caches = list()
 
-def no_none_cache(key):
+
+def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
+    """
+    Decorator; establish a clearable LRU cache on a function.
+
+    The caches registered with this module by either:
+    - calling "cache_clear()" method of wrapped functions, or
+    - calling the "dgi_repo.database.cache.clear_cache()" method.
+
+    Args:
+        key: A callable to process the arguments passed to the wrapped
+            function into a key in the cache. The default uses all arguments
+            except "cursor".
+    """
+    def decorator(func):
+        cache = LRUCache(maxsize=_config['database']['cache_size'])
+        _caches.append(cache)
+        wrapped = cached(func)(cache, key=key)
+        wrapped.cache_clear = lambda: cache.clear()
+        return wrapped
+    return decorator
+
+
+def no_none_cache(func):
     """
     A decorator that clears the lru_cache if the result is None.
     """
-    def decorator(to_wrap):
-        cache = LRUCache(maxsize=_config['database']['cache_size'])
-        _caches.append(cache)
-        func = cached(to_wrap)(cache, key=key)
-        func.cache_clear = lambda: cache.clear()
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            if result is None:
-                func.cache_clear()
-            return result
-        return wrapper
-    return decorator
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        if result is None:
+            func.cache_clear()
+        return result
+    return wrapper
 
 
 def clear_cache():
     """
-    Clear all the caches.
+    Clear ALL the caches!
     """
     for cache in _caches:
         cache.clear()
 
 
-@no_none_cache(key=lambda namespace, cursor=None: hashkey(namespace))
+@no_none_cache
+@_cache()
 def repo_object_namespace_id(namespace, cursor=None):
     """
     Get a repo object namespace, ID creating it if necessary.
@@ -58,7 +75,8 @@ def repo_object_namespace_id(namespace, cursor=None):
     return cursor.fetchone()['id']
 
 
-@no_none_cache(key=lambda namespace, cursor=None: hashkey(namespace))
+@no_none_cache
+@_cache()
 def rdf_namespace_id(namespace, cursor=None):
     """
     Get a RDF namespace ID, creating it if necessary.
@@ -71,9 +89,8 @@ def rdf_namespace_id(namespace, cursor=None):
     return cursor.fetchone()['id']
 
 
-@no_none_cache(
-    key=lambda namespace, predicate, cursor=None: hashkey(namespace, predicate)
-)
+@no_none_cache
+@_cache()
 def predicate_id(namespace, predicate, cursor=None):
     """
     Get a RDF predicate ID, creating it if necessary.
@@ -87,9 +104,8 @@ def predicate_id(namespace, predicate, cursor=None):
     return cursor.fetchone()['id']
 
 
-@no_none_cache(
-    key=lambda namespace, predicate, cursor=None: hashkey(namespace, predicate)
-)
+@no_none_cache
+@_cache()
 def predicate_id_from_raw(namespace, predicate, cursor=None):
     """
     Get a RDF predicate ID from string values, creating it if necessary.
