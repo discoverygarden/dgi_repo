@@ -106,6 +106,7 @@ def predicate_id_from_raw(namespace, predicate, cursor=None):
 
     return predicate_id(namespace_id, predicate, cursor=cursor)
 
+
 # Add cache_clear tooling to functions.
 repo_object_namespace_id.cache_clear = lambda: object_ns_cache.clear()
 rdf_namespace_id.cache_clear = lambda: rdf_ns_cache.clear()
