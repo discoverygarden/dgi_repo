@@ -30,6 +30,9 @@ def clear_cache():
     Clear all the caches.
     """
     repo_object_namespace_id.cache_clear()
+    rdf_namespace_id.cache_clear()
+    predicate_id.cache_clear()
+    predicate_id_from_raw.cache_clear()
 
 
 @no_none_cache
