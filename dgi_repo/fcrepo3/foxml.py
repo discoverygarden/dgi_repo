@@ -362,7 +362,7 @@ def internalize_rels_int(relation_tree, object_id, source, purge=True,
         dsid = dsid_from_fedora_uri(description.attrib['{{{}}}about'.format(
             RDF_NAMESPACE
         )])
-        for relation in description.iter(tag=etree.Element):
+        for relation in description:
             rdf_object, rdf_type = datastream_rdf_object_from_element(relation,
                                                                       source,
                                                                       cursor)
@@ -392,8 +392,7 @@ def internalize_rels_dc(relations_file, object_id, purge=True, cursor=None):
         if relations_file is None:
             return cursor
     # Ingest new relations.
-    relation_tree = etree.parse(relations_file)
-    for relation in relation_tree.getroot().iter(tag=etree.Element):
+    for relation in etree.parse(relations_file).getroot():
         if relation.text is None:
             rdf_object = ''
         else:
@@ -427,8 +426,7 @@ def internalize_rels_ext(relations_file, object_id, source, purge=True,
         if relations_file is None:
             return cursor
     # Ingest new relations.
-    relation_tree = etree.parse(relations_file)
-    for relation in relation_tree.getroot()[0].iter(tag=etree.Element):
+    for relation in etree.parse(relations_file).getroot()[0]:
         rdf_object, rdf_type = repo_object_rdf_object_from_element(
             relation,
             source,

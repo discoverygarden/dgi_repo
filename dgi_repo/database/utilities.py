@@ -9,12 +9,12 @@ from dgi_repo.configuration import configuration as _config
 import dgi_repo.fcrepo3.relations as rels
 
 DATASTREAM_RELATION_MAP = {
-    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IMAGE_HEIGHT_PREDICATE): {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IMAGE_HEIGHT_PREDICATE): {
         'table': 'image_height',
         'upsert message': 'Added a height cache relation about %s as %s.',
         'delete message': 'Deleted a height cache relation with ID: %s.',
     },
-    (rels.ISLANDORA_RELS_INT_NAMESPACE, rels.IMAGE_WIDTH_PREDICATE): {
+    (rels.ISLANDORA_RELS_EXT_NAMESPACE, rels.IMAGE_WIDTH_PREDICATE): {
         'table': 'image_width',
         'upsert message': 'Added a width cache relation about %s as %s.',
         'delete message': 'Deleted a width cache relation with ID: %s.',
