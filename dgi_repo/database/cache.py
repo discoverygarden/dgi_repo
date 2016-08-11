@@ -20,18 +20,19 @@ def no_none_cache(key):
     """
     A decorator that clears the lru_cache if the result is None.
     """
-    def decorator(func):
+    def decorator(to_wrap):
+        cache = LRUCache(maxsize=_config['database']['cache_size'])
+        _caches.append(cache)
+        func = cached(to_wrap)(cache, key=key)
+        func.cache_clear = lambda: cache.clear()
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
             if result is None:
                 func.cache_clear()
             return result
-        cache = LRUCache(maxsize=_config['database']['cache_size'])
-        _caches.append(cache)
-        wrapped = cached(wrapper, cache, key=key)
-        wrapped.cache_clear = lambda: cache.clear()
-        return wrapped
+        return wrapper
     return decorator
 
 
