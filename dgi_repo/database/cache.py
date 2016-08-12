@@ -15,7 +15,7 @@ from dgi_repo.configuration import configuration as _config
 _caches = list()
 
 
-def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
+def _cache(key=lambda *args, **kwargs: hashkey(*args, **kwargs)):
     """
     Decorator; establish a clearable LRU cache on a function.
 
@@ -24,8 +24,7 @@ def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
 
     Args:
         key: A callable to process the arguments passed to the wrapped
-            function into a key in the cache. The default uses all arguments
-            except "cursor".
+            function into a key in the cache. The default uses all arguments.
     """
     def decorator(func):
         cache = LRUCache(maxsize=_config['database']['cache_size'])
@@ -43,7 +42,7 @@ def clear_cache():
         cache.clear()
 
 
-@_cache()
+@_cache(key=lambda namespace, cursor=None: hashkey(namespace))
 def repo_object_namespace_id(namespace, cursor=None):
     """
     Get a repo object namespace, ID creating it if necessary.
@@ -57,7 +56,7 @@ def repo_object_namespace_id(namespace, cursor=None):
     return cursor.fetchone()['id']
 
 
-@_cache()
+@_cache(key=lambda namespace, cursor=None: hashkey(namespace))
 def rdf_namespace_id(namespace, cursor=None):
     """
     Get a RDF namespace ID, creating it if necessary.
@@ -70,7 +69,9 @@ def rdf_namespace_id(namespace, cursor=None):
     return cursor.fetchone()['id']
 
 
-@_cache()
+@_cache(
+    key=lambda namespace, predicate, cursor=None: hashkey(namespace, predicate)
+)
 def predicate_id(namespace, predicate, cursor=None):
     """
     Get a RDF predicate ID, creating it if necessary.
@@ -84,7 +85,9 @@ def predicate_id(namespace, predicate, cursor=None):
     return cursor.fetchone()['id']
 
 
-@_cache()
+@_cache(
+    key=lambda namespace, predicate, cursor=None: hashkey(namespace, predicate)
+)
 def predicate_id_from_raw(namespace, predicate, cursor=None):
     """
     Get a RDF predicate ID from string values, creating it if necessary.
