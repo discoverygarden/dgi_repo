@@ -11,6 +11,7 @@ This package requires the following:
 * [Python 3.4.3+](https://www.python.org/)
 * [PostgreSQL](http://www.postgresql.org/)
 * [psycopg](https://pypi.python.org/pypi/psycopg2)
+* [Click](https://pypi.python.org/pypi/click)
 * [falcon](http://falconframework.org/)
 * [talons](https://pypi.python.org/pypi/talons/)
 * [falcon-multipart](https://github.com/yohanboniface/falcon-multipart)
@@ -19,6 +20,7 @@ This package requires the following:
 * [python-dateutil](https://pypi.python.org/pypi/python-dateutil/)
 * [pytz](https://pypi.python.org/pypi/pytz)
 * [requests](https://pypi.python.org/pypi/requests)
+* [cachetools](https://pypi.python.org/pypi/cachetools)
 * [PyYAML](https://pypi.python.org/pypi/PyYAML)
 
 ## Installation

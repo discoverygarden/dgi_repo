@@ -6,6 +6,7 @@ import dgi_repo.database.read.relations as relations_reader
 
 from dgi_repo.database.utilities import check_cursor
 from dgi_repo.database.utilities import OBJECT_RELATION_MAP
+from dgi_repo.database import cache
 
 REPO_OBJECT_RDF_OBJECT_TABLES = [
     'is_member_of_collection',
@@ -22,21 +23,21 @@ def read_relationship(namespace, predicate, subject=None, rdf_object=None,
     """
     Read an object relation from the repository.
     """
+    cursor = check_cursor(cursor)
     try:
-        cursor = relations_reader.read_from_standard_relation_table(
+        relations_reader.read_from_standard_relation_table(
             OBJECT_RELATION_MAP[(namespace, predicate)]['table'],
             subject,
             rdf_object,
             cursor
         )
     except KeyError:
-        cursor = relations_reader.predicate_id_from_raw(
+        predicate_id = cache.predicate_id_from_raw(
             namespace,
             predicate,
             cursor
         )
-        predicate_id = cursor.fetchone()[0]
-        cursor = read_from_general_rdf_table(
+        read_from_general_rdf_table(
             predicate_id,
             subject,
             rdf_object,

@@ -858,7 +858,7 @@ CREATE SEQUENCE dc_description_id_seq
 CREATE TABLE dc_description (
     id bigint DEFAULT nextval('dc_description_id_seq'::regclass) NOT NULL,
     rdf_subject bigint NOT NULL,
-    rdf_object character varying(1024) NOT NULL
+    rdf_object text NOT NULL
 );
 
 

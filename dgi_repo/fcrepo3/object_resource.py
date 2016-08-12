@@ -10,6 +10,7 @@ import dgi_repo.database.delete.repo_objects as object_purger
 import dgi_repo.database.read.repo_objects as object_reader
 import dgi_repo.database.write.sources as source_writer
 import dgi_repo.database.read.sources as source_reader
+from dgi_repo.database import cache
 from dgi_repo import utilities as utils
 from dgi_repo.configuration import configuration as _config
 from dgi_repo.exceptions import (ObjectExistsError, ObjectDoesNotExistError,
@@ -64,15 +65,10 @@ class ObjectResource(api.ObjectResource):
                     else:
                         # Reserve given PID in namespace.
                         raw_namespace, pid_id = utils.break_pid(pid)
-                        object_reader.namespace_id(raw_namespace,
-                                                   cursor=cursor)
-                        try:
-                            namespace = cursor.fetchone()[0]
-                        except TypeError:
-                            # @XXX burns the first PID in a namespace.
-                            object_writer.get_pid_id(raw_namespace,
-                                                     cursor=cursor)
-                            namespace = cursor.fetchone()[1]
+                        namespace = cache.repo_object_namespace_id(
+                            raw_namespace,
+                            cursor=cursor
+                        )
 
                         # Jump up PIDs if needed.
                         object_writer.jump_pids(namespace, pid_id,
