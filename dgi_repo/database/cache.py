@@ -2,8 +2,6 @@
 Cache enabled database reads.
 """
 
-from functools import wraps
-
 from cachetools import LRUCache, cached, hashkey
 
 import dgi_repo.database.write.repo_objects as object_writer
@@ -21,9 +19,8 @@ def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
     """
     Decorator; establish a clearable LRU cache on a function.
 
-    Clear the caches registered with this module by either:
-    - calling "cache_clear()" method of wrapped functions, or
-    - calling the "dgi_repo.database.cache.clear_cache()" method.
+    Clear the caches registered with this module by calling the
+    "dgi_repo.database.cache.clear_cache()" method.
 
     Args:
         key: A callable to process the arguments passed to the wrapped
@@ -34,22 +31,8 @@ def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
         cache = LRUCache(maxsize=_config['database']['cache_size'])
         _caches.append(cache)
         wrapped = cached(cache, key=key)(func)
-        wrapped.cache_clear = lambda: cache.clear()
         return wrapped
     return decorator
-
-
-def no_none_cache(func):
-    """
-    A decorator that clears the lru_cache if the result is None.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        result = func(*args, **kwargs)
-        if result is None:
-            func.cache_clear()
-        return result
-    return wrapper
 
 
 def clear_cache():
@@ -60,7 +43,6 @@ def clear_cache():
         cache.clear()
 
 
-@no_none_cache
 @_cache()
 def repo_object_namespace_id(namespace, cursor=None):
     """
@@ -75,7 +57,6 @@ def repo_object_namespace_id(namespace, cursor=None):
     return cursor.fetchone()['id']
 
 
-@no_none_cache
 @_cache()
 def rdf_namespace_id(namespace, cursor=None):
     """
@@ -89,7 +70,6 @@ def rdf_namespace_id(namespace, cursor=None):
     return cursor.fetchone()['id']
 
 
-@no_none_cache
 @_cache()
 def predicate_id(namespace, predicate, cursor=None):
     """
@@ -104,7 +84,6 @@ def predicate_id(namespace, predicate, cursor=None):
     return cursor.fetchone()['id']
 
 
-@no_none_cache
 @_cache()
 def predicate_id_from_raw(namespace, predicate, cursor=None):
     """
