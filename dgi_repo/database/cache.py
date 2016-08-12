@@ -21,7 +21,7 @@ def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
     """
     Decorator; establish a clearable LRU cache on a function.
 
-    The caches registered with this module by either:
+    Clear the caches registered with this module by either:
     - calling "cache_clear()" method of wrapped functions, or
     - calling the "dgi_repo.database.cache.clear_cache()" method.
 
@@ -33,7 +33,7 @@ def _cache(key=lambda *args, cursor=None, **kwargs: hashkey(*args, **kwargs)):
     def decorator(func):
         cache = LRUCache(maxsize=_config['database']['cache_size'])
         _caches.append(cache)
-        wrapped = cached(func)(cache, key=key)
+        wrapped = cached(cache, key=key)(func)
         wrapped.cache_clear = lambda: cache.clear()
         return wrapped
     return decorator
