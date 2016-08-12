@@ -15,7 +15,7 @@ from dgi_repo.configuration import configuration as _config
 _caches = list()
 
 
-def _cache(key=lambda *args, **kwargs: hashkey(*args, **kwargs)):
+def _cache(key=hashkey):
     """
     Decorator; establish a clearable LRU cache on a function.
 
