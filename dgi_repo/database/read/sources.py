@@ -63,3 +63,41 @@ def role_id(data, cursor=None):
     ''', data)
 
     return cursor
+
+
+def user_id_from_raw(source, user, cursor=None):
+    """
+    Query for a user ID from the repository given a source and user.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT u.id
+        FROM
+            users u
+                JOIN
+            sources s
+                ON u.source = s.id
+        WHERE u.name = %s AND s.source = %s
+    ''', (user, source))
+
+    return cursor
+
+
+def source_and_user_from_raw(source, user, cursor=None):
+    """
+    Query for a source and user ID from the repository given a source and user.
+    """
+    cursor = check_cursor(cursor)
+
+    cursor.execute('''
+        SELECT u.id AS user_id, s.id AS source_id
+        FROM
+            users u
+                JOIN
+            sources s
+                ON u.source = s.id
+        WHERE u.name = %s AND s.source = %s
+    ''', (user, source))
+
+    return cursor

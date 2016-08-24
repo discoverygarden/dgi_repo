@@ -132,10 +132,9 @@ def _set_object_defaults(data, cursor):
     data.setdefault('modified', 'now')
 
     if 'owner' not in data:
-        source = source_reader.source_id(_config['self']['source'],
-                                         cursor=cursor).fetchone()['id']
-        data['owner'] = source_reader.user_id(
-            {'name': _config['self']['username'], 'source': source},
+        data['owner'] = source_reader.user_id_from_raw(
+            _config['self']['source'],
+            _config['self']['username'],
             cursor=cursor
         ).fetchone()['id']
 
