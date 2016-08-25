@@ -100,12 +100,14 @@ def object_id_from_raw(pid, cursor=None):
     """
     cursor = check_cursor(cursor)
     namespace, pid_id = utilities.break_pid(pid)
-    namespace_id(namespace, cursor=cursor)
 
-    if not cursor.rowcount:
-        return cursor
-
-    object_id({'namespace': cursor.fetchone()['id'], 'pid_id': pid_id},
-              cursor=cursor)
+    cursor.execute('''
+        SELECT objects.id AS id
+        FROM objects
+            JOIN
+        pid_namespaces
+            ON objects.namespace = pid_namespaces.id
+        WHERE objects.pid_id = %s AND pid_namespaces.namespace = %s
+    ''', (pid_id, namespace))
 
     return cursor
