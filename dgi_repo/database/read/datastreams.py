@@ -283,7 +283,13 @@ def mime_from_resource(resource_id, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    resource_info = resource(resource_id, cursor=cursor).fetchone()
-    if resource_info is not None:
-        return mime(resource_info['mime'], cursor=cursor)
+    cursor.execute('''
+        SELECT m.*
+        FROM mimes m
+            JOIN
+        resources r
+            on m.id = r.mime
+        WHERE r.id = %s
+    ''', (resource_id,))
+
     return cursor
