@@ -86,10 +86,16 @@ def object_info_from_raw(pid, cursor=None):
     Get object info from a PID.
     """
     cursor = check_cursor(cursor)
+    namespace, pid_id = utilities.break_pid(pid)
 
-    object_id = object_id_from_raw(pid, cursor=cursor).fetchone()
-    if object_id is not None:
-        object_info(object_id['id'], cursor=cursor)
+    cursor.execute('''
+        SELECT objects.*
+        FROM objects
+            JOIN
+        pid_namespaces
+            ON objects.namespace = pid_namespaces.id
+        WHERE objects.pid_id = %s AND pid_namespaces.namespace = %s
+    ''', (pid_id, namespace))
 
     return cursor
 
