@@ -8,7 +8,7 @@ control.
 import logging
 
 from dgi_repo.database.utilities import check_cursor
-import dgi_repo.database.read.repo_objects as object_reader
+from dgi_repo import utilities
 import dgi_repo.database.read.datastreams as datastream_reader
 import dgi_repo.database.write.datastreams as datastream_writer
 
@@ -39,20 +39,18 @@ def delete_datastream_from_raw(pid, dsid, cursor=None):
     Delete a datastream from the repository given a PID and DSID.
     """
     cursor = check_cursor(cursor)
+    namespace, pid_id = utilities.break_pid(pid)
 
-    object_reader.object_id_from_raw(pid, cursor=cursor)
+    cursor.execute('''
+        DELETE FROM datastreams USING objects, pid_namespaces
+        WHERE datastreams.object = objects.id
+            AND objects.namespace = pid_namespaces.id
+            AND objects.pid_id = %s
+            AND pid_namespaces.namespace = %s
+            AND datastreams.dsid = %s
+    ''', (pid_id, namespace, dsid))
 
-    if not cursor.rowcount:
-        return cursor
-
-    datastream_reader.datastream_id(
-        {
-            'object': cursor.fetchone()['id'],
-            'dsid': dsid,
-        },
-        cursor=cursor
-    )
-    return delete_datastream(cursor.fetchone()['id'], cursor=cursor)
+    return cursor
 
 
 def delete_datastream(datastream_id, cursor=None):

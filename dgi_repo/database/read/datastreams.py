@@ -3,7 +3,7 @@ Database helpers relating to datastreams.
 """
 
 from dgi_repo.database.utilities import check_cursor
-import dgi_repo.database.read.repo_objects as object_reader
+from dgi_repo import utilities
 
 
 def datastream(data, cursor=None):
@@ -41,17 +41,20 @@ def datastream_from_raw(pid, dsid, cursor=None):
     Query for a datastream record from the repository given a PID and DSID.
     """
     cursor = check_cursor(cursor)
+    namespace, pid_id = utilities.break_pid(pid)
 
-    object_reader.object_id_from_raw(pid, cursor=cursor)
-
-    if not cursor.rowcount:
-        return cursor
-
-    data = {
-        'object': cursor.fetchone()['id'],
-        'dsid': dsid,
-    }
-    datastream(data, cursor=cursor)
+    cursor.execute('''
+        SELECT datastreams.*
+        FROM datastreams
+            JOIN
+        objects
+            ON datastreams.object = objects.id
+            JOIN
+        pid_namespaces
+            ON objects.namespace = pid_namespaces.id
+        WHERE objects.pid_id = %s AND pid_namespaces.namespace = %s
+            AND datastreams.dsid = %s
+    ''', (pid_id, namespace, dsid))
 
     return cursor
 
@@ -283,7 +286,13 @@ def mime_from_resource(resource_id, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    resource_info = resource(resource_id, cursor=cursor).fetchone()
-    if resource_info is not None:
-        return mime(resource_info['mime'], cursor=cursor)
+    cursor.execute('''
+        SELECT m.*
+        FROM mimes m
+            JOIN
+        resources r
+            on m.id = r.mime
+        WHERE r.id = %s
+    ''', (resource_id,))
+
     return cursor

@@ -97,11 +97,13 @@ def predicate_id_from_raw(namespace, predicate, cursor=None):
     """
     cursor = check_cursor(cursor)
 
-    namespace_id(namespace, cursor)
-    namespace_db_id, = cursor.fetchone()
-    predicate_id(
-        {'namespace': namespace_db_id, 'predicate': predicate},
-        cursor
-    )
+    cursor.execute('''
+        SELECT preds.id as id
+        FROM predicates as preds
+            JOIN
+        rdf_namespaces as rdf_ns
+            ON preds.rdf_namespace = rdf_ns.id
+        WHERE rdf_ns.rdf_namespace = %s AND preds.predicate = %s
+    ''', (namespace, predicate))
 
     return cursor

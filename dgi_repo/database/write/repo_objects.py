@@ -132,10 +132,9 @@ def _set_object_defaults(data, cursor):
     data.setdefault('modified', 'now')
 
     if 'owner' not in data:
-        source = source_reader.source_id(_config['self']['source'],
-                                         cursor=cursor).fetchone()['id']
-        data['owner'] = source_reader.user_id(
-            {'name': _config['self']['username'], 'source': source},
+        data['owner'] = source_reader.user_id_from_raw(
+            _config['self']['source'],
+            _config['self']['username'],
             cursor=cursor
         ).fetchone()['id']
 
@@ -170,12 +169,16 @@ def jump_pids(namespace_id, pid_id, cursor=None):
     """
     Raise the namespace's highest pid_id to the indicated point.
     """
+    cursor = check_cursor(cursor)
+
     if pid_id.isdecimal():
         pid_id = int(pid_id)
-        object_reader.namespace_info(namespace_id, cursor=cursor)
-        namespace = cursor.fetchone()
-        if namespace['highest_id'] < pid_id:
-            get_pid_ids(namespace['namespace'],
-                        pid_id - namespace['highest_id'],
-                        cursor=cursor)
+        cursor.execute('''
+            UPDATE pid_namespaces
+            SET highest_id =  %(pid_id)s
+            WHERE highest_id < %(pid_id)s and id = %(id)s
+        ''', ({'id': namespace_id, 'pid_id': pid_id}))
+
+        logger.debug("Ensured PIDs will increment after %s.", pid_id)
+
     return cursor

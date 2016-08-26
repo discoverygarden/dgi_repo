@@ -11,9 +11,10 @@ import logging
 
 import talons.auth.basicauth
 
-from dgi_repo.configuration import configuration as _config
 from dgi_repo.database.utilities import get_connection
 from dgi_repo.database.write import sources
+from dgi_repo.database.read import sources as source_reader
+from dgi_repo.configuration import configuration as _config
 
 """
 A mapping of tokens to callables.
@@ -48,12 +49,16 @@ def authenticate(identity):
         return None
 
     if identity.login == 'anonymous' and identity.key == 'anonymous':
-        # Quick anonymous check...
+        # Quick anonymous check.
         identity.drupal_user_id = 0
         identity.roles.add('anonymous user')
-        cursor = sources.upsert_source(identity.site)
+
+        cursor = source_reader.source_id(identity.site)
+        if not cursor.rowcount:
+            sources.upsert_source(identity.site, cursor=cursor)
         identity.source_id = cursor.fetchone()['id']
         cursor.close()
+
         logger.debug('Anonymous user logged in from %s.', identity.site)
         return True
 
@@ -92,13 +97,24 @@ WHERE u.name=%s AND u.pass=%s'''
                         identity.login, identity.roles)
             with get_connection() as connection:
                 with connection.cursor() as cursor:
-                    sources.upsert_source(identity.site, cursor=cursor)
-                    identity.source_id = cursor.fetchone()['id']
-                    sources.upsert_user(
-                        {'name': identity.login, 'source': identity.source_id},
+                    # Most requests won't be from new users.
+                    user_info = source_reader.source_and_user_from_raw(
+                        identity.site,
+                        identity.login,
                         cursor=cursor
-                    )
-                    identity.user_id = cursor.fetchone()['id']
+                    ).fetchone()
+                    if user_info is not None:
+                        identity.source_id = user_info['source_id']
+                        identity.user_id = user_info['user_id']
+                    else:
+                        sources.upsert_source(identity.site, cursor=cursor)
+                        identity.source_id = cursor.fetchone()['id']
+                        sources.upsert_user(
+                            {'name': identity.login,
+                             'source': identity.source_id},
+                            cursor=cursor
+                        )
+                        identity.user_id = cursor.fetchone()['id']
 
             return True
         else:
