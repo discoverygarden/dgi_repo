@@ -2,7 +2,8 @@
 Cache enabled database reads.
 """
 
-from cachetools import LRUCache, cached, hashkey
+from cachetools import LRUCache, cached
+from cachetools.keys import hashkey
 
 import dgi_repo.database.write.repo_objects as object_writer
 import dgi_repo.database.read.repo_objects as object_reader
